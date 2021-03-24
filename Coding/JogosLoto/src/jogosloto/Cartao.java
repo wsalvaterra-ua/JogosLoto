@@ -10,5 +10,10 @@ package jogosloto;
  * @author bilss
  */
 public class Cartao {
+    int[][] numeros;
+    int[][] numeros_usados;
     
+    public static void main(String[] args) {
+        
+    }
 }
