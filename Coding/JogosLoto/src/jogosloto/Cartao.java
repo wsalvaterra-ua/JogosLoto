@@ -7,7 +7,7 @@ package jogosloto;
 
 /**
  *
- * @author bil
+ * @author bilss
  */
 public class Cartao {
     
