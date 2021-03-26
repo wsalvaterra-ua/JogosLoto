@@ -14,9 +14,15 @@ import java.util.Scanner;
 public class JogosLoto {
 
     Scanner sc;
+    public static void main(String[] args) {
+            
+    }
     
     public void display_menuInicial(){
         System.out.println("*************************** Jogo Do Loto ***************************");
+        System.out.println("1-Ver Cartão.");
+        System.out.println("2-Iniciar um novo jogo com o mesmo cartão.");
+        
         System.out.println("O seu cartão é este: ");
     }
     
