@@ -69,13 +69,12 @@ public class Cartao {
         for(int i = 0 ; i<3; i++){
             for( int j = 0 ; j < 9; j++){
                 if(slot[i][j] != null)
-                        slot[i][j].setMarcado(false);
+                    slot[i][j].setMarcado(false);
             }
             slots_disponiveis[i] = 5;
-        }    
-        
-        
+        } 
     }
+    
     private static int randomNum(int min, int max) {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
