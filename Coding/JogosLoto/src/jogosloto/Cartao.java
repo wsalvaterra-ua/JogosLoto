@@ -17,7 +17,7 @@ public class Cartao {
     
     public Cartao() {
         slot = new Slot_Numero[3][9];
-        slots_disponiveis = new int[3];
+        slots_disponiveis = new int[]{5,5,5};
         
         construir_cartao();
     }
@@ -25,6 +25,11 @@ public class Cartao {
     public Slot_Numero[][] getSlot() {
         return slot;
     }
+
+    public int[] getSlots_disponiveis() {
+        return slots_disponiveis;
+    }
+    
     
     private void construir_cartao(){
         
