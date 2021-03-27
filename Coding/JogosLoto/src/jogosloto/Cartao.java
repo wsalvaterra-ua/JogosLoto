@@ -50,7 +50,7 @@ public class Cartao {
         
         
     }
-    private boolean MarcarNumeroSorteado(int numeroSorteado){
+    public boolean MarcarNumeroSorteado(int numeroSorteado){
         for(int i = 0 ; i<3; i++){
             for( int j = 0 ; j < 9; j++){
                 if(slot[i][j] != null)
