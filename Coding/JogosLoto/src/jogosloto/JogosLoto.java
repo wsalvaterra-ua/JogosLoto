@@ -56,8 +56,12 @@ public class JogosLoto {
                 int numero;
                 System.out.println("Introduza o número sorteado: ");
                 numero = sc.nextInt();
-                if(cartao.MarcarNumeroSorteado(numero)) System.out.println("Numero: " + numero + " foi sorteado.");
-                else  System.out.println("Numero: " + numero + " não foi sorteado.");
+                if(cartao.MarcarNumeroSorteado(numero)){
+                    System.out.println("Numero: " + numero + " foi sorteado.\n");
+                    if(cartao.getSlots_disponiveis()[0] <1 && cartao.getSlots_disponiveis()[1] <1 && cartao.getSlots_disponiveis()[2] <1)
+                        completed_card(cartao);
+                }
+                else  System.out.println("Numero: " + numero + " não foi sorteado.\n");
                 display_menuInicial(cartao);
                 break;
             case 3:
@@ -68,7 +72,7 @@ public class JogosLoto {
         } 
     }
     
-    public void question(){
+    public static void completed_card(Cartao cartao){
         System.out.println("Terminou o Jogo, Parabéns!");
         System.out.println("Escolha a opção seguinte: ");
         System.out.println("1-Iniciar um novo jogo com um novo cartão.");
@@ -80,20 +84,20 @@ public class JogosLoto {
             case 1: 
                 //cartao.contruir_Cartao();
                 //cartao.receber_Numero_Sorteado();
-                question();
+                System.out.println("");
+                display_menuInicial(null);
+                break;
             case 2:
                 //cartao.receber_numero_sorteado();
-                question();
+                System.out.println("");
+                display_menuInicial(cartao);
+                
             case 3:
                 break;
             default:
                 System.out.println("Número Inválido.");
-                question();
+                completed_card(cartao);
         }  
     }
-    public int receber_numero_sorteado(int numero){
-            System.out.println("Introduza o número sorteado: ");
-            numero = sc.nextInt();
-            return numero;
-    }    
+
 }
