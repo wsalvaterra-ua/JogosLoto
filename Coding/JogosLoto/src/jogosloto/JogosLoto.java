@@ -83,6 +83,7 @@ public class JogosLoto {
                 break;
             case 2:
                 System.out.println("");
+                cartao.DesMarcarNumeros();
                 display_menuInicial(cartao);               
             case 3:
                 break;

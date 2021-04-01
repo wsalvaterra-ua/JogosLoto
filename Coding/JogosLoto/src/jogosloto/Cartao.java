@@ -12,16 +12,16 @@ import java.util.Random;
  * @author bilss
  */
 public class Cartao {
+    
+    int linhas_dim = 3;
+    int slot_numero_dim = 5;
+    int colunas_dim = 9;
+    
     Slot_Numero [][] slot;
-    int linhas_dim;
-    int slot_numero_dim;
-    int colunas_dim;
     int[] slots_disponiveis;
     
     public Cartao() {
-        colunas_dim = 9;
-        slot_numero_dim = 5;
-        linhas_dim = 3;
+
         slot = new Slot_Numero[linhas_dim][colunas_dim];
         slots_disponiveis = new int[]{slot_numero_dim,slot_numero_dim,slot_numero_dim};
   
@@ -50,7 +50,12 @@ public class Cartao {
         return slots_disponiveis;
     }
     
-
+   public void DesMarcarNumeros(){
+    for(int i = 0 ; i<linhas_dim; i++)
+        for( int j = 0 ; j < colunas_dim; j++)
+            if(slot[i][j] != null) slot[i][j].setMarcado(false);
+   }
+   
     public boolean MarcarNumeroSorteado(int numeroSorteado){
         for(int i = 0 ; i<linhas_dim; i++){
             for( int j = 0 ; j < colunas_dim; j++){
