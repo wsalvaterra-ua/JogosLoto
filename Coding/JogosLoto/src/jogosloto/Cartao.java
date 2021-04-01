@@ -51,9 +51,11 @@ public class Cartao {
     }
     
    public void DesMarcarNumeros(){
-    for(int i = 0 ; i<linhas_dim; i++)
-        for( int j = 0 ; j < colunas_dim; j++)
-            if(slot[i][j] != null) slot[i][j].setMarcado(false);
+        for(int i = 0 ; i<linhas_dim; i++){
+            for( int j = 0 ; j < colunas_dim; j++)
+                if(slot[i][j] != null) slot[i][j].setMarcado(false);
+            slots_disponiveis[i] = slot_numero_dim;
+        }
    }
    
     public boolean MarcarNumeroSorteado(int numeroSorteado){
@@ -71,15 +73,7 @@ public class Cartao {
         }
         return false;
     }
-    private void ReiniciarCartao(){
-        for(int i = 0 ; i<3; i++){
-            for( int j = 0 ; j < 9; j++){
-                if(slot[i][j] != null)
-                    slot[i][j].setMarcado(false);
-            }
-            slots_disponiveis[i] = 5;
-        } 
-    }
+
     
     private static int randomNum(int min, int max) {
         Random r = new Random();
