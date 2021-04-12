@@ -97,7 +97,7 @@ public class Cartao {
 /**
  * Método que procura no array slot[][] um Slot_Numero que contenha o número passado como argumento, o primeiro número encontrado é marcado 
  * e o método retorna um valor True caso um número seja encontrado e False caso não.
- * @param  numeroSorteado Número a ser morteado e marcado
+ * @param  numeroSorteado Número a ser sorteado e marcado
  * @return  True ou False 
  */
     public boolean MarcarNumeroSorteado(int numeroSorteado){
