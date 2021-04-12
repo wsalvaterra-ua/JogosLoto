@@ -1,25 +1,28 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package jogosloto;
 
 import java.util.Scanner;
 
 /**
- *
- * @author rui
+ * User Interface do programa Jogos Loto.
+ * Ponto Inicial do programa, apresenta um menu, onde é possivel ver o cartão,  e sortear número.
+ * @author Rui Oliveira e William Salvaterra
  */
 public class JogosLoto {
 
-    Scanner sc;
-//    Cartao cartao;
+ 
+/**
+ * Ponto Inicial do programa, inicia o menu do jogo.
+     * @param args Recebe argumentos da linha de comandos ao executar o programa
+ */
     public static void main(String[] args) {
-            Cartao cartao = null;
-            display_menuInicial(cartao);      
+            
+            display_menuInicial(null);      
     }
-    
+/**
+ * Função que apresenta um menu, onde é possivel ver o cartão, e sortear número ou Terminar o Programa
+     * @param cartao recebe como parametro um objeto cartão que será usado durante o jogo
+ */
     public static void display_menuInicial(Cartao cartao){
         if(cartao== null){
             cartao = new Cartao();
@@ -30,18 +33,19 @@ public class JogosLoto {
         System.out.println("1-Ver Cartão.");
         System.out.println("2-Sortear um número.");
         System.out.println("3-Sair.");
+
         Scanner sc = new Scanner(System.in);
         switch (sc.nextInt()){
             case 1: 
                 Slot_Numero [][] slot = cartao.getSlot();
-                for(int i = 0 ; i<3; i++){
-                    for( int j = 0 ; j < 9; j++){
+                for(int i = 0 ; i<cartao.getLinhas_dim(); i++){
+                    for( int j = 0 ; j < cartao.getColunas_dim(); j++){
                         System.out.print("[");
                         if(slot[i][j] != null){
                             if(slot[i][j].getMarcado())
-                                System.out.print("\"" + slot[i][j].getNumero() + "\"");
-                            else System.out.printf("%02d",slot[i][j].getNumero());  
-                        }else System.out.print("  ");
+                                System.out.print("x" + slot[i][j].getNumero() + "x");
+                            else System.out.printf(" %02d ",slot[i][j].getNumero());  
+                        }else System.out.print("    ");
                         System.out.print("] ");  
                     }
                     System.out.println("");
@@ -67,7 +71,13 @@ public class JogosLoto {
                 display_menuInicial(cartao);
         } 
     }
-    
+/**
+ * Função que apresenta um menu, quando o utilizador marcar todos os números do cartão.
+ * O utilizador tem a possibilidade de iniciar um novo jogo com um novo cartão, com um novo cartão, ou terminar o jogo.
+       * @param cartao recebe como parametro o objeto cartão utilizado anteriormente dando ao utilizador 
+       * a possibilidade de iniciar um novo jogo com o mesmo cartão.
+       * 
+ */
     public static void completed_card(Cartao cartao){
         System.out.println("Terminou o Jogo, Parabéns!");
         System.out.println("Escolha a opção seguinte: ");
