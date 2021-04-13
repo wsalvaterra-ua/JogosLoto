@@ -22,23 +22,23 @@ public class Cartao {
 /**
  * Quantidade de linhas a ser gerada
  */
-    int linhas_dim = 3;
+  private final int linhas_dim = 3;
 /**
  * Quantidade de números por linha. 
  */
-    int slot_numero_dim = 5;
+    private final int slot_numero_dim = 5;
 /**
  * Quantidade de Colunas a ser gerada
  */
-    int colunas_dim = 9;
+    private final int colunas_dim = 9;
 /**
  * Array multidimensional que servirá para armazenar os Slot_Numeros gerados.
  */
-    Slot_Numero [][] slot;
+    private final Slot_Numero [][] slot;
 /**
  * Array  que contém a quantidade de números que ainda não foram marcados em cada linha
  */
-    int[] slots_disponiveis;
+    private final int[] slots_disponiveis;
 /**
  * Constrói um cartão para Jogo de Loto com os seguintes requisitos:
  * 
@@ -52,7 +52,8 @@ public class Cartao {
     public Cartao() {
 
         slot = new Slot_Numero[linhas_dim][colunas_dim];
-        slots_disponiveis = new int[]{slot_numero_dim,slot_numero_dim,slot_numero_dim};
+        slots_disponiveis = new int[linhas_dim];
+        for(int i = 0 ; i<linhas_dim; i++)  slots_disponiveis[i] = slot_numero_dim;
         for(int i = 0 ; i<linhas_dim; i++){
             int espacos_vazios_disponiveis = colunas_dim - slot_numero_dim ;
             int espacos_numeros_disponiveis = slot_numero_dim;
