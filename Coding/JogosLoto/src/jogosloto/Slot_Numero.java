@@ -6,8 +6,8 @@ package jogosloto;
  * @author Rui Oliveira e William Salvaterra
  */
 public class Slot_Numero {
-    boolean marcado;
-    int numero;
+    private boolean marcado;
+    private final int numero;
 /**
  * Inicializa as propriedades do objeto, recebe como argumento um número
  * @param numero número a ser atribuido ao objeto

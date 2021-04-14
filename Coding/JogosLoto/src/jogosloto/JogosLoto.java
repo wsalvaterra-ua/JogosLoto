@@ -58,8 +58,13 @@ public class JogosLoto {
                 numero = sc.nextInt();
                 if(cartao.MarcarNumeroSorteado(numero)){
                     System.out.println("Numero: " + numero + " foi sorteado.\n");
-                    if(cartao.getSlots_disponiveis()[0] <1 && cartao.getSlots_disponiveis()[1] <1 && cartao.getSlots_disponiveis()[2] <1)
+                    boolean todas_linhas_vazias = true;
+                    for (int z = 0; z < cartao.getLinhas_dim(); z++) 
+                        if(cartao.getSlots_disponiveis()[z] > 0 ) todas_linhas_vazias = false;
+                    if(todas_linhas_vazias){
                         completed_card(cartao);
+                        break;
+                    }
                 }
                 else  System.out.println("Numero: " + numero + " não foi sorteado.\n");
                 display_menuInicial(cartao);
