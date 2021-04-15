@@ -22,15 +22,15 @@ public class Cartao {
 /**
  * Quantidade de linhas a ser gerada
  */
-  private final int linhas_dim = 3;
+  private final int linhas_dim;
 /**
  * Quantidade de números por linha. 
  */
-    private final int slot_numero_dim = 5;
+    private final int slot_numero_dim;
 /**
  * Quantidade de Colunas a ser gerada
  */
-    private final int colunas_dim = 9;
+    private final int colunas_dim;
 /**
  * Array multidimensional que servirá para armazenar os Slot_Numeros gerados.
  */
@@ -50,7 +50,44 @@ public class Cartao {
  * 90, inclusive.
  */ 
     public Cartao() {
+        linhas_dim = 3;
+        slot_numero_dim = 5;
+        colunas_dim = 9;
+        slot = new Slot_Numero[linhas_dim][colunas_dim];
+        slots_disponiveis = new int[linhas_dim];
+        for(int i = 0 ; i<linhas_dim; i++)  slots_disponiveis[i] = slot_numero_dim;
+        for(int i = 0 ; i<linhas_dim; i++){
+            int espacos_vazios_disponiveis = colunas_dim - slot_numero_dim ;
+            int espacos_numeros_disponiveis = slot_numero_dim;
+            for( int j = 0 ; j < colunas_dim; j++){
 
+                int resultRand =randomNum(0, 2);
+                if(espacos_vazios_disponiveis> 0 &&  resultRand == 0 || espacos_numeros_disponiveis <1 && espacos_vazios_disponiveis> 0)
+                    espacos_vazios_disponiveis--;
+                else{
+                    slot[i][j] = new Slot_Numero(randomNum( (j * 10 + ((j==0) ? 1:0 )) ,
+                            (j * 10 + ((j==colunas_dim-1) ? 10:9 ) )));
+                    espacos_numeros_disponiveis--;
+                }
+            }
+        }
+    }
+/**
+ * Constrói um cartão para Jogo de Loto com um número variavel de linhas, colunas e números por linha:
+ * 
+ * Cada coluna apenas pode ter números da dezena correspondente à sua
+ posição, i.e., a primeira coluna pode ter números entre 1 e 9, inclusive,
+ a segunda coluna pode ter números entre 10 e 19, inclusive, e assim
+ sucessivamente até a ultima coluna que pode ter entre n*10 e n * 10+10
+     * @param linhas_dim Quantidade de linhas a ser gerada
+     * @param slot_numero_dim Quantidade de números por linha. 
+     * @param colunas_dim Quantidade de Colunas a ser gerada
+ */ 
+    public Cartao(int linhas_dim, int slot_numero_dim , int colunas_dim){
+        this.linhas_dim = linhas_dim; 
+        this.slot_numero_dim = slot_numero_dim;
+        this.colunas_dim = colunas_dim;
+        
         slot = new Slot_Numero[linhas_dim][colunas_dim];
         slots_disponiveis = new int[linhas_dim];
         for(int i = 0 ; i<linhas_dim; i++)  slots_disponiveis[i] = slot_numero_dim;
@@ -141,8 +178,10 @@ public class Cartao {
     }
 /**
  * Função que returna um número aleatório entre dois números passados como argumento
+ * Referencia: https://www.baeldung.com/java-generating-random-numbers-in-range
  * @param  min número minimo(inclusive) a ser gerado aleatoriamente
  * @param  max número máximo(inclusive) a ser gerado aleatoriamente
+ * 
  * @return  número aleatório 
  */
     private static int randomNum(int min, int max) {
