@@ -35,7 +35,7 @@ public class Cartao {
  */
     private final int colunas_dim;
 /**
- * Arraylist que serve para armazenar os as linhas de numeros gerados.
+ *  Arraylist que serve para armazenar os as linhas de numeros gerados.
  */
     
      ArrayList<HashMap<Integer,Slot_Numero >> LinhasArrayList;
