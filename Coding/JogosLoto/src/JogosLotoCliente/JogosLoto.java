@@ -1,6 +1,9 @@
 
-package jogosloto;
+package JogosLotoCliente;
 
+
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Scanner;
 
 /**
@@ -16,7 +19,9 @@ public class JogosLoto {
      * @param args Recebe argumentos da linha de comandos ao executar o programa
  */
     public static void main(String[] args) {
-            
+   
+        
+        
             display_menuInicial(null);      
     }
 /**
@@ -35,33 +40,55 @@ public class JogosLoto {
         System.out.println("3-Sair.");
 
         Scanner sc = new Scanner(System.in);
+        Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
         switch (sc.nextInt()){
-            case 1: 
-                Slot_Numero [][] slot = cartao.getSlot();
-                for(int i = 0 ; i<cartao.getLinhas_dim(); i++){
-                    for( int j = 0 ; j < cartao.getColunas_dim(); j++){
+            case 1:
+                
+                
+                while ( iteradorArrayList.hasNext() ) 
+                {
+                    HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
+
+                    for (int i : coluna.keySet()) {
                         System.out.print("[");
-                        if(slot[i][j] != null){
-                            if(slot[i][j].getMarcado())
-                                System.out.print("x" + slot[i][j].getNumero() + "x");
-                            else System.out.printf(" %02d ",slot[i][j].getNumero());  
+                        if( coluna.get(i) != null){
+                            if(coluna.get(i).getMarcado())
+                                System.out.print("x" + coluna.get(i).getNumero() + "x");
+                            else System.out.printf(" %02d ",coluna.get(i).getNumero());  
                         }else System.out.print("    ");
-                        System.out.print("] ");  
+                            System.out.print("] ");  
                     }
                     System.out.println("");
-                }     
+                }    
                 display_menuInicial(cartao);
                 break;
             case 2:
                 int numero;
                 System.out.println("Introduza o número sorteado: ");
                 numero = sc.nextInt();
-                if(cartao.MarcarNumeroSorteado(numero)){
+                HashMap<Integer,Slot_Numero > linhaSelecionada = cartao.MarcarNumeroSorteado(numero);
+                if(linhaSelecionada != null){
                     System.out.println("Numero: " + numero + " foi sorteado.\n");
-                    boolean todas_linhas_vazias = true;
-                    for (int z = 0; z < cartao.getLinhas_dim(); z++) 
-                        if(cartao.getSlots_disponiveis()[z] > 0 ) todas_linhas_vazias = false;
-                    if(todas_linhas_vazias){
+                    boolean temNumerosNaoMarcados = false;     
+                    boolean temNumerosNaoMarcadosNaLinha = false;     
+                    while ( iteradorArrayList.hasNext() ){ 
+                        HashMap<Integer,Slot_Numero > linhaIT = iteradorArrayList.next();
+
+                        for (int i : linhaIT.keySet()) 
+                            if( linhaIT.get(i) != null){
+                                if(linhaIT.get(i).getMarcado() == false)
+                                    temNumerosNaoMarcados = true;
+                                if(linhaIT == linhaSelecionada)
+                                    if(linhaIT.get(i).getMarcado() == false)
+                                        temNumerosNaoMarcadosNaLinha = true;
+                            }
+                    }
+                    
+                    
+                    if(!temNumerosNaoMarcadosNaLinha){
+                        System.out.println("A linha " + (cartao.LinhasArrayList.indexOf(linhaSelecionada) +1) +  " foi completamente marcada!");
+                    }
+                    if(!temNumerosNaoMarcados){
                         completed_card(cartao);
                         break;
                     }
