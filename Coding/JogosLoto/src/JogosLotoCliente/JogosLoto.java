@@ -36,7 +36,10 @@ public class JogosLoto {
         System.out.println("*************************** Jogo Do Loto ***************************");
         System.out.println("1-Ver Cartão.");
         System.out.println("2-Sortear um número.");
-        System.out.println("3-Sair.");
+        System.out.println("3-Gerar novo Cartão.");
+        System.out.println("4-Verificar Integridade.");
+        System.out.println("5-Editar Cartao(Linha Coluna Numero).");
+        System.out.println("6-Sair.");
 
         Scanner sc = new Scanner(System.in);
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
@@ -96,6 +99,24 @@ public class JogosLoto {
                 display_menuInicial(cartao);
                 break;
             case 3:
+                display_menuInicial(null);
+                break;
+            case 4:
+                if(cartao.verificar_integridade())
+                    System.out.println("Integro");
+                else
+                    System.out.println("Nao Integro");
+                display_menuInicial(cartao);
+                break;
+            case 5:
+                System.out.println("Introduza  separado por espaço a Linha Coluna Numero");
+                if(cartao.editar_cartao(sc.nextInt(),sc.nextInt(),sc.nextInt()))
+                    System.out.println("Editado com sucesso");
+                else System.out.println("Erro ao editar");
+                display_menuInicial(cartao);
+                //editar
+                break;
+            case 6:
                 break;
             default:
                 System.out.println("Número Inválido.");
