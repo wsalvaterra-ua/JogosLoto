@@ -1,5 +1,5 @@
 
-package JogosLotoCliente;
+package JogosLotoJogador;
 
 /**
  * Classe que armazenará o valor dos números do Cartão e o seu estado atual especificamente  caso estejam marcados ou não.

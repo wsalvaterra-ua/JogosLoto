@@ -1,4 +1,4 @@
-package JogosLotoCliente;
+package JogosLotoJogador;
 
 
 import java.util.HashMap;
