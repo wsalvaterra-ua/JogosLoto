@@ -56,10 +56,6 @@ public class Cartao {
         slot_numero_dim = 5;
         colunas_dim = 9;
 
-
-        
-        
-
         for(int i = 0; i<linhas_dim;i++){
             HashMap<Integer,Slot_Numero > coluna = new HashMap<Integer,Slot_Numero >();
             int espacos_vazios_disponiveis = colunas_dim - slot_numero_dim ;
@@ -71,25 +67,20 @@ public class Cartao {
                     espacos_vazios_disponiveis--;
                 }else{
                     int randNum = randomNum( (j * 10 + ((j==0) ? 1:0 )) ,(j * 10 + ((j==colunas_dim-1) ? 10:9 ) ));
-
-                    while(LinhasArrayList.size() > 1){
+                    while(LinhasArrayList.size() >= 1){
                         
                         int p;
                         boolean temNumerosIguais  = false;
                         randNum = randomNum( (j * 10 + ((j==0) ? 1:0 )) ,(j * 10 + ((j==colunas_dim-1) ? 10:9 ) ));
                   
-                        for(p = 0 ;  p < LinhasArrayList.size() ; p++){
+                        for(p = 0 ;  p < LinhasArrayList.size() ; p++)
                             if(LinhasArrayList.get(p).get(j) != null)
-                                if(LinhasArrayList.get(p).get(j) != null && LinhasArrayList.get(p).get(j).getNumero() == randNum){
+                                if( LinhasArrayList.get(p).get(j).getNumero() == randNum)
                                     temNumerosIguais = true;
-                                    break;
-                                }
-                        }
-
-                        if(!temNumerosIguais){
-
+                                
+                        if(!temNumerosIguais)
                             break;
-                        }       
+                       
                     }  
                     coluna.put(j,new Slot_Numero(randNum));
                     espacos_numeros_disponiveis--;
@@ -215,5 +206,53 @@ public class Cartao {
     private static int randomNum(int min, int max) {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
+    }
+    
+    public boolean editar_cartao(int linha, int coluna, int valor_novo){
+        if( LinhasArrayList.get(linha) == null)
+            return false;
+        
+        if(coluna > this.colunas_dim + 1)
+            return false;
+        
+        LinhasArrayList.get(linha).put(coluna,new Slot_Numero(valor_novo));
+        if(valor_novo < 1)
+            LinhasArrayList.get(linha).put(coluna,null);
+        System.out.println("Linha: " + linha + " Coluna: " + coluna + " Numero: "+ valor_novo );
+        return true;
+    }
+    
+    public boolean verificar_integridade(){
+        final int  espacos_vazios_permitidos = colunas_dim - slot_numero_dim ;
+        final int espacos_numeros_permitidos = slot_numero_dim;
+        
+        for(int l = 0; l< linhas_dim; l++){
+            int espacos_vazios_usados = 0 ;
+            int espacos_numeros_usados = 0;
+            
+            for(int c = 0; c<colunas_dim; c++){
+                int min =  (c * 10 + ((c==0) ? 1:0 )) ;
+                int max = (c * 10 + ((c==colunas_dim-1) ? 10:9 ) );
+                if(LinhasArrayList.get(l).get(c) != null){
+                    if(!(LinhasArrayList.get(l).get(c).getNumero() >= min && (LinhasArrayList.get(l).get(c).getNumero() <= max  )))
+                        return false;
+                    
+                    espacos_numeros_usados++;
+                }else
+                    espacos_vazios_usados++;
+                
+                
+            }
+            if(espacos_numeros_usados != espacos_numeros_permitidos || espacos_vazios_usados != espacos_vazios_permitidos)
+                return false;
+            
+            
+            
+        }
+      return true;
+
+            
+        
+        
     }
 }
