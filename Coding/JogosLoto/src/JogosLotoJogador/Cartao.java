@@ -57,76 +57,42 @@ public class Cartao {
         colunas_dim = 9;
 
         for(int i = 0; i<linhas_dim;i++){
-            HashMap<Integer,Slot_Numero > coluna = new HashMap<Integer,Slot_Numero >();
+            HashMap<Integer,Slot_Numero > coluna = new HashMap< >();
             int espacos_vazios_disponiveis = colunas_dim - slot_numero_dim ;
             int espacos_numeros_disponiveis = slot_numero_dim;
+            
             for( int j = 0 ; j < colunas_dim; j++){ 
                 int resultRand =randomNum(0, 2);
+                int randNum = getNumeroAleatorio(j);
                 if(espacos_vazios_disponiveis> 0 &&  resultRand == 0 || espacos_numeros_disponiveis <1 && espacos_vazios_disponiveis> 0){
-                    coluna.put(j,null);
+                    coluna.put(randNum ,null);
+
                     espacos_vazios_disponiveis--;
                 }else{
-                    int randNum = randomNum( (j * 10 + ((j==0) ? 1:0 )) ,(j * 10 + ((j==colunas_dim-1) ? 10:9 ) ));
+                    
                     while(LinhasArrayList.size() >= 1){
-                        
                         int p;
                         boolean temNumerosIguais  = false;
-                        randNum = randomNum( (j * 10 + ((j==0) ? 1:0 )) ,(j * 10 + ((j==colunas_dim-1) ? 10:9 ) ));
+                        randNum = getNumeroAleatorio(j);
                   
                         for(p = 0 ;  p < LinhasArrayList.size() ; p++)
-                            if(LinhasArrayList.get(p).get(j) != null)
-                                if( LinhasArrayList.get(p).get(j).getNumero() == randNum)
-                                    temNumerosIguais = true;
+                            if(LinhasArrayList.get(p).containsKey(randNum))
+                                temNumerosIguais = true;
                                 
                         if(!temNumerosIguais)
                             break;
-                       
+                        
                     }  
-                    coluna.put(j,new Slot_Numero(randNum));
+                    coluna.put(randNum,new Slot_Numero(randNum));
                     espacos_numeros_disponiveis--;
+                    
                 }
             }
             LinhasArrayList.add(coluna);
-            
         }
         
     }
-/**
- * Constrói um cartão para Jogo de Loto com um número variavel de linhas, colunas e números por linha:
- * 
- * Cada coluna apenas pode ter números da dezena correspondente à sua
- posição, i.e., a primeira coluna pode ter números entre 1 e 9, inclusive,
- a segunda coluna pode ter números entre 10 e 19, inclusive, e assim
- sucessivamente até a ultima coluna que pode ter entre n*10 e n * 10+10
-     * @param linhas_dim Quantidade de linhas a ser gerada
-     * @param slot_numero_dim Quantidade de números por linha. 
-     * @param colunas_dim Quantidade de Colunas a ser gerada
- */ 
-//    public Cartao(int linhas_dim, int slot_numero_dim , int colunas_dim){
-//        this.linhas_dim = linhas_dim; 
-//        this.slot_numero_dim = slot_numero_dim;
-//        this.colunas_dim = colunas_dim;
-//        
-//        slot = new Slot_Numero[linhas_dim][colunas_dim];
-//        slots_disponiveis = new int[linhas_dim];
-//        for(int i = 0 ; i<linhas_dim; i++)  slots_disponiveis[i] = slot_numero_dim;
-//        for(int i = 0 ; i<linhas_dim; i++){
-//            int espacos_vazios_disponiveis = colunas_dim - slot_numero_dim ;
-//            int espacos_numeros_disponiveis = slot_numero_dim;
-//            for( int j = 0 ; j < colunas_dim; j++){
-//
-//                int resultRand =randomNum(0, 2);
-//                if(espacos_vazios_disponiveis> 0 &&  resultRand == 0 || espacos_numeros_disponiveis <1 && espacos_vazios_disponiveis> 0)
-//                    espacos_vazios_disponiveis--;
-//                else{
-//                    slot[i][j] = new Slot_Numero(randomNum( (j * 10 + ((j==0) ? 1:0 )) ,
-//                            (j * 10 + ((j==colunas_dim-1) ? 10:9 ) )));
-//                    espacos_numeros_disponiveis--;
-//                }
-//            }
-//        }
-//    }
-/**
+
 
 
 /**
@@ -150,20 +116,25 @@ public class Cartao {
  */
     public HashMap<Integer,Slot_Numero >  MarcarNumeroSorteado(int numeroSorteado){
         
+        
+       
+       if(numeroSorteado<=0 || numeroSorteado > 90)
+           return null;
+        
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = this.LinhasArrayList.iterator();
         while ( iteradorArrayList.hasNext() ){
             HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
-
-            for (int i : coluna.keySet()) {
-                if( coluna.get(i) != null)
-                    if(coluna.get(i).getMarcado() == false)
-                        if(coluna.get(i).getNumero() == numeroSorteado){
-                            coluna.get(i).setMarcado(true);
+            if (coluna.containsKey(numeroSorteado))
+                if( coluna.get(numeroSorteado) != null)
+                    if(coluna.get(numeroSorteado).getMarcado() == false)
+                        if(coluna.get(numeroSorteado).getNumero() == numeroSorteado){
+                            coluna.get(numeroSorteado).setMarcado(true);
                             return coluna;
-                            
                         }
-            }
+                
+            
         }
+        
         return null;            
     }
 
@@ -211,8 +182,8 @@ public class Cartao {
     public boolean editar_cartao(int linha, int coluna, int valor_novo){
         if( LinhasArrayList.get(linha) == null)
             return false;
-        
-        if(coluna > this.colunas_dim + 1)
+        coluna--;
+        if(coluna  > this.colunas_dim )
             return false;
         
         LinhasArrayList.get(linha).put(coluna,new Slot_Numero(valor_novo));
@@ -220,6 +191,9 @@ public class Cartao {
             LinhasArrayList.get(linha).put(coluna,null);
         System.out.println("Linha: " + linha + " Coluna: " + coluna + " Numero: "+ valor_novo );
         return true;
+    }
+    private int getNumeroAleatorio(int j){
+        return randomNum( (j * 10 + ((j==0) ? 1:0 )) ,(j * 10 + ((j==colunas_dim-1) ? 10:9 ) ));
     }
     
     public boolean verificar_integridade(){
@@ -240,8 +214,6 @@ public class Cartao {
                     espacos_numeros_usados++;
                 }else
                     espacos_vazios_usados++;
-                
-                
             }
             if(espacos_numeros_usados != espacos_numeros_permitidos || espacos_vazios_usados != espacos_vazios_permitidos)
                 return false;

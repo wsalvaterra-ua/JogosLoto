@@ -41,10 +41,11 @@ public class JogosLoto {
         System.out.println("5-Editar Cartao(Linha Coluna Numero).");
         System.out.println("6-Sair.");
 
+        
         Scanner sc = new Scanner(System.in);
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
         switch (sc.nextInt()){
-            case 1:
+            case 1: 
                 
                 
                 while ( iteradorArrayList.hasNext() ) 
