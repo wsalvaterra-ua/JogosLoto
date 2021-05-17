@@ -17,34 +17,26 @@ public class SessaoDeJogoDeLoto {
     private int numeroMax, numeroMin;
     private final ArrayList<Integer> numerosSorteados;
     private final HashMap<Integer,Integer> apostasFeitas;
-    public SessaoDeJogoDeLoto(){
+    
+    
+    public SessaoDeJogoDeLoto( int min, int max){
          numerosSorteados = new ArrayList<>();
          apostasFeitas = new HashMap<>();
-         numeroMax = 90;
-         numeroMin = 1;
+         numeroMin = min;
+         numeroMax = max;
     }
     public boolean sortearNumero(int numero){
-        
         if(numerosSorteados.contains(numero))
-            
             return false;
-        numerosSorteados.add(randomNum(numeroMin, numeroMax));
+        if(numero < numeroMin || numero > numeroMax)
+            return false;
+        numerosSorteados.add(numero);
         return true;
     }
     public void adicionarAposta(int identificacao, int valorApostado ){
         apostasFeitas.put(identificacao, valorApostado);
     }
-    public int terminarJogo(int vencedorID){
-        if(numerosSorteados.size()<15)
-            return -1;
 
-        int somaApostas = 0;
-        for(int apostador : apostasFeitas.keySet())
-            if(apostador != vencedorID)
-                somaApostas+= apostasFeitas.get(apostador);
-            
-        return apostasFeitas.get(vencedorID) + (somaApostas/ (apostasFeitas.size()));
-    }
     public HashMap<Integer,Integer> terminarJogo(ArrayList<Integer> vencedoresID){
         if(numerosSorteados.size()<15)
             return null;
@@ -54,30 +46,21 @@ public class SessaoDeJogoDeLoto {
             if(!vencedoresID.contains(apostador))
                 somaApostas+= apostasFeitas.get(apostador);
         
-        
-        
         HashMap<Integer,Integer> recompensas = new HashMap<>();
         for(int apostador : apostasFeitas.keySet())
             if(vencedoresID.contains(apostador)){
-                int recompensa = apostasFeitas.get(apostador) + 
-                        (somaApostas/((apostasFeitas.size() - vencedoresID.size()>0 ) ? apostasFeitas.size() - vencedoresID.size() : 1));
+                int recompensa = apostasFeitas.get(apostador) + (somaApostas/((apostasFeitas.size() - vencedoresID.size() ) + 1 ));
                 recompensas.put(apostador, recompensa);
             }
         return recompensas;
     }
-    
-    /**
- * Função que returna um número aleatório entre dois números passados como argumento
- * Referencia: https://www.baeldung.com/java-generating-random-numbers-in-range
- * @param  min número minimo(inclusive) a ser gerado aleatoriamente
- * @param  max número máximo(inclusive) a ser gerado aleatoriamente
- * 
- * @return  número aleatório 
- */
-    private static int randomNum(int min, int max) {
-        Random r = new Random();
-        return r.nextInt((max - min) + 1) + min;
+
+    public ArrayList<Integer> getNumerosSorteados() {
+        return numerosSorteados;
     }
+    
+    
+
     
     
 }

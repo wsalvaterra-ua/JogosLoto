@@ -5,10 +5,28 @@
  */
 package JogosLotoGestorDeSalas;
 
+import java.util.Random;
+
 /**
  *
  * @author bil
  */
 public class GestaoDeSalas {
+    
+    
+    
+    
+        /**
+ * Função que returna um número aleatório entre dois números passados como argumento
+ * Referencia: https://www.baeldung.com/java-generating-random-numbers-in-range
+ * @param  min número minimo(inclusive) a ser gerado aleatoriamente
+ * @param  max número máximo(inclusive) a ser gerado aleatoriamente
+ * 
+ * @return  número aleatório 
+ */
+    private static int randomNum(int min, int max) {
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
+    }
     
 }
