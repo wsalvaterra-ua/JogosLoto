@@ -13,7 +13,11 @@ import java.util.Random;
  */
 public class GestaoDeSalas {
     
-    
+    public static void main(String[] args) {
+        
+        
+        
+    }
     
     
         /**
