@@ -1,8 +1,11 @@
 package JogosLotoJogador;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -51,16 +54,17 @@ public class JogosLoto {
                 while ( iteradorArrayList.hasNext() ) 
                 {
                     HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
-
-                    for (int i : coluna.keySet()) {
-                        System.out.print("[");
-                        if( coluna.get(i) != null){
-                            if(coluna.get(i).getMarcado())
-                                System.out.print("x" + coluna.get(i).getNumero() + "x");
-                            else System.out.printf(" %02d ",coluna.get(i).getNumero());  
-                        }else System.out.print("    ");
-                            System.out.print("] ");  
-                    }
+                    List<Integer> sortedKeys=new ArrayList(coluna.keySet());
+                    Collections.sort(sortedKeys);
+            for (int i : sortedKeys) {
+                System.out.print("[");
+                if( coluna.get(i) != null){
+                    if(coluna.get(i).getMarcado())
+                        System.out.print("x" + coluna.get(i).getNumero() + "x");
+                    else System.out.printf(" %02d ",coluna.get(i).getNumero());
+                }else System.out.print("    ");
+                System.out.print("] ");
+            }
                     System.out.println("");
                 }    
                 display_menuInicial(cartao);
