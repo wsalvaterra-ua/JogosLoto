@@ -2,8 +2,10 @@
 package JogosLotoJogador;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -63,7 +65,7 @@ public class Cartao {
             
             for( int j = 0 ; j < colunas_dim; j++){ 
                 int resultRand =randomNum(0, 2);
-                int randNum = getNumeroAleatorio(j);
+                int randNum =  randomNum(getColumnMin(j), getColumnMax(j));
                 if(espacos_vazios_disponiveis> 0 &&  resultRand == 0 || espacos_numeros_disponiveis <1 && espacos_vazios_disponiveis> 0){
                     coluna.put(randNum ,null);
 
@@ -73,7 +75,7 @@ public class Cartao {
                     while(LinhasArrayList.size() >= 1){
                         int p;
                         boolean temNumerosIguais  = false;
-                        randNum = getNumeroAleatorio(j);
+                        randNum = randomNum(getColumnMin(j), getColumnMax(j));
                   
                         for(p = 0 ;  p < LinhasArrayList.size() ; p++)
                             if(LinhasArrayList.get(p).containsKey(randNum))
@@ -118,15 +120,15 @@ public class Cartao {
         
         
        
-       if(numeroSorteado<=0 || numeroSorteado > 90)
+       if(numeroSorteado <  getColumnMin(0) || numeroSorteado >  getColumnMax(linhas_dim - 1))
            return null;
         
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = this.LinhasArrayList.iterator();
         while ( iteradorArrayList.hasNext() ){
             HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
             if (coluna.containsKey(numeroSorteado))
-                if( coluna.get(numeroSorteado) != null)
-                    if(coluna.get(numeroSorteado).getMarcado() == false)
+                if( coluna.containsKey(numeroSorteado))
+                    if(!coluna.get(numeroSorteado).getMarcado())
                         if(coluna.get(numeroSorteado).getNumero() == numeroSorteado){
                             coluna.get(numeroSorteado).setMarcado(true);
                             return coluna;
@@ -179,47 +181,55 @@ public class Cartao {
         return r.nextInt((max - min) + 1) + min;
     }
     
-    public boolean editar_cartao(int linha, int coluna, int valor_novo){
+    public boolean editar_cartao(int linha, int valorAnterior, int valorNovo){
         if( LinhasArrayList.get(linha) == null)
             return false;
-        coluna--;
-        if(coluna  > this.colunas_dim )
+      
+        if(valorNovo <  getColumnMin(0) || valorNovo >  getColumnMax(linhas_dim - 1))
             return false;
         
-        LinhasArrayList.get(linha).put(coluna,new Slot_Numero(valor_novo));
-        if(valor_novo < 1)
-            LinhasArrayList.get(linha).put(coluna,null);
-        System.out.println("Linha: " + linha + " Coluna: " + coluna + " Numero: "+ valor_novo );
+        LinhasArrayList.get(linha).put(valorAnterior,new Slot_Numero(valorNovo));
+        if(valorNovo < 1)
+            LinhasArrayList.get(linha).put(valorAnterior,null);
+        System.out.println("Linha: " + linha + " Valor Antigo: " + valorAnterior + " Valor Novo: " + valorNovo +" editado com sucesso" );
         return true;
     }
-    private int getNumeroAleatorio(int j){
-        return randomNum( (j * 10 + ((j==0) ? 1:0 )) ,(j * 10 + ((j==colunas_dim-1) ? 10:9 ) ));
+
+    private int getColumnMax(int j){
+        return (j * 10 + ((j==colunas_dim-1) ? 10:9 ) );
     }
+    private int getColumnMin(int j){
+        return  (j * 10 + ((j==0) ? 1:0 ));
+    }
+    
     
     public boolean verificar_integridade(){
         final int  espacos_vazios_permitidos = colunas_dim - slot_numero_dim ;
         final int espacos_numeros_permitidos = slot_numero_dim;
         
-        for(int l = 0; l< linhas_dim; l++){
-            int espacos_vazios_usados = 0 ;
+        for(int ln = 0; ln< linhas_dim; ln++){
+            int espacos_vazios_usados = 0;
             int espacos_numeros_usados = 0;
+            List<Integer> sortedKeys=new ArrayList(LinhasArrayList.get(ln).keySet());
+            Collections.sort(sortedKeys);
+            int c = 0;//Variavel para saber o Index da coluna do numero  para calcular o seu maximo e seu minimo
             
-            for(int c = 0; c<colunas_dim; c++){
-                int min =  (c * 10 + ((c==0) ? 1:0 )) ;
-                int max = (c * 10 + ((c==colunas_dim-1) ? 10:9 ) );
-                if(LinhasArrayList.get(l).get(c) != null){
-                    if(!(LinhasArrayList.get(l).get(c).getNumero() >= min && (LinhasArrayList.get(l).get(c).getNumero() <= max  )))
+            for (int key : sortedKeys) {
+                if(LinhasArrayList.get(ln).get(key) != null){
+                    
+                    if(!(LinhasArrayList.get(ln).get(key).getNumero() >= getColumnMin(c) && (LinhasArrayList.get(ln).get(key).getNumero() <= getColumnMax(c)  )))
                         return false;
+                    for(int b = 0; b < linhas_dim; b++)
+                        if (LinhasArrayList.get(b) != LinhasArrayList.get(ln) && LinhasArrayList.get(b).containsKey(key) )
+                            return false;
                     
                     espacos_numeros_usados++;
                 }else
                     espacos_vazios_usados++;
+                c++;
             }
             if(espacos_numeros_usados != espacos_numeros_permitidos || espacos_vazios_usados != espacos_vazios_permitidos)
                 return false;
-            
-            
-            
         }
       return true;
 

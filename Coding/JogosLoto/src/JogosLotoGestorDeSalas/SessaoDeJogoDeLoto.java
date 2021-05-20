@@ -16,7 +16,7 @@ import java.util.Random;
 public class SessaoDeJogoDeLoto {
     private int numeroMax, numeroMin;
     private final ArrayList<Integer> numerosSorteados;
-    private final HashMap<Integer,Integer> apostasFeitas;
+    private final HashMap<Integer,Double> apostasFeitas;
     
     
     public SessaoDeJogoDeLoto( int min, int max){
@@ -33,23 +33,35 @@ public class SessaoDeJogoDeLoto {
         numerosSorteados.add(numero);
         return true;
     }
-    public void adicionarAposta(int identificacao, int valorApostado ){
+    public void adicionarAposta(int identificacao, Double valorApostado ){
         apostasFeitas.put(identificacao, valorApostado);
     }
 
-    public HashMap<Integer,Integer> terminarJogo(ArrayList<Integer> vencedoresID){
-        if(numerosSorteados.size()<15)
-            return null;
+    public HashMap<Integer,Double> getScores(ArrayList<Integer> vencedoresID){
+       
+//        if(numerosSorteados.size()<15)
+//            return null;
 
         int somaApostas = 0;
+        int totalVencedores = 0;
+        
+        HashMap<Integer,Double> recompensas = new HashMap<>();
+        
+        //vencedores que nao apostaram nada ganha 0
+         for(int vencedor : vencedoresID){
+             if(apostasFeitas.containsKey(vencedor) )
+                 totalVencedores++;
+             else
+                 recompensas.put(vencedor,0.0);
+             
+         }
         for(int apostador : apostasFeitas.keySet())
             if(!vencedoresID.contains(apostador))
                 somaApostas+= apostasFeitas.get(apostador);
         
-        HashMap<Integer,Integer> recompensas = new HashMap<>();
         for(int apostador : apostasFeitas.keySet())
             if(vencedoresID.contains(apostador)){
-                int recompensa = apostasFeitas.get(apostador) + (somaApostas/((apostasFeitas.size() - vencedoresID.size() ) + 1 ));
+                Double recompensa = apostasFeitas.get(apostador) + (somaApostas/((apostasFeitas.size() - totalVencedores ) + 1 ));
                 recompensas.put(apostador, recompensa);
             }
         return recompensas;
@@ -58,6 +70,11 @@ public class SessaoDeJogoDeLoto {
     public ArrayList<Integer> getNumerosSorteados() {
         return numerosSorteados;
     }
+
+    public HashMap<Integer, Double> getApostasFeitas() {
+        return apostasFeitas;
+    }
+    
     
     
 
