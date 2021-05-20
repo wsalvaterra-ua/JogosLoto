@@ -39,8 +39,8 @@ public class SessaoDeJogoDeLoto {
 
     public HashMap<Integer,Double> getScores(ArrayList<Integer> vencedoresID){
        
-//        if(numerosSorteados.size()<15)
-//            return null;
+        if(numerosSorteados.size()<15)
+            return null;
 
         int somaApostas = 0;
         int totalVencedores = 0;
