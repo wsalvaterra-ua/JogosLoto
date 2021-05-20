@@ -409,7 +409,6 @@ public class GSalaGUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                
                 GSalaGUI meuGUI  = new GSalaGUI();
                 meuGUI.setLocationRelativeTo(null);
                 meuGUI.setVisible(true);
