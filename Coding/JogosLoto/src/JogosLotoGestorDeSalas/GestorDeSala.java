@@ -10,13 +10,12 @@ package JogosLotoGestorDeSalas;
  * @author ruipe
  */
 public class GestorDeSala extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form GestorDeSala
      */
     public GestorDeSala() {
         initComponents();
-        jButton2.setEnabled(false);
     }
 
     /**
@@ -198,7 +197,7 @@ public class GestorDeSala extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-   
+        
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
