@@ -7,7 +7,7 @@ package JogosLotoJogador;
  */
 public class Slot_Numero {
     private boolean marcado;
-    private final int numero;
+    private  int numero;
 /**
  * Inicializa as propriedades do objeto, recebe como argumento um número
  * @param numero número a ser atribuido ao objeto
@@ -30,6 +30,11 @@ public class Slot_Numero {
     public void setMarcado(boolean marcado){
         this.marcado = marcado;
     }
+
+    public void setNumero(int numero) {
+        this.numero = numero;
+    }
+    
 /**
  * Getter para a propriedade numero
  * @return Retorna propriedade Numero

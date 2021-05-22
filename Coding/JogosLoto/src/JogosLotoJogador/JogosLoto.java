@@ -32,7 +32,7 @@ public class JogosLoto {
  */
     public static void display_menuInicial(Cartao cartao){
         if(cartao== null){
-            cartao = new Cartao();
+            cartao = new Cartao(JogoLoto.COLUNAS_DIM,JogoLoto.LINHAS_DIM,JogoLoto.QTD_NUMEROS_DIM);
             System.out.println("Cartão criado com sucesso.");          
         }
         
@@ -93,7 +93,7 @@ public class JogosLoto {
                     
                     
                     if(!temNumerosNaoMarcadosNaLinha){
-                        System.out.println("A linha " + (cartao.LinhasArrayList.indexOf(linhaSelecionada) +1) +  " foi completamente marcada!");
+                        System.out.println("A linha " + (cartao.getLinhasArrayList().indexOf(linhaSelecionada) +1) +  " foi completamente marcada!");
                     }
                     if(!temNumerosNaoMarcados){
                         completed_card(cartao);

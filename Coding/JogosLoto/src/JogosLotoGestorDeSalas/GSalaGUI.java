@@ -78,6 +78,7 @@ public class GSalaGUI extends javax.swing.JFrame {
 
         jListTrueNumerosSorteados.setBackground(new java.awt.Color(176, 176, 0));
         jListTrueNumerosSorteados.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jListTrueNumerosSorteados.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         jListTrueNumerosSorteados.setForeground(new java.awt.Color(0, 1, 0));
         jListTrueNumerosSorteados.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jListTrueNumerosSorteados.setFocusable(false);
@@ -178,6 +179,7 @@ public class GSalaGUI extends javax.swing.JFrame {
 
         jListTrueApostas.setBackground(new java.awt.Color(1, 131, 88));
         jListTrueApostas.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jListTrueApostas.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         jListTrueApostas.setForeground(new java.awt.Color(0, 1, 0));
         jListTrueApostas.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jListTrueApostas.setToolTipText("");
@@ -212,7 +214,7 @@ public class GSalaGUI extends javax.swing.JFrame {
         gridBagConstraints.weightx = 0.1;
         jPanelApostas.add(jButtonAposta, gridBagConstraints);
 
-        jLabelApostas.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabelApostas.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabelApostas.setForeground(new java.awt.Color(0, 1, 0));
         jLabelApostas.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabelApostas.setText("Apostas:");
@@ -358,18 +360,21 @@ public class GSalaGUI extends javax.swing.JFrame {
         else if(resultado.equals(opcoes[sessaoDeJogo.getApostasFeitas().keySet().toArray().length ])){
               resultado = JOptionPane.showInputDialog(null, "Adicione os vencedores separados por espaço!", 
                 "Adicione os vencedores", JOptionPane.QUESTION_MESSAGE);
-            String[] vencedoresToFilter = resultado.split(" ");
-            for(String vencedorToFilter : vencedoresToFilter){
-                try{
-                    vencedores.add(Integer.parseInt(vencedorToFilter));
-                } catch (NumberFormatException e) {
-                }
+              {
+            if(resultado != null){
+                String[] vencedoresToFilter = resultado.split(" ");
+                for(String vencedorToFilter : vencedoresToFilter)
+                    try{
+                        vencedores.add(Integer.parseInt(vencedorToFilter));
+                    } catch (NumberFormatException e) {}
+                
             }
+        }
         }
         else
             vencedores.add(Integer.valueOf(resultado));
         
-        dispose();
+//        dispose();
         ModalGameScores myDialog = new ModalGameScores(this, true,sessaoDeJogo.getScores(vencedores));
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 

@@ -40,7 +40,7 @@ public class Cartao {
  *  Arraylist que serve para armazenar os as linhas de numeros gerados.
  */
     
-     ArrayList<HashMap<Integer,Slot_Numero >> LinhasArrayList;
+     private ArrayList<HashMap<Integer,Slot_Numero >> LinhasArrayList;
 
 /**
  * Constrói um cartão para Jogo de Loto com os seguintes requisitos:
@@ -52,11 +52,11 @@ public class Cartao {
  * sucessivamente até à última coluna que pode ter números entre 80 e
  * 90, inclusive.
  */ 
-    public Cartao() {
+    public Cartao(int colunas,int linhas ,int slotsComNumeros) {
         this.LinhasArrayList = new  ArrayList<>();
-        linhas_dim = 3;
-        slot_numero_dim = 5;
-        colunas_dim = 9;
+        linhas_dim = linhas;
+        slot_numero_dim = slotsComNumeros;
+        colunas_dim = colunas;
 
         for(int i = 0; i<linhas_dim;i++){
             HashMap<Integer,Slot_Numero > coluna = new HashMap< >();
@@ -120,19 +120,20 @@ public class Cartao {
         
         
        
-       if(numeroSorteado <  getColumnMin(0) || numeroSorteado >  getColumnMax(linhas_dim - 1))
+       if(numeroSorteado <  getColumnMin(0) || numeroSorteado >  getColumnMax(colunas_dim - 1)){
            return null;
-        
+        }
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = this.LinhasArrayList.iterator();
         while ( iteradorArrayList.hasNext() ){
             HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
-            if (coluna.containsKey(numeroSorteado))
+
                 if( coluna.containsKey(numeroSorteado))
-                    if(!coluna.get(numeroSorteado).getMarcado())
-                        if(coluna.get(numeroSorteado).getNumero() == numeroSorteado){
-                            coluna.get(numeroSorteado).setMarcado(true);
-                            return coluna;
-                        }
+                    if (coluna.get(numeroSorteado) != null)
+                        if(!coluna.get(numeroSorteado).getMarcado())
+                            if(coluna.get(numeroSorteado).getNumero() == numeroSorteado){
+                                coluna.get(numeroSorteado).setMarcado(true);
+                                return coluna;
+                            }
                 
             
         }
@@ -176,7 +177,7 @@ public class Cartao {
  * 
  * @return  número aleatório 
  */
-    private static int randomNum(int min, int max) {
+    public static int randomNum(int min, int max) {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
@@ -194,11 +195,37 @@ public class Cartao {
         System.out.println("Linha: " + linha + " Valor Antigo: " + valorAnterior + " Valor Novo: " + valorNovo +" editado com sucesso" );
         return true;
     }
+    public boolean editar_numero(Slot_Numero slot_numero, int valorNovo){
+        if(this.LinhasArrayList.size()<1)
+            return false;
+        Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = this.LinhasArrayList.iterator();
+        HashMap<Integer,Slot_Numero > coluna = null;
+        
+        while ( iteradorArrayList.hasNext() ) 
+               {
+                   coluna = iteradorArrayList.next();
+                   if(coluna.containsKey(slot_numero.getNumero()))
+                       break;
+               }
+        if(!coluna.containsKey(slot_numero.getNumero()))
+            return false;
+        if( LinhasArrayList.get(2) == null)
+            return false;
+      
+        if(valorNovo <  getColumnMin(0) || valorNovo >  getColumnMax(linhas_dim - 1))
+            return false;
+        slot_numero.setNumero(valorNovo);
+        return true;
+    }
 
-    private int getColumnMax(int j){
+    public int getColumnMax(int j){
         return (j * 10 + ((j==colunas_dim-1) ? 10:9 ) );
     }
-    private int getColumnMin(int j){
+    
+    public static int getColumnMax(int j, int maxColuna){
+        return (j * 10 + ((j==maxColuna-1) ? 10:9 ) );
+    }
+    public static int getColumnMin(int j){
         return  (j * 10 + ((j==0) ? 1:0 ));
     }
     
@@ -220,7 +247,7 @@ public class Cartao {
                     if(!(LinhasArrayList.get(ln).get(key).getNumero() >= getColumnMin(c) && (LinhasArrayList.get(ln).get(key).getNumero() <= getColumnMax(c)  )))
                         return false;
                     for(int b = 0; b < linhas_dim; b++)
-                        if (LinhasArrayList.get(b) != LinhasArrayList.get(ln) && LinhasArrayList.get(b).containsKey(key) )
+                        if (LinhasArrayList.get(b) != LinhasArrayList.get(ln) && LinhasArrayList.get(b).containsKey(key)  && LinhasArrayList.get(b).get(key) != null)
                             return false;
                     
                     espacos_numeros_usados++;
