@@ -36,7 +36,6 @@ public class modaAddlAposta extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         mainPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
@@ -54,18 +53,24 @@ public class modaAddlAposta extends javax.swing.JDialog {
         setTitle("Adicionar Aposta");
         setBackground(new java.awt.Color(51, 0, 204));
         setResizable(false);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         mainPanel.setBackground(new java.awt.Color(147, 54, 220));
         mainPanel.setToolTipText("");
-        mainPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(147, 54, 220));
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        mainPanel.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 300, -1));
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
 
         jPanel3.setBackground(new java.awt.Color(147, 54, 220));
-        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         btnCancel.setText("Cancelar");
         btnCancel.addActionListener(new java.awt.event.ActionListener() {
@@ -73,7 +78,6 @@ public class modaAddlAposta extends javax.swing.JDialog {
                 btnCancelActionPerformed(evt);
             }
         });
-        jPanel3.add(btnCancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 0, -1, -1));
 
         btnOk.setText("Confirmar");
         btnOk.setHideActionText(true);
@@ -84,27 +88,96 @@ public class modaAddlAposta extends javax.swing.JDialog {
                 btnOkActionPerformed(evt);
             }
         });
-        jPanel3.add(btnOk, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, -1));
 
-        mainPanel.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 210, 30));
-        mainPanel.add(jTextIdentificacao, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, 260, -1));
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(btnOk, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
+                .addComponent(btnCancel))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(btnOk)
+            .addComponent(btnCancel)
+        );
 
         jLabel1.setText("Indroduza o número de identificação do Jogador:");
-        mainPanel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 290, 31));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         jLabel3.setText("*Identificação deve ser um número natural menor que 2.147.483.647");
-        mainPanel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 320, -1));
-        mainPanel.add(jValor, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, 260, -1));
 
         jLabel2.setText("Introduza o valor apostado pelo Jogador");
-        mainPanel.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 272, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         jLabel4.setText("*Valor deve ser um número maior que 0");
-        mainPanel.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, -1));
 
-        getContentPane().add(mainPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 320, 190));
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)))
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jTextIdentificacao, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jValor, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jLabel4)))
+                .addGap(7, 7, 7)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addComponent(jTextIdentificacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(8, 8, 8)
+                .addComponent(jLabel2)
+                .addGap(4, 4, 4)
+                .addComponent(jValor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(9, 9, 9)
+                .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -157,48 +230,6 @@ public class modaAddlAposta extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCancelActionPerformed
 
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(modaAddlAposta.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(modaAddlAposta.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(modaAddlAposta.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(modaAddlAposta.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                modaAddlAposta dialog = new modaAddlAposta(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
