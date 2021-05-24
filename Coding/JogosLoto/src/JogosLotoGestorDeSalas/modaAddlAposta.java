@@ -9,14 +9,19 @@ import java.math.BigInteger;
 import javax.swing.JOptionPane;
 
 /**
- *
- * @author bil
+ * Classe que cria uma interface gráfica onde é possivel receber a aposta e a identificacao do jogador
+ * @author  William Salvaterra e Rui Oliveira
  */
 public class modaAddlAposta extends javax.swing.JDialog {
+/**
+ * Array que Contém o ID do utilizador  na primeira posição e valor de aposta na segunda posição
+ */
     public String[] data;
-    /**
-     * Creates new form addApostaModal
-     */
+/**
+ * Construtor da Classe
+     * @param parent o diálogo do proprietário a partir do qual o diálogo é mostrado ou nulo se este diálogo não tiver dono
+     * @param modal especifica se a caixa de diálogo bloqueia a entrada do usuário em outras janelas de nível superior quando mostrada. 
+ */
     public modaAddlAposta(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         this.data = new String[2];

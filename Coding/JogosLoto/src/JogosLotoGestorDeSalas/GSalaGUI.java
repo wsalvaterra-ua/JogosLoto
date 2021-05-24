@@ -1,38 +1,38 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ *  JogosLotoGestorDeSalas Package com classes para criar um gestor de jogos de Loto
  */
 package JogosLotoGestorDeSalas;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.ListModel;
 
 /**
- *
- * @author bil
+ *Esta classe cria uma Interface gráfica de um gestor de Salas .
+ * 
+ * @author William Salvaterra e Rui Oliveira
  */
 public class GSalaGUI extends javax.swing.JFrame {
-
-    /**
-     * Creates new form GSalaGUI
-     */
     private final int MIN = 1;
     private final int MAX = 90;
-    
+    private DefaultListModel modelNumerosSorteados;   
+    private DefaultListModel modelApostas;   
     private SessaoDeJogoDeLoto sessaoDeJogo;
+/**
+ * Método construtor da classe que inicia a Interface gráfica do jogo
+ * 
+ */
     public GSalaGUI() {
         
         initComponents();
+        modelNumerosSorteados = new DefaultListModel();
+        modelApostas = new DefaultListModel();
+        jListTrueNumerosSorteados.setModel(modelNumerosSorteados);
+        jListTrueApostas.setModel(modelApostas);
         sessaoDeJogo = new SessaoDeJogoDeLoto(MIN,MAX);
-        
+        this.pack();
         
     }
 
@@ -154,7 +154,7 @@ public class GSalaGUI extends javax.swing.JFrame {
 
         jLabel3.setForeground(new java.awt.Color(0, 1, 0));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel3.setText("apostaFeita + SomaDe_apostas_nao_vencidas / (nº_de_nao_Vencedores + 1)");
+        jLabel3.setText("apostaFeita + SomaDe_apostas_nao_vencidas / (nº_de_Vencedores + 1)");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -301,87 +301,66 @@ public class GSalaGUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         modaAddlAposta myDialog = new modaAddlAposta(this, true);
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//      frame.setSize(560, 200);      
+
         myDialog.setLocationRelativeTo(null);  
         myDialog.setVisible(true);
         
         if(myDialog.data[0] != null){
-  
             sessaoDeJogo.adicionarAposta(Integer.valueOf(myDialog.data[0]), Double.valueOf(myDialog.data[1]));
-            DefaultListModel model = new DefaultListModel();
-            model.clear();
-            
-            for(Integer jogadorID : sessaoDeJogo.getApostasFeitas().keySet())
-                model.addElement("ID: " + jogadorID + " - Valor:" + sessaoDeJogo.getApostasFeitas().get(jogadorID) );
-            jListTrueApostas.setModel(model);
+            modelApostas.addElement("ID: " + myDialog.data[0] + " - Valor: " + myDialog.data[1] );
         }
         
     }//GEN-LAST:event_jButtonApostaActionPerformed
 
     private void jButtonatuallNumeroSorteadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonatuallNumeroSorteadoActionPerformed
-        // TODO add your handling code here:
-        
         int numRand = randomNum(MIN, MAX);
         if(sessaoDeJogo.sortearNumero(numRand)){
-        
             jLabelBigLabelatualNumeroSorteado.setText(String.valueOf(numRand));
-            DefaultListModel model = new DefaultListModel();
-            model.clear();
-            for(int numeroSorteado : sessaoDeJogo.getNumerosSorteados())
-                model.addElement(numeroSorteado);
-            jListTrueNumerosSorteados.setModel(model);
+                modelNumerosSorteados.addElement(numRand);
         }
         
     }//GEN-LAST:event_jButtonatuallNumeroSorteadoActionPerformed
 
     private void jButtonNumerosSorteadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNumerosSorteadosActionPerformed
-        // TODO add your handling code here:
-        
-        
+        //Os  vencedores  podem ser escolhidos  através de uma lista caso o jogador tenha adicionado uma aposta ou podem ser escolhidos manualmente
         if(sessaoDeJogo.getNumerosSorteados().size()<15){
-                    JOptionPane.showMessageDialog(this,  "Pelo menos 15 números devem ser sorteados antes de poder terminar o jogo ","Erro!",javax.swing.JOptionPane.INFORMATION_MESSAGE); 
-                    return;
+            JOptionPane.showMessageDialog(this,  "Pelo menos 15 números devem ser sorteados antes de poder terminar o jogo ","Erro!",javax.swing.JOptionPane.INFORMATION_MESSAGE); 
+            return;
         }
    
         String[] opcoes = new String[sessaoDeJogo.getApostasFeitas().keySet().toArray().length+1];
         
         for(int i = 0; i<sessaoDeJogo.getApostasFeitas().keySet().toArray().length;i++)
             opcoes[i] = Integer.toString((Integer)sessaoDeJogo.getApostasFeitas().keySet().toArray()[i]);
-        opcoes[sessaoDeJogo.getApostasFeitas().keySet().toArray().length ] = "Mais De Um Vencedor";
         
-        
+        opcoes[sessaoDeJogo.getApostasFeitas().keySet().toArray().length ] = "Manual/Mais de Um Vencedor";
         String resultado = (String)JOptionPane.showInputDialog(null, "Escolha o(s) vencedor(es):", 
                 "Jogadores", JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
         
         ArrayList<Integer> vencedores = new ArrayList<>();
-        if(resultado == null){
+        if(resultado == null)
             return;
-        }
         else if(resultado.equals(opcoes[sessaoDeJogo.getApostasFeitas().keySet().toArray().length ])){
-              resultado = JOptionPane.showInputDialog(null, "Adicione os vencedores separados por espaço!", 
-                "Adicione os vencedores", JOptionPane.QUESTION_MESSAGE);
-              {
+            resultado = JOptionPane.showInputDialog(null, "Adicione os vencedores separados por espaço!", 
+                   "Adicione os vencedores", JOptionPane.QUESTION_MESSAGE);
+            
             if(resultado != null){
                 String[] vencedoresToFilter = resultado.split(" ");
                 for(String vencedorToFilter : vencedoresToFilter)
                     try{
                         vencedores.add(Integer.parseInt(vencedorToFilter));
                     } catch (NumberFormatException e) {}
-                
+
             }
-        }
+            
         }
         else
             vencedores.add(Integer.valueOf(resultado));
-        
-//        dispose();
         ModalGameScores myDialog = new ModalGameScores(this, true,sessaoDeJogo.getScores(vencedores));
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         myDialog.setLocationRelativeTo(null);  
         myDialog.setVisible(true);
-
-        
     }//GEN-LAST:event_jButtonNumerosSorteadosActionPerformed
 
     /**
@@ -442,6 +421,7 @@ public class GSalaGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanelHead;
     // End of variables declaration//GEN-END:variables
 
+     // Referencia: https://www.baeldung.com/java-generating-random-numbers-in-range
     private static int randomNum(int min, int max) {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;

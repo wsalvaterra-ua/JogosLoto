@@ -30,7 +30,10 @@ public class Slot_Numero {
     public void setMarcado(boolean marcado){
         this.marcado = marcado;
     }
-
+/**
+ * Método que define o novo número da instancia
+     * @param numero novo número para a instancia
+ */
     public void setNumero(int numero) {
         this.numero = numero;
     }

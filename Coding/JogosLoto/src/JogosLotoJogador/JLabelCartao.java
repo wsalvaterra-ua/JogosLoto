@@ -9,14 +9,27 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 /**
- *
+ * Esta Classe herda a classe JLabel e tem propriedades e métodos criadas para facilitar o uso de Jlabels num Jogo de Loto
  * @author bil
  */
 public class JLabelCartao extends javax.swing.JLabel{
-   
+/**
+ * Objeto Slot_Número a ser utilizada pela Instancia
+ */
     private Slot_Numero slot_numero;
+/**
+ * Indica se jogo foi iniciado ou não. 
+ */
     private boolean jogoIniciado;
+/**
+ * Tema a ser utilizado no jogo 
+ */
     Tema TEMA;
+/**
+ * Construtor do objeto  JLabelCartão
+     * @param slot_numero objeto Slot_Numero a ser utilizado
+     * @param tema Tema a ser utilizado durante o jogo.
+ */
     public JLabelCartao(Slot_Numero slot_numero,Temas tema){
         super();
         this.TEMA = new Tema(tema);
@@ -64,19 +77,17 @@ public class JLabelCartao extends javax.swing.JLabel{
         
         
     }
-    
-    public void mouse_Hover(int acao){
+
+    private void mouse_Hover(int acao){
         if(this.slot_numero != null && this.slot_numero.getMarcado())
             return;
         if(acao == 0)
             this.setBackground(this.TEMA.NUMERO_HOVERIN_BACKGROUND);
         if(acao == 1)
             this.setBackground(this.TEMA.NUMERO_HOVEROUT_BACKGROUND);
-        
-        
-        
     }
-    public void mouse_Clicked(){
+
+    private void mouse_Clicked(){
         if(this.jogoIniciado)
             return;
         
@@ -90,7 +101,7 @@ public class JLabelCartao extends javax.swing.JLabel{
                         JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre 0 e 90","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
                         return;
                 }
-                this.slot_numero = new Slot_Numero(Integer.valueOf(resultado));
+                this.slot_numero.setNumero(Integer.valueOf(resultado));
                 this.setText(resultado);
                 this.setOpaque(true);
                 return;
@@ -105,19 +116,29 @@ public class JLabelCartao extends javax.swing.JLabel{
         this.setOpaque(false);
         
     }
+/**
+ * Método que define o número contido nesta instancia como marcado e alterando as cores do objeto de forma a deixar , 
+ */
     public void marcarJLabel(){
         if(!jogoIniciado)
             return;
+        this.slot_numero.setMarcado(true);
         this.setForeground(new java.awt.Color(242, 242, 242));
         this.setBackground(new java.awt.Color(153,153,153));
         
     }
     
-
+/**
+ * Método retorna o Slot_Numero contido nesta instancia
+     * @return  o Slot_Numero contido nesta instancia
+ */
     public Slot_Numero getSlot_numero() {
         return slot_numero;
     }
-
+/**
+ * Método que define a propriedade jogoIniciado como True ou False
+     * @param jogoIniciado novo estado da propriedade da classe jogoIniciado
+ */
     public void setJogoIniciado(boolean jogoIniciado) {
         this.jogoIniciado = jogoIniciado;
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 

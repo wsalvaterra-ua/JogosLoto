@@ -8,17 +8,23 @@ package JogosLotoGestorDeSalas;
 import java.util.HashMap;
 
 /**
+ *Classe que cria uma caixa de dialogo em Interface gráfica os jogadores  vencedores e as suas devidas recompensas
+ * @author William Salvaterra e Rui Oliveira
  *
- * @author bil
  */
 public class ModalGameScores extends javax.swing.JDialog {
 
-    /**
-     * Creates new form ModalGameScores
-     */
    private final String[][] vencedoresEmArray;
+/**
+ *Esta classe cria uma Interface gráfica de um gestor de Salas .
+     * @param parent o diálogo do proprietário a partir do qual o diálogo é mostrado ou nulo se este diálogo não tiver dono
+     * @param modal especifica se a caixa de diálogo bloqueia a entrada do usuário em outras janelas de nível superior quando mostrada. 
+     * @param vencedores recebe a Coleção de Vencedores
+ */
     public ModalGameScores(java.awt.Frame parent, boolean modal, HashMap<Integer,Double> vencedores) {
         super(parent, modal);
+        
+           
         vencedoresEmArray = new String[vencedores.size()][2];
 
         int x = 0;
@@ -45,7 +51,7 @@ public class ModalGameScores extends javax.swing.JDialog {
         jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Vencedores");
+        setTitle("Lista de Vencedores");
         setBackground(new java.awt.Color(0, 204, 0));
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
 

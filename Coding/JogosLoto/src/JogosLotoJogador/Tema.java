@@ -6,16 +6,39 @@
 package JogosLotoJogador;
 
 /**
- *
- * @author bil
+ * Classe com propriedades que armazenam cores de acordo com o tema escolhido pelo utilizador
+ * @author  William Salvaterra e Rui Oliveira
  */
 public  class Tema {
+/**
+ * Cor de Fundo  do painel que contem os números
+ */
     public final java.awt.Color PANEL_CONTENT_BACKGROUND;
+/**
+ * Cor de Fundo  do painel de opções
+ */
     public final java.awt.Color PANEL_OPCOES_BACKGROUND;
+/**
+ * Cor de Fundo  dos JLabel dos números
+ */
     public final java.awt.Color NUMERO_BACKGROUND;
+/**
+ * Cor de Fundo  ao fazer HOver in nos números
+ */
     public final java.awt.Color NUMERO_HOVERIN_BACKGROUND;
+/**
+ * Cor de Fundo  ao fazer HOver out nos números
+ */
     public final java.awt.Color NUMERO_HOVEROUT_BACKGROUND;
+/**
+ *Tema a ser utilizado
+ */
     public final Temas TEMA;
+    
+/**
+ * Construtor que cria as cores a serem utilizadas de acordo com o tema escolhido pelo utilizador
+     * @param tema Tema a ser utilizado
+ */
     public Tema(Temas tema){
         this.TEMA = tema;
 

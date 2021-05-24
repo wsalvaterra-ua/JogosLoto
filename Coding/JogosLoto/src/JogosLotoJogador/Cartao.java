@@ -9,21 +9,11 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Classe Cartão que contêm a essencia do Jogo Loto, assim que o objeto é instanciado o cartão é construído de acordo com as seguintes regras:
- * Cada linha tem sempre 5 números.
- * 
- * Cada coluna tem entre 0 (zero) e 3 números, inclusive.
- * Cada coluna apenas pode ter números da dezena correspondente à sua
- * posição, i.e., a primeira coluna pode ter números entre 1 e 9, inclusive,
- * a segunda coluna pode ter números entre 10 e 19, inclusive, e assim
- * sucessivamente até à última coluna que pode ter números entre 80 e
- * 90, inclusive.
- * 
- * Está classe para além de gerar o Cartão de Jogos de Loto, é também possivel  utilizar métodos como Marcar número sorteado ou 
- * Desmarcar os mesmos
+ * Classe Cartão que contêm funções e métodos para criar e Gerir um cartão com números para Jogos de Loto
+
  * @author Rui Oliveira e William Salvaterra
  */
-public class Cartao {
+public final class Cartao {
 /**
  * Quantidade de linhas a ser gerada
  */
@@ -43,14 +33,11 @@ public class Cartao {
      private ArrayList<HashMap<Integer,Slot_Numero >> LinhasArrayList;
 
 /**
- * Constrói um cartão para Jogo de Loto com os seguintes requisitos:
+ * Inicializa um Cartão com números para Jogo de Loto:
  * 
- * Cada coluna tem entre 0 (zero) e 3 números, inclusive.
- * Cada coluna apenas pode ter números da dezena correspondente à sua
- * posição, i.e., a primeira coluna pode ter números entre 1 e 9, inclusive,
- * a segunda coluna pode ter números entre 10 e 19, inclusive, e assim
- * sucessivamente até à última coluna que pode ter números entre 80 e
- * 90, inclusive.
+     * @param colunas Número de Colunas a serem criadas
+     * @param linhas Número de Linhas a serem criadas
+     * @param slotsComNumeros Número de Colunas a serem ocupadas por cada linha
  */ 
     public Cartao(int colunas,int linhas ,int slotsComNumeros) {
         this.LinhasArrayList = new  ArrayList<>();
@@ -68,7 +55,6 @@ public class Cartao {
                 int randNum =  randomNum(getColumnMin(j), getColumnMax(j));
                 if(espacos_vazios_disponiveis> 0 &&  resultRand == 0 || espacos_numeros_disponiveis <1 && espacos_vazios_disponiveis> 0){
                     coluna.put(randNum ,null);
-
                     espacos_vazios_disponiveis--;
                 }else{
                     
@@ -97,29 +83,15 @@ public class Cartao {
 
 
 
-/**
- * Método para Desmarcar todos os números do Cartão.
- */
-   public void DesMarcarNumeros(){
-        Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = this.LinhasArrayList.iterator();
-        while ( iteradorArrayList.hasNext() ){
-            HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
-            for (int i : coluna.keySet()) 
-                if( coluna.get(i) != null)
-                    coluna.get(i).setMarcado(false);
-            }
-        
-   }
+
 /**
  * Método que procura no array slot[][] um Slot_Numero que contenha o número passado como argumento, o primeiro número encontrado é marcado 
  * e o método retorna um valor True caso um número seja encontrado e False caso não.
  * @param  numeroSorteado Número a ser sorteado e marcado
- * @return  True ou False 
+ * @return  a linha em que o numero foi marcado ou null e nenhum número for marcado 
  */
     public HashMap<Integer,Slot_Numero >  MarcarNumeroSorteado(int numeroSorteado){
         
-        
-       
        if(numeroSorteado <  getColumnMin(0) || numeroSorteado >  getColumnMax(colunas_dim - 1)){
            return null;
         }
@@ -163,7 +135,10 @@ public class Cartao {
     public int getSlot_numero_dim() {
         return slot_numero_dim;
     }
-
+/**
+ *  retorna A Coleção de Linhas do Cartão
+ * @return  Coleção de Linhas do Cartão
+ */
     public ArrayList<HashMap<Integer, Slot_Numero>> getLinhasArrayList() {
         return LinhasArrayList;
     }
@@ -181,55 +156,37 @@ public class Cartao {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
-    
-    public boolean editar_cartao(int linha, int valorAnterior, int valorNovo){
-        if( LinhasArrayList.get(linha) == null)
-            return false;
-      
-        if(valorNovo <  getColumnMin(0) || valorNovo >  getColumnMax(linhas_dim - 1))
-            return false;
-        
-        LinhasArrayList.get(linha).put(valorAnterior,new Slot_Numero(valorNovo));
-        if(valorNovo < 1)
-            LinhasArrayList.get(linha).put(valorAnterior,null);
-        System.out.println("Linha: " + linha + " Valor Antigo: " + valorAnterior + " Valor Novo: " + valorNovo +" editado com sucesso" );
-        return true;
-    }
-    public boolean editar_numero(Slot_Numero slot_numero, int valorNovo){
-        if(this.LinhasArrayList.size()<1)
-            return false;
-        Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = this.LinhasArrayList.iterator();
-        HashMap<Integer,Slot_Numero > coluna = null;
-        
-        while ( iteradorArrayList.hasNext() ) 
-               {
-                   coluna = iteradorArrayList.next();
-                   if(coluna.containsKey(slot_numero.getNumero()))
-                       break;
-               }
-        if(!coluna.containsKey(slot_numero.getNumero()))
-            return false;
-        if( LinhasArrayList.get(2) == null)
-            return false;
-      
-        if(valorNovo <  getColumnMin(0) || valorNovo >  getColumnMax(linhas_dim - 1))
-            return false;
-        slot_numero.setNumero(valorNovo);
-        return true;
-    }
-
+/**
+ *  retorna o número máximo permitido no dado index
+     * @param j número do index(começa em 0)
+ * @return  o número máximo permitido no dado index
+ */
     public int getColumnMax(int j){
         return (j * 10 + ((j==colunas_dim-1) ? 10:9 ) );
     }
-    
+/**
+ *  retorna o número máximo permitido no dado index
+     * @param j número do index(começa em 0)
+     * @param maxColuna Número de colunas no cartão
+ * @return  o número máximo permitido no dado index
+ */
     public static int getColumnMax(int j, int maxColuna){
         return (j * 10 + ((j==maxColuna-1) ? 10:9 ) );
     }
+    
+/**
+ *  retorna o número mínimo permitido no dado index
+     * @param j número do index(começa em 0)
+ * @return  o número mínimo permitido no dado index
+ */
     public static int getColumnMin(int j){
         return  (j * 10 + ((j==0) ? 1:0 ));
     }
     
-    
+/**
+ *  Função para verificar se o Cartão cumpre as regras do Cartão de Jogo de Loto
+ * @return  True se cartão for íntegro, False se cartão não cumprir as regras de um jogo de Loto
+ */
     public boolean verificar_integridade(){
         final int  espacos_vazios_permitidos = colunas_dim - slot_numero_dim ;
         final int espacos_numeros_permitidos = slot_numero_dim;
@@ -259,9 +216,5 @@ public class Cartao {
                 return false;
         }
       return true;
-
-            
-        
-        
     }
 }

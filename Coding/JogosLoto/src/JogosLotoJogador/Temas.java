@@ -6,8 +6,8 @@
 package JogosLotoJogador;
 
 /**
- *
- * @author bil
+ * Temas que podem ser utilizados durante o jogo
+ * @author William Salvaterra e Rui Oliveira
  */
 public enum Temas {
     DEFAULT , FUTURAMA, DETROIT;

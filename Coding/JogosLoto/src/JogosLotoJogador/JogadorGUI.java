@@ -1,7 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ *  JogosLotoGestorDeSalas Package com classes para criar Jogador de Jogos de Loto
  */
 package JogosLotoJogador;
 
@@ -13,20 +11,48 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 /**
- *
+ *Jogo De Loto com Interface gráfica em que o utilizador tem um Cartão com 3 linhas, e 9 colunas e 5 números por linha
  * @author bil
  */
-public final class JogadorGUI extends javax.swing.JFrame implements JogoLoto {
+public final class JogadorGUI extends javax.swing.JFrame {
 
-
+/**
+ * Coleção de Linhas  que armazenam por sua vez uma coleção de Labels especiais
+ */
     public final ArrayList<ArrayList<JLabelCartao >> LinhasDeLabel;
+/**
+ * Cartão utilizado durante o Jogo
+ */
     public Cartao cartao;
+/**
+ * Quantidade de linhas a ser gerada
+ */
+    public static int  COLUNAS_DIM = 9;
+/**
+ * Quantidade de Colunas a ser gerada
+ */
+    public static int LINHAS_DIM = 3;
+/**
+ * Quantidade de números por linha. 
+ */
+    public static  int QTD_NUMEROS_DIM = 5;
+/**
+ * Indica se jogo foi iniciado ou não. 
+ */
     public boolean jogoIniciado;
+/**
+ * Tema a ser utilizado no jogo 
+ */
     public Tema tema;
+    
+/**
+ * Contrói o JogosDeLoto com interface gráfica com um cartão com 3 linhas, 5 colunas e 5 números em posições aleatórias por linha
+ */
     public JogadorGUI() {
         super();
         
          this.tema =  new Tema(Temas.values()[Cartao.randomNum(0, 2)]);
+         //Cores dos JPaneis sao declaradas no método initComponents
         initComponents();
         this.jogoIniciado = false;
         this.LinhasDeLabel = new ArrayList<>();
@@ -35,12 +61,13 @@ public final class JogadorGUI extends javax.swing.JFrame implements JogoLoto {
         construirCartao();
     }
     
-    @Override
+/**
+ * Método que adiciona os números do Cartão e adiciona-os a Interface gráfica
+ */
     public void construirCartao(){
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
         
-        while ( iteradorArrayList.hasNext() ) 
-        {
+        while ( iteradorArrayList.hasNext() ){
             ArrayList<JLabelCartao > colunaJLabel = new ArrayList<>();
             
             HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
@@ -55,9 +82,6 @@ public final class JogadorGUI extends javax.swing.JFrame implements JogoLoto {
 
         }
         this.pack();
-        
-        
-        
     }
    
     
@@ -157,7 +181,9 @@ public final class JogadorGUI extends javax.swing.JFrame implements JogoLoto {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+/**
+ * Método executado quando se clica no botão para sortear um número, que pede ao utilizador que introduza o número a ser sorteado
+ */
     private void jButtonSortearNumeoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSortearNumeoActionPerformed
 
         if(!jogoIniciado){   
@@ -172,22 +198,23 @@ public final class JogadorGUI extends javax.swing.JFrame implements JogoLoto {
 
                 for(JLabelCartao jlabelcartao : colunaJLabel){
                     int i = colunaJLabel.indexOf(jlabelcartao);
+                    
                     int min = Cartao.getColumnMin(i);
-                    int max =  Cartao.getColumnMax(i, COLUNAS_DIM);
+                    int max =  Cartao.getColumnMax(i, COLUNAS_DIM );
                     if(jlabelcartao.getSlot_numero() != null){
                         if(jlabelcartao.getSlot_numero().getNumero() < min || jlabelcartao.getSlot_numero().getNumero() > max){
-                            JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique as posições!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique os números!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
                             return;
                         }
                         colunaCartao.put(jlabelcartao.getSlot_numero().getNumero(),jlabelcartao.getSlot_numero());
 
                     }
                     else
-                        colunaCartao.put( Cartao.randomNum(Cartao.getColumnMin(i), Cartao.getColumnMax(i, COLUNAS_DIM)), null);
+                        colunaCartao.put( Cartao.randomNum(Cartao.getColumnMin(i), Cartao.getColumnMax(i, COLUNAS_DIM )), null);
                 }
             }
             if(!cartao.verificar_integridade()){
-                JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique as posições!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique os números!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }else{
                 this.jogoIniciado = true;
@@ -211,8 +238,8 @@ public final class JogadorGUI extends javax.swing.JFrame implements JogoLoto {
 
            try {
                Integer.parseInt(resultado);
-               if(Integer.valueOf( resultado) <Cartao.getColumnMin(0) || Integer.valueOf( resultado) > cartao.getColumnMax(JogadorGUI.COLUNAS_DIM)){
-                       JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre "+ Cartao.getColumnMin(0) +  " e "+ cartao.getColumnMax(JogadorGUI.COLUNAS_DIM),"Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+               if(Integer.valueOf( resultado) <Cartao.getColumnMin(0) || Integer.valueOf( resultado) > cartao.getColumnMax(JogadorGUI.COLUNAS_DIM -1)){
+                       JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre "+ Cartao.getColumnMin(0) +  " e "+ cartao.getColumnMax(JogadorGUI.COLUNAS_DIM -1),"Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
                        return;
                }
                HashMap<Integer,Slot_Numero > colunaNumeroMarcado  = this.cartao.MarcarNumeroSorteado(Integer.valueOf( resultado));
@@ -237,7 +264,9 @@ public final class JogadorGUI extends javax.swing.JFrame implements JogoLoto {
         
                 
     }//GEN-LAST:event_jButtonSortearNumeoActionPerformed
-
+/**
+ * Método executado quando se clica no botão para criar um novo cartão, este método reinicia o jogo com um novo cartão
+ */
     private void jButtonNovoCartaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNovoCartaoActionPerformed
         // TODO add your handling code here:
         if(jogoIniciado){
@@ -269,7 +298,7 @@ public final class JogadorGUI extends javax.swing.JFrame implements JogoLoto {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        System.out.println(javax.swing.UIManager.getInstalledLookAndFeels());
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
