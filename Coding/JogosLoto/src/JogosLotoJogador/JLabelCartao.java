@@ -101,7 +101,10 @@ public class JLabelCartao extends javax.swing.JLabel{
                         JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre 0 e 90","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
                         return;
                 }
-                this.slot_numero.setNumero(Integer.valueOf(resultado));
+                if(this.slot_numero !=null)
+                     this.slot_numero.setNumero(Integer.valueOf(resultado));
+                else 
+                    this.slot_numero = new Slot_Numero(Integer.valueOf(resultado));
                 this.setText(resultado);
                 this.setOpaque(true);
                 return;
