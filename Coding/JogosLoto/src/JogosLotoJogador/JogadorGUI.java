@@ -409,7 +409,11 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
             if (reply == JOptionPane.NO_OPTION) 
                 return;
         }
-         this.tema =  new Tema(Temas.values()[Cartao.randomNum(0, 2)]);
+        novoJogo();
+    }//GEN-LAST:event_jButtonNovoCartaoActionPerformed
+    
+    private void novoJogo(){
+        this.tema =  new Tema(Temas.values()[Cartao.randomNum(0, 2)]);
          jPanelCartaoContent.setBackground(this.tema.PANEL_CONTENT_BACKGROUND);
          jPanelOpcoes.setBackground(this.tema.PANEL_OPCOES_BACKGROUND);
 
@@ -422,8 +426,9 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         this.LinhasDeLabel.clear();
         this.cartao = new Cartao(JogadorGUI.COLUNAS_DIM,JogadorGUI.LINHAS_DIM,JogadorGUI.QTD_NUMEROS_DIM);
         this.construirCartao();
-    }//GEN-LAST:event_jButtonNovoCartaoActionPerformed
-
+        
+        
+    }
     /**
      * @param args the command line arguments
      */
@@ -482,7 +487,11 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
                     System.out.println("Parabens, como vencedor ganhaste uma recompensa de" + dados.get(Integer.toString(this.numIdentificacao)));
                 else
                     System.out.println("Jogo terminou e nao foste um dos vencedores");
+                int reply = JOptionPane.showConfirmDialog(null, "Deseja comecar um novo jogo??", "Jogo Terminou!", JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.NO_OPTION) 
+                    return;
 
+                novoJogo();
             }
 
         }
