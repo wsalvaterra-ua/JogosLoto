@@ -298,7 +298,7 @@ public class GSalaGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 // referencia https://stackoverflow.com/questions/26685326/clearing-a-jlist
     private void jButtonApostaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonApostaActionPerformed
-        // TODO add your handling code here:
+        //Botão para adicionar aposta, colocando a aposta no painel de apostas
         modaAddlAposta myDialog = new modaAddlAposta(this, true);
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
@@ -313,6 +313,8 @@ public class GSalaGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonApostaActionPerformed
 
     private void jButtonatuallNumeroSorteadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonatuallNumeroSorteadoActionPerformed
+        //Botão para sortear número random, que ao sortear desativa a opção de adicionar mais apostas 
+        jButtonAposta.setEnabled(false);
         int numRand = randomNum(MIN, MAX);
         if(sessaoDeJogo.sortearNumero(numRand)){
             jLabelBigLabelatualNumeroSorteado.setText(String.valueOf(numRand));
@@ -322,7 +324,7 @@ public class GSalaGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonatuallNumeroSorteadoActionPerformed
 
     private void jButtonNumerosSorteadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNumerosSorteadosActionPerformed
-        //Os  vencedores  podem ser escolhidos  através de uma lista caso o jogador tenha adicionado uma aposta ou podem ser escolhidos manualmente
+        //Botão para terminar aposta onde os  vencedores  podem ser escolhidos  através de uma lista caso o jogador tenha adicionado uma aposta ou podem ser escolhidos manualmente
         if(sessaoDeJogo.getNumerosSorteados().size()<15){
             JOptionPane.showMessageDialog(this,  "Pelo menos 15 números devem ser sorteados antes de poder terminar o jogo ","Erro!",javax.swing.JOptionPane.INFORMATION_MESSAGE); 
             return;
