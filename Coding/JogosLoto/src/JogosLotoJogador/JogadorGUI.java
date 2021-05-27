@@ -3,18 +3,24 @@
  */
 package JogosLotoJogador;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 /**
  *Jogo De Loto com Interface gráfica em que o utilizador tem um Cartão com 3 linhas, e 9 colunas e 5 números por linha
  * @author bil
  */
-public final class JogadorGUI extends javax.swing.JFrame {
+public final class JogadorGUI extends javax.swing.JFrame implements ActionListener{
 
 /**
  * Coleção de Linhas  que armazenam por sua vez uma coleção de Labels especiais
@@ -45,9 +51,16 @@ public final class JogadorGUI extends javax.swing.JFrame {
  */
     public Tema tema;
     
+    private ClientCommunication clientCommunication; 
+    private javax.swing.Timer timerSocket;
+    private javax.swing.Timer timerJogo;
+    private String chave;
+    private int numIdentificacao;
 /**
  * Contrói o JogosDeLoto com interface gráfica com um cartão com 3 linhas, 5 colunas e 5 números em posições aleatórias por linha
  */
+
+
     public JogadorGUI() {
         super();
         
@@ -84,7 +97,80 @@ public final class JogadorGUI extends javax.swing.JFrame {
         this.pack();
     }
    
-    
+    private boolean validarJogo(){
+        if(!jogoIniciado){   
+
+            Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel = LinhasDeLabel.iterator();
+            Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = this.cartao.getLinhasArrayList().iterator();
+            
+            while ( iteradorArrayListJLabel.hasNext() &&  iteradorArrayList.hasNext()  ){
+                ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();
+                HashMap<Integer,Slot_Numero > colunaCartao = iteradorArrayList.next();
+                colunaCartao.clear();
+
+                for(JLabelCartao jlabelcartao : colunaJLabel){
+                    int i = colunaJLabel.indexOf(jlabelcartao);
+                    
+                    int min = Cartao.getColumnMin(i);
+                    int max =  Cartao.getColumnMax(i, COLUNAS_DIM );
+                    if(jlabelcartao.getSlot_numero() != null){
+                        if(jlabelcartao.getSlot_numero().getNumero() < min || jlabelcartao.getSlot_numero().getNumero() > max){
+                            
+                            return false;
+                        }
+                        colunaCartao.put(jlabelcartao.getSlot_numero().getNumero(),jlabelcartao.getSlot_numero());
+
+                    }
+                    else
+                        colunaCartao.put( Cartao.randomNum(Cartao.getColumnMin(i), Cartao.getColumnMax(i, COLUNAS_DIM )), null);
+                }
+            }
+            if(!cartao.verificar_integridade()){
+                return false;
+            }else{
+                //jOOG iniciar
+
+            }
+        } 
+        
+        return false;
+        
+    }
+    private void sortearNumero(int numero){
+       if(jogoIniciado){
+            boolean temNumerosMarcados = false;
+            HashMap<Integer,Slot_Numero > colunaNumeroMarcado  = this.cartao.MarcarNumeroSorteado(numero);
+            if(colunaNumeroMarcado != null){
+
+               for(JLabelCartao jlabelcartao : this.LinhasDeLabel.get(this.cartao.getLinhasArrayList().indexOf(colunaNumeroMarcado)))
+                   if(jlabelcartao.getSlot_numero()!= null)
+                       if(jlabelcartao.getSlot_numero()!= null)
+                           if(jlabelcartao.getSlot_numero().getNumero() == numero)
+                                   jlabelcartao.marcarJLabel();
+                jLabelJogoStatus.setText("< O Número " + numero+ " foi marcado no seu cartão! >"); 
+                   
+                Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
+
+                while ( iteradorArrayList.hasNext() ){
+                    HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
+                    List<Integer> sortedKeys=new ArrayList(coluna.keySet());
+                    Collections.sort(sortedKeys);
+                    for (int i : sortedKeys) 
+                        if(coluna.get(i).getMarcado())
+                            temNumerosMarcados = true;
+                }
+            }
+            else
+                jLabelJogoStatus.setText("< O Número " + numero+ " não existe no seu cartão! >");
+
+            if(!temNumerosMarcados){
+                System.out.println("terminou o jogo");
+                clientCommunication.enviarMSG("terminou:"+this.numIdentificacao +";chave:"+this.chave);
+                jogoIniciado = false;
+
+            }
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -97,7 +183,7 @@ public final class JogadorGUI extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         jPanelOpcoes = new javax.swing.JPanel();
-        jButtonSortearNumeo = new javax.swing.JButton();
+        jButtonIniciarJogo = new javax.swing.JButton();
         jLabelJogoStatus = new javax.swing.JLabel();
         jButtonNovoCartao = new javax.swing.JButton();
         jlabelTips = new javax.swing.JLabel();
@@ -111,11 +197,11 @@ public final class JogadorGUI extends javax.swing.JFrame {
         jPanelOpcoes.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 5, true));
         jPanelOpcoes.setLayout(new java.awt.GridBagLayout());
 
-        jButtonSortearNumeo.setText("Introduzir Número Sorteado");
-        jButtonSortearNumeo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jButtonSortearNumeo.addActionListener(new java.awt.event.ActionListener() {
+        jButtonIniciarJogo.setText("Iniciar Jogo");
+        jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButtonIniciarJogo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSortearNumeoActionPerformed(evt);
+                jButtonIniciarJogoActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -124,7 +210,7 @@ public final class JogadorGUI extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 0.1;
         gridBagConstraints.insets = new java.awt.Insets(10, 30, 0, 30);
-        jPanelOpcoes.add(jButtonSortearNumeo, gridBagConstraints);
+        jPanelOpcoes.add(jButtonIniciarJogo, gridBagConstraints);
 
         jLabelJogoStatus.setText("< Jogo Não Inicializado >");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -168,6 +254,7 @@ public final class JogadorGUI extends javax.swing.JFrame {
         getContentPane().add(jPanelOpcoes, gridBagConstraints);
 
         jPanelCartaoContent.setBackground(this.tema.PANEL_CONTENT_BACKGROUND);
+        jPanelCartaoContent.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jPanelCartaoContent.setLayout(new java.awt.GridLayout(3, 9, 2, 2));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -184,87 +271,134 @@ public final class JogadorGUI extends javax.swing.JFrame {
 /**
  * Método executado quando se clica no botão para sortear um número, que pede ao utilizador que introduza o número a ser sorteado
  */
-    private void jButtonSortearNumeoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSortearNumeoActionPerformed
+    private void jButtonIniciarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonIniciarJogoActionPerformed
+       if(jogoIniciado)
+           return;
+        
+        this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR)); 
+        jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
+        this.clientCommunication = new ClientCommunication();
+        if(!this.clientCommunication.conectar()){
+            JOptionPane.showMessageDialog(this,"Não foi possivel estabelecer uma conexão com o servidor, por favor tente novamente","Erro ao conectar-se",javax.swing.JOptionPane.WARNING_MESSAGE);
+            this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
+            jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
+            return;
+        }
+        
+        if(!validarJogo()){
+             JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique os números!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+             return;
+        }
+        
+        iniciarJogo();
+      
+ 
+        this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
+        jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
 
-        if(!jogoIniciado){   
 
-            Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel = LinhasDeLabel.iterator();
-            Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = this.cartao.getLinhasArrayList().iterator();
             
-            while ( iteradorArrayListJLabel.hasNext() &&  iteradorArrayList.hasNext()  ){
-                ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();
-                HashMap<Integer,Slot_Numero > colunaCartao = iteradorArrayList.next();
-                colunaCartao.clear();
 
-                for(JLabelCartao jlabelcartao : colunaJLabel){
-                    int i = colunaJLabel.indexOf(jlabelcartao);
-                    
-                    int min = Cartao.getColumnMin(i);
-                    int max =  Cartao.getColumnMax(i, COLUNAS_DIM );
-                    if(jlabelcartao.getSlot_numero() != null){
-                        if(jlabelcartao.getSlot_numero().getNumero() < min || jlabelcartao.getSlot_numero().getNumero() > max){
-                            JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique os números!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
-                            return;
-                        }
-                        colunaCartao.put(jlabelcartao.getSlot_numero().getNumero(),jlabelcartao.getSlot_numero());
+    }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
+    private void iniciarJogo(){
 
-                    }
-                    else
-                        colunaCartao.put( Cartao.randomNum(Cartao.getColumnMin(i), Cartao.getColumnMax(i, COLUNAS_DIM )), null);
-                }
+        char[] key = new char[Cartao.randomNum(6,15)];
+        for(int i = 0; i< key.length;i++){
+            switch(Cartao.randomNum(1,3)){
+                
+                case 1:
+                    key[i] = (char)Cartao.randomNum(48,57);
+                    break;
+                case 2:
+                    key[i] = (char)Cartao.randomNum(65,90);
+                    break;
+                case 3:
+                    key[i] = (char)Cartao.randomNum(97,122);
+                    break; 
             }
-            if(!cartao.verificar_integridade()){
-                JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique os números!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
-                return;
-            }else{
-                this.jogoIniciado = true;
-                iteradorArrayListJLabel = LinhasDeLabel.iterator();
+            chave = String.valueOf(key);
+            
+        }
+        
+        String cartaoNumeros = "cartaoNumeros:";
+        
+        Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
+        while ( iteradorArrayList.hasNext() ){
+            
+            HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
+            List<Integer> sortedKeys=new ArrayList(coluna.keySet());
+            Collections.sort(sortedKeys);
+            
+            for (int i : sortedKeys) 
+                cartaoNumeros+= coluna.get(i) +",";
+            }
+        
+        cartaoNumeros = cartaoNumeros.substring(0, cartaoNumeros.length()-2);
+        String msg_Encriptada = EncriptacaoAES.encrypt(cartaoNumeros, chave);
+        clientCommunication.enviarMSG(msg_Encriptada);
+         String msgRecebida;
+         
+        try {
+            msgRecebida = ClientCommunication.decodificar(clientCommunication.esperarMSG()).get("numIdentificacao");
+        } catch (IOException ex) {
 
-                while ( iteradorArrayListJLabel.hasNext()  ){
-                    ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();
-                    for(JLabelCartao jlabelcartao : colunaJLabel)
-                        jlabelcartao.setJogoIniciado(true);
-                }
-                jlabelTips.setVisible(false);
-                jLabelJogoStatus.setText("<Jogo Iniciado>");
+            JOptionPane.showMessageDialog(this,"A conexão entre o servidor e o cliente falhou, verifique a sua conexão","Erro de conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if(msgRecebida !=null){
+            if(msgRecebida.equals("false")){
+                JOptionPane.showMessageDialog(this,"O Anfitrião rejeitou o seu cartão","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            numIdentificacao = Integer.valueOf(msgRecebida);
+            
+        }  
+        modaAddlAposta myDialog = new modaAddlAposta(this, true);
+        myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        myDialog.setLocationRelativeTo(null);  
+        myDialog.setVisible(true);
+        if(myDialog.data[0] != null)
+        this.clientCommunication.enviarMSG("apostaNome:" + myDialog.data[0] +";apostaValor:"+myDialog.data[1]+";numIdentificacao:"+this.numIdentificacao);
+
+        while(true){
+            try {
+                System.out.println("Aguarde até que o anfitriao inicie o jogo!");
+                msgRecebida = ClientCommunication.decodificar(clientCommunication.esperarMSG()).get("jogoIniciado");
+
+                if(msgRecebida.equals("true"))
+                    break;
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this,"A conexão entre o servidor e o cliente falhou, verifique a sua conexão","Erro de conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
             }
         }
-
-
-       if(jogoIniciado){
-           String resultado = (String)JOptionPane.showInputDialog( "Introduza o número sorteado!");
-           if(resultado == null)
-               return;
-
-           try {
-               Integer.parseInt(resultado);
-               if(Integer.valueOf( resultado) <Cartao.getColumnMin(0) || Integer.valueOf( resultado) > cartao.getColumnMax(JogadorGUI.COLUNAS_DIM -1)){
-                       JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre "+ Cartao.getColumnMin(0) +  " e "+ cartao.getColumnMax(JogadorGUI.COLUNAS_DIM -1),"Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
-                       return;
-               }
-               HashMap<Integer,Slot_Numero > colunaNumeroMarcado  = this.cartao.MarcarNumeroSorteado(Integer.valueOf( resultado));
-               if(colunaNumeroMarcado != null){
-
-                   for(JLabelCartao jlabelcartao : this.LinhasDeLabel.get(this.cartao.getLinhasArrayList().indexOf(colunaNumeroMarcado)))
-                       if(jlabelcartao.getSlot_numero()!= null)
-                           if(jlabelcartao.getSlot_numero()!= null)
-                               if(jlabelcartao.getSlot_numero().getNumero() == Integer.valueOf(resultado))
-                                       jlabelcartao.marcarJLabel();
-                   jLabelJogoStatus.setText("< O Número " + resultado + " foi marcado no seu cartão! >");
-
-               }
-               else
-                   jLabelJogoStatus.setText("< O Número " + resultado + " não existe no seu cartão! >");
-
-           } catch (NumberFormatException e) {
-               JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre 0 e 90","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
-           }
-
-       }
+       
         
-                
-    }//GEN-LAST:event_jButtonSortearNumeoActionPerformed
-/**
+        Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel = LinhasDeLabel.iterator();
+        iteradorArrayListJLabel = LinhasDeLabel.iterator();
+
+        while ( iteradorArrayListJLabel.hasNext()  ){
+            ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();
+            for(JLabelCartao jlabelcartao : colunaJLabel)
+                jlabelcartao.setJogoIniciado(true);
+        }
+        jlabelTips.setVisible(false);
+        jLabelJogoStatus.setText("<Jogo Iniciado>");
+
+        jogoIniciado = true;
+        timerSocket = new javax.swing.Timer(1000, clientCommunication);
+        timerSocket.start();        
+        timerJogo = new javax.swing.Timer(1000, this);
+        timerJogo.start();        
+
+        
+        
+    }
+    
+    
+    
+    /**
  * Método executado quando se clica no botão para criar um novo cartão, este método reinicia o jogo com um novo cartão
  */
     private void jButtonNovoCartaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNovoCartaoActionPerformed
@@ -328,11 +462,40 @@ public final class JogadorGUI extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonIniciarJogo;
     private javax.swing.JButton jButtonNovoCartao;
-    private javax.swing.JButton jButtonSortearNumeo;
     private javax.swing.JLabel jLabelJogoStatus;
     private javax.swing.JPanel jPanelCartaoContent;
     private javax.swing.JPanel jPanelOpcoes;
     private javax.swing.JLabel jlabelTips;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        HashMap<String,String> dados = ClientCommunication.decodificar(this.clientCommunication.lerMSGs());
+        
+      
+        if(dados.containsKey("jogoTeminou")){
+            if(dados.get("jogoTerminou").equals("true")){
+                if(dados.containsKey(Integer.toString(this.numIdentificacao)))
+                    System.out.println("Parabens, como vencedor ganhaste uma recompensa de" + dados.get(Integer.toString(this.numIdentificacao)));
+                else
+                    System.out.println("Jogo terminou e nao foste um dos vencedores");
+
+            }
+
+        }
+
+            
+        if(dados.containsKey("numeroSorteado")){
+            try {
+                sortearNumero(Integer.parseInt(dados.get("numeroSorteado")));
+                System.out.println("um numero foi sorteado , será que pertence ao seu cartao?" + dados.get("numeroSorteado"));
+            } catch (NumberFormatException n) {
+                System.out.println("numero sorteado nao é numero");
+            }
+            
+        }
+        
+    }
 }
