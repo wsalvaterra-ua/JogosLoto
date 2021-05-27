@@ -104,14 +104,18 @@ public class modaAddlAposta extends javax.swing.JDialog {
             .addComponent(btnCancel)
         );
 
+        jTextIdentificacao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextIdentificacaoActionPerformed(evt);
+            }
+        });
+
         jLabel1.setText("Indroduza o número de identificação do Jogador:");
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         jLabel3.setText("*Identificação deve ser um número natural menor que 2.147.483.647");
 
         jLabel2.setText("Introduza o valor apostado pelo Jogador");
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         jLabel4.setText("*Valor deve ser um número maior que 0");
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
@@ -183,7 +187,7 @@ public class modaAddlAposta extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOkActionPerformed
-        // TODO add your handling code here:
+        //Botão para confirmar a adição da aposta, verificando a integridade dos elementos introduzidos pelo utilizador
         boolean validadeID = false;
         boolean validadeValor = false;
         
@@ -221,13 +225,17 @@ public class modaAddlAposta extends javax.swing.JDialog {
     }//GEN-LAST:event_btnOkActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        // TODO add your handling code here:
+        //Botão para cancelar a aposta
         
             data[0] = null;
             dispose();
         
         
     }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void jTextIdentificacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextIdentificacaoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextIdentificacaoActionPerformed
 
 
 
