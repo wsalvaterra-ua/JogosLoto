@@ -272,7 +272,8 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
  * Método executado quando se clica no botão para sortear um número, que pede ao utilizador que introduza o número a ser sorteado
  */
     private void jButtonIniciarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonIniciarJogoActionPerformed
-       if(jogoIniciado)
+       //Botão para iniciar o jogo
+        if(jogoIniciado)
            return;
         
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR)); 
@@ -402,7 +403,7 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
  * Método executado quando se clica no botão para criar um novo cartão, este método reinicia o jogo com um novo cartão
  */
     private void jButtonNovoCartaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNovoCartaoActionPerformed
-        // TODO add your handling code here:
+        //Botão para gerar novo cartão
         if(jogoIniciado){
             int reply = JOptionPane.showConfirmDialog(null, "Tens um jogo em progresso.\nSe continuar esta ação irá perder o seu progresso do jogo anterior, deseja prosseguir?", "Jogo em progresso!", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.NO_OPTION) 
