@@ -21,19 +21,13 @@ import java.util.logging.Logger;
  *
  * @author bil
  */
-public class ClientCommunication implements ActionListener{
+public class ClientCommunication extends SocketCommunicationStruct implements ActionListener{
     
-    private Socket socket;
-    private static final int PORTA = 80;
-    private static final String ENDERECO = "localhost";
-    private PrintWriter saida;
-    private BufferedReader entrada;
-    private ArrayList<String> MSGEntrada;
     public ClientCommunication(){
-
-        
+        super();
+        MSGEntrada = new ArrayList<>();
     }
-    public final boolean conectar() {
+    public  boolean conectar() {
         try {
             socket = new Socket(ENDERECO,PORTA);
             saida = new PrintWriter(socket.getOutputStream(), true);
@@ -43,19 +37,7 @@ public class ClientCommunication implements ActionListener{
             return false;
         }
     }
-    public static HashMap<String,String> decodificar(String inpt_){
-
-        HashMap<String,String> dadosFiltrados = new HashMap();
-        if(inpt_ == null)
-            return dadosFiltrados;
-        String[] dados = inpt_.split(";");
-        
-        for(int i = 0; i<dados.length; i++)
-            if(dados[i].length()==2)
-                dadosFiltrados.put(dados[i].split(":")[0],dados[i].split(":")[1]);
-        return dadosFiltrados;
-    }
-
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
@@ -66,33 +48,12 @@ public class ClientCommunication implements ActionListener{
             }
         } catch (IOException ex) {
             
-        }
-        
-        
+        } 
+    } 
+
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    
-    public void terminarConexao() throws IOException {
-        entrada.close();
-        saida.close();
-        socket.close();
-    }
-    public void enviarMSG(String msg) {
-        saida.println(msg);
-    }
-    public String esperarMSG() throws IOException{
-        
-        return entrada.readLine();
-        
-    }
-    public String lerMSGs(){
-        if(MSGEntrada.size()<1)
-            return null;
-        
-        String msg = MSGEntrada.get(0);
-        MSGEntrada.remove(0);
-        return msg;
-    }
-    
-    
+
 }

@@ -98,6 +98,7 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
     }
    
     private boolean validarJogo(){
+
         if(!jogoIniciado){   
 
             Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel = LinhasDeLabel.iterator();
@@ -125,23 +126,19 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
                         colunaCartao.put( Cartao.randomNum(Cartao.getColumnMin(i), Cartao.getColumnMax(i, COLUNAS_DIM )), null);
                 }
             }
-            if(!cartao.verificar_integridade()){
-                return false;
-            }else{
-                //jOOG iniciar
-
-            }
+            if(cartao.verificar_integridade())
+                return true;
+          
         } 
-        
         return false;
         
     }
     private void sortearNumero(int numero){
        if(jogoIniciado){
-            boolean temNumerosMarcados = false;
+            boolean temNumerosNaoMarcados = false;
             HashMap<Integer,Slot_Numero > colunaNumeroMarcado  = this.cartao.MarcarNumeroSorteado(numero);
             if(colunaNumeroMarcado != null){
-
+                System.out.println("marcou um numero" + numero);
                for(JLabelCartao jlabelcartao : this.LinhasDeLabel.get(this.cartao.getLinhasArrayList().indexOf(colunaNumeroMarcado)))
                    if(jlabelcartao.getSlot_numero()!= null)
                        if(jlabelcartao.getSlot_numero()!= null)
@@ -152,24 +149,27 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
                 Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
 
                 while ( iteradorArrayList.hasNext() ){
-                    HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
-                    List<Integer> sortedKeys=new ArrayList(coluna.keySet());
-                    Collections.sort(sortedKeys);
-                    for (int i : sortedKeys) 
-                        if(coluna.get(i).getMarcado())
-                            temNumerosMarcados = true;
+                    HashMap<Integer,Slot_Numero > coluna_IT = iteradorArrayList.next();
+
+
+                    for (int i : coluna_IT.keySet()) 
+                        if(coluna_IT.get(i)!= null)
+                            if(coluna_IT.get(i).getMarcado() == false)
+                                temNumerosNaoMarcados = true;
+                }
+                if(temNumerosNaoMarcados == false){
+                    System.out.println("terminou o jogo");
+                    clientCommunication.enviarMSG("terminou->"+this.numIdentificacao +"(&)chave->"+this.chave);
+                    jogoIniciado = false;
+
                 }
             }
-            else
+            else{
+                System.out.println("nao foi marcado nmr " + numero);
                 jLabelJogoStatus.setText("< O Número " + numero+ " não existe no seu cartão! >");
-
-            if(!temNumerosMarcados){
-                System.out.println("terminou o jogo");
-                clientCommunication.enviarMSG("terminou:"+this.numIdentificacao +";chave:"+this.chave);
-                jogoIniciado = false;
-
             }
-        }
+
+        }else System.out.println("Esta a marcar numeros mas jogo nao foi iniciado");
     }
 
     /**
@@ -321,7 +321,7 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
             
         }
         
-        String cartaoNumeros = "cartaoNumeros:";
+        String cartaoNumeros = "cartaoNumeros->";
         
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
         while ( iteradorArrayList.hasNext() ){
@@ -336,37 +336,50 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         
         cartaoNumeros = cartaoNumeros.substring(0, cartaoNumeros.length()-2);
         String msg_Encriptada = EncriptacaoAES.encrypt(cartaoNumeros, chave);
-        clientCommunication.enviarMSG(msg_Encriptada);
-         String msgRecebida;
-         
-        try {
-            msgRecebida = ClientCommunication.decodificar(clientCommunication.esperarMSG()).get("numIdentificacao");
-        } catch (IOException ex) {
-
-            JOptionPane.showMessageDialog(this,"A conexão entre o servidor e o cliente falhou, verifique a sua conexão","Erro de conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if(msgRecebida !=null){
-            if(msgRecebida.equals("false")){
-                JOptionPane.showMessageDialog(this,"O Anfitrião rejeitou o seu cartão","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            numIdentificacao = Integer.valueOf(msgRecebida);
-            
-        }  
+        
+        
         modaAddlAposta myDialog = new modaAddlAposta(this, true);
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         myDialog.setLocationRelativeTo(null);  
         myDialog.setVisible(true);
         if(myDialog.data[0] != null)
-        this.clientCommunication.enviarMSG("apostaNome:" + myDialog.data[0] +";apostaValor:"+myDialog.data[1]+";numIdentificacao:"+this.numIdentificacao);
+            this.clientCommunication.enviarMSG("apostaNome->" + myDialog.data[0] +"(&)apostaValor->"+myDialog.data[1] + "(&)cartao->" + msg_Encriptada);
+        else
+            this.clientCommunication.enviarMSG("cartao->" + msg_Encriptada);
 
+         String msgRecebida;
+         
+        try {
+            System.out.println("espera numID");
+            msgRecebida = ClientCommunication.decodificar(clientCommunication.esperarMSG()).get("numIdentificacao");
+  
+        } catch (IOException ex) {
+
+            JOptionPane.showMessageDialog(this,"A conexão entre o servidor e o cliente falhou, verifique a sua conexão","Erro de conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if(msgRecebida !=null){
+
+            if(msgRecebida.equals("false")){
+                JOptionPane.showMessageDialog(this,"O Anfitrião rejeitou o seu cartão","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            numIdentificacao = Integer.valueOf(msgRecebida);
+            System.out.println("numID: " + numIdentificacao  );
+        }  
+
+        
+        
+        
+        
+            
         while(true){
+       
             try {
                 System.out.println("Aguarde até que o anfitriao inicie o jogo!");
                 msgRecebida = ClientCommunication.decodificar(clientCommunication.esperarMSG()).get("jogoIniciado");
-
+                System.out.println();
                 if(msgRecebida.equals("true"))
                     break;
             } catch (IOException ex) {
@@ -480,8 +493,9 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
     public void actionPerformed(ActionEvent e) {
         HashMap<String,String> dados = ClientCommunication.decodificar(this.clientCommunication.lerMSGs());
         
-      
-        if(dados.containsKey("jogoTeminou")){
+        System.out.println(dados.toString());
+        if(dados.containsKey("jogoTerminou")){
+            System.out.println("dados de jogoterminou:" + dados.keySet());
             if(dados.get("jogoTerminou").equals("true")){
                 if(dados.containsKey(Integer.toString(this.numIdentificacao)))
                     System.out.println("Parabens, como vencedor ganhaste uma recompensa de" + dados.get(Integer.toString(this.numIdentificacao)));
@@ -500,7 +514,7 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         if(dados.containsKey("numeroSorteado")){
             try {
                 sortearNumero(Integer.parseInt(dados.get("numeroSorteado")));
-                System.out.println("um numero foi sorteado , será que pertence ao seu cartao?" + dados.get("numeroSorteado"));
+//                System.out.println("um numero foi sorteado , será que pertence ao seu cartao?" + dados.get("numeroSorteado"));
             } catch (NumberFormatException n) {
                 System.out.println("numero sorteado nao é numero");
             }
