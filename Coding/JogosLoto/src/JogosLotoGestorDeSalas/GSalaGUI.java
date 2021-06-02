@@ -3,17 +3,12 @@
  */
 package JogosLotoGestorDeSalas;
 
-import JogosLotoJogador.ClientCommunication;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
@@ -28,9 +23,9 @@ import javax.swing.JOptionPane;
 public class GSalaGUI extends javax.swing.JFrame{
     private final int MIN = 1;
     private final int MAX = 90;
-    private DefaultListModel modelNumerosSorteados;   
-    private DefaultListModel modelApostas;   
-    private SessaoDeJogoDeLoto sessaoDeJogo;
+    private final DefaultListModel modelNumerosSorteados;   
+    private final DefaultListModel modelApostas;   
+    private final SessaoDeJogoDeLoto sessaoDeJogo;
     private Server serversocket;
 
 /**
@@ -324,35 +319,32 @@ public class GSalaGUI extends javax.swing.JFrame{
             }
        }
 
-//        
-//        modaAddlAposta myDialog = new modaAddlAposta(this, true);
-//        myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//
-//        myDialog.setLocationRelativeTo(null);  
-//        myDialog.setVisible(true);
-        
-        
-        
-//        if(myDialog.data[0] != null){
-//            sessaoDeJogo.adicionarAposta(Integer.valueOf(myDialog.data[0]), Double.valueOf(myDialog.data[1]));
-//            modelApostas.addElement("ID: " + myDialog.data[0] + " - Valor: " + myDialog.data[1] );
-//        }
+
         serversocket.iniciar_jogo();
         jButtonIniciarJogo.setEnabled(false);
+        jButtonatuallNumeroSorteado.setEnabled(true);
         
     }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
-
+    public void estado_BotaoSortear(boolean estado){
+        jButtonatuallNumeroSorteado.setEnabled(estado);
+        
+    }
     private void jButtonatuallNumeroSorteadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonatuallNumeroSorteadoActionPerformed
         //Botão para sortear número random, que ao sortear desativa a opção de adicionar mais apostas 
-        jButtonIniciarJogo.setEnabled(false);
-        int numRand = randomNum(MIN, MAX);
-        if(sessaoDeJogo.sortearNumero(numRand)){
-            jLabelBigLabelatualNumeroSorteado.setText(String.valueOf(numRand));
-                this.serversocket.enviarMSG("numeroSorteado->" + Integer.toString(numRand));
-                modelNumerosSorteados.addElement(numRand);
-        }
-
         
+        int numRand = 0;
+        while(!sessaoDeJogo.sortearNumero(numRand)){
+            numRand = randomNum(MIN, MAX);
+            if(sessaoDeJogo.getNumerosSorteados().size()>=MAX){
+                JOptionPane.showMessageDialog(this,  "Não existem mais números para ser sorteado","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
+                jButtonatuallNumeroSorteado.setEnabled(false);
+                return;
+            }
+        }
+        
+        jLabelBigLabelatualNumeroSorteado.setText(String.valueOf(numRand));
+        this.serversocket.enviarMSG("numeroSorteado->" + Integer.toString(numRand));
+        modelNumerosSorteados.addElement(numRand);
     }//GEN-LAST:event_jButtonatuallNumeroSorteadoActionPerformed
 
     private void jButtonNumerosSorteadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNumerosSorteadosActionPerformed
@@ -460,15 +452,16 @@ public class GSalaGUI extends javax.swing.JFrame{
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
-    public void addApostas(int jogadorID, Double jogadorValorAposta){
-            sessaoDeJogo.adicionarAposta(jogadorID, jogadorValorAposta);
+    public void addApostas(int jogadorNovoID, Double jogadorValorAposta){
+            sessaoDeJogo.adicionarAposta(jogadorNovoID, jogadorValorAposta);
             System.out.println("aposta add");
-                String nomeJogadorNovo = serversocket.getJogadorNome(jogadorID);
+                String nomeJogadorNovo = serversocket.getJogadorNome(jogadorNovoID);
                 for(int jogadoresID_it : this.sessaoDeJogo.getApostasFeitas().keySet())
-                    if( serversocket.getJogadorNome( jogadoresID_it).equals(nomeJogadorNovo))
-                        modelApostas.addElement(nomeJogadorNovo + "->" +  jogadorValorAposta);
-                    else
-                        modelApostas.addElement(nomeJogadorNovo+jogadorID + "->" +  jogadorValorAposta);
+                    if( serversocket.getJogadorNome( jogadoresID_it).equals(nomeJogadorNovo) && jogadoresID_it != jogadorNovoID){
+                        modelApostas.addElement(nomeJogadorNovo + "_"+jogadorNovoID + "->" +  jogadorValorAposta);
+                        return;
+                    }
+                modelApostas.addElement(nomeJogadorNovo + "->" +  jogadorValorAposta);
     }       
 
     public boolean finalizarJogo(ArrayList<String[]> finalistasDadosEntrada){
@@ -504,15 +497,24 @@ public class GSalaGUI extends javax.swing.JFrame{
             for(int finalistaID : finalistasQtdNumerosConfirmados.keySet())
                 if(finalistasQtdNumerosConfirmados.get(finalistaID) >= 15)
                     break;
+            return false;
         }
         
         ArrayList<Integer> vencedores = new ArrayList<>();
-        for(int id : finalistasQtdNumerosConfirmados.keySet())
-            if(finalistasQtdNumerosConfirmados.get(id) >=15)
+        String mensagemAEnviar= "jogoTerminou->true";
+        for(int id : finalistasQtdNumerosConfirmados.keySet()){
+            if(finalistasQtdNumerosConfirmados.get(id) >=15){
                 vencedores.add(id);
+                
+
+            }
+        }
         if(vencedores.size() <1)
             return false;
-        
+        for(int idFinalista : vencedores)
+            mensagemAEnviar = mensagemAEnviar + "(&)"+idFinalista+"->"+ sessaoDeJogo.getScores(vencedores).get(idFinalista) ;
+            
+        serversocket.enviarMSG(mensagemAEnviar);
         ModalGameScores myDialog = new ModalGameScores(this, true,sessaoDeJogo.getScores(vencedores));
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 

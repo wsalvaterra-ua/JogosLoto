@@ -16,14 +16,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
   
 // Server class
-public class Server extends TimerTask implements Runnable
+public class Server implements Runnable
 {
     
     private boolean terminarJogo;
     private boolean jogoIniciado;
-    private GSalaGUI GestorGUI;
-    private HashMap<Integer,ServerCommunication> jogadoresSocket;
-    final  Timer  timer;
+    private final GSalaGUI GestorGUI;
+    private final HashMap<Integer,ServerCommunication> jogadoresSocket;
+
     ServerSocket serverSocket;
     
     public Server( GSalaGUI gestorDeSala) throws IOException{
@@ -32,32 +32,64 @@ public class Server extends TimerTask implements Runnable
         GestorGUI = gestorDeSala;
         serverSocket = new ServerSocket(ServerCommunication.PORTA);
         terminarJogo = false;
-        timer = new Timer(true);
+
 
         jogadoresSocket = new HashMap<>();
     }
     
     @Override
     public void run() {
-            System.out.println("Thread Iniciou");
-            if(terminarJogo){
-                timer.cancel();
-                
+    
+        receberClientes();
+        if(jogadoresSocket.size()<1){
+            System.out.println("Nnenhum cliente ingressou se");
+            return;
+        }   
+        while(!terminarJogo){
+                    
+                   ArrayList<String[]> finalistas = new ArrayList<>();
+        
+        for(int i: jogadoresSocket.keySet()){
+            ServerCommunication cliente = jogadoresSocket.get(i);
+       
+            if(cliente.terminouCartao()){
+                try {
+
+                    System.out.println("Classe Server Detetou que um cartao terminou");
+                    String numerosDecript = JogosLotoJogador.EncriptacaoAES.decrypt(cliente.cartaoNumerosEncoded, cliente.chaveDecriptar);
+                    if(numerosDecript == null)
+                        System.out.println("Chave de Encriptacao Incorreta");
+                    else{
+                        finalistas.add(new String[]{Integer.toString(cliente.jogadorID),numerosDecript});
+                        GestorGUI.estado_BotaoSortear(false);
+                    //tempo para que os outros clientes se atualizem caso queiram se declarar como vencedores também
+                        Thread.sleep(3000);
+                    }
+                } catch (InterruptedException ex) {
+                        for(int b: jogadoresSocket.keySet())
+                            jogadoresSocket.get(b).terminarJogo = true;
+                        this.terminarJogo = true;
+                        System.out.println("temrinou jogo durante o timer checar clientes");
+                }
+
+            }
+        }
+            System.out.println("finallistas:" + finalistas.size());
+        if(finalistas.size() > 0)
+            if(this.GestorGUI.finalizarJogo(finalistas)){
+                this.terminarJogo = true;
                 for(int b: jogadoresSocket.keySet())
                     jogadoresSocket.get(b).terminarJogo = true;
-                return;  
+                 break;
+            }else{
+                GestorGUI.estado_BotaoSortear(true);
             }
-               
-            if(jogoIniciado)
-                checarClientes();
-            else
-                try {
-                    receberClientes();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                }
-               
-        
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        }
    }
 
 
@@ -68,132 +100,58 @@ public class Server extends TimerTask implements Runnable
     
 
 
-    private void checarClientes(){
-        boolean alguemTerminou = false;
-        ArrayList<String[]> finalistas = new ArrayList<>();
-        System.out.println("comecou a checar clientes");
-        for(int i: jogadoresSocket.keySet()){
-            ServerCommunication cliente = jogadoresSocket.get(i);
-       
-            if(cliente.terminouCartao()){
-                try {
-                    //tempo para que os outros clientes se atualizem caso queiram se declarar como vencedores também
-                    sleep(10000);
-
-                    String numerosEncript = JogosLotoJogador.EncriptacaoAES.decrypt(cliente.cartaoNumerosEncoded, cliente.chaveDecriptar);
-                    if(numerosEncript == null)
-                        System.out.println("Chave de Encriptacao Incorreta");
-                    else{
-                        alguemTerminou = true;
-                        finalistas.add(new String[]{Integer.toString(cliente.jogadorID),numerosEncript});
-                    }
-                } catch (InterruptedException ex) {
-                        for(int b: jogadoresSocket.keySet())
-                            jogadoresSocket.get(b).terminarJogo = true;
-                        this.terminarJogo = true;
-                        System.out.println("temrinou jogo durante o timer checar clientes");
-
-                }
-
-            }
-        }
-        if(alguemTerminou)
-            if(this.GestorGUI.finalizarJogo(finalistas)){
-                this.terminarJogo = true;
-                this.cancel();
-                System.out.println("jogo terminou");
-            }
-    }
-    private void receberClientes() throws InterruptedException{
-    // referencia: https://www.baeldung.com/java-measure-elapsed-time
-    long start = System.currentTimeMillis();
-
-    long finish = System.currentTimeMillis(); 
-        try {
-            serverSocket.setSoTimeout(12000);
-        } catch (SocketException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        while( finish - start < 12000){
-            System.out.println("Tempo restante antes de iniciar" +   (finish - start));
-            try {
-              
-                Socket socket;
-                
-                System.out.println("a espera" );
-                
-                socket = serverSocket.accept();
-                if( finish - start > 12000) break;
-                
-                int jogadorID = jogadoresSocket.size()+1;
-                ServerCommunication  cliente_novo = new ServerCommunication(socket, jogadorID, GestorGUI);
-
-                if(cliente_novo.iniciarComunicacao()) 
-                    jogadoresSocket.put(jogadorID , cliente_novo);
-              
-
-                
-
-            } catch (IOException ex) {
-                System.out.println("Erro ao aceitar novo cliente, mas o programa continua");
-            }
-            finish = System.currentTimeMillis(); 
-        }
-        System.out.println("Parou de aceitar novas conexoes");
-        Thread.currentThread().interrupt();
-    }
     public void iniciar_jogo(){
         this.enviarMSG("jogoIniciado->true");
-        
-        jogoIniciado= true;
-        timer.schedule(this, 1000);
-//        Thread.currentThread().interrupt();
     }
     public String getJogadorNome(int jogadorID){
-        if(!this.jogadoresSocket.containsKey(jogadorID))
+        if(!this.jogadoresSocket.containsKey(jogadorID)){
+            System.out.println("nome vazio?");
             return null;
+        }
         return this.jogadoresSocket.get(jogadorID).nomeJogador;
         
     }
     
+
+    public void receberClientes() {
+// referencia: https://www.baeldung.com/java-measure-elapsed-time
+        long start = System.currentTimeMillis();
+
+        long finish = System.currentTimeMillis(); 
+            try {
+                serverSocket.setSoTimeout(12000);
+            } catch (SocketException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            while( finish - start < 12000){
+                System.out.println("Tempo restante antes de iniciar" +   (finish - start));
+                try {
+
+                    Socket socket;
+
+                    System.out.println("a espera" );
+
+                    socket = serverSocket.accept();
+                    if( finish - start > 12000) break;
+
+                    int jogadorID = jogadoresSocket.size()+1;
+                    ServerCommunication  cliente_novo = new ServerCommunication(socket, jogadorID, GestorGUI);
+
+                    if(cliente_novo.iniciarComunicacao()) 
+                        jogadoresSocket.put(jogadorID , cliente_novo);
+
+
+
+
+                } catch (IOException ex) {
+                    System.out.println("Erro ao aceitar novo cliente, mas o programa continua");
+                }
+                finish = System.currentTimeMillis(); 
+            }
+            System.out.println("Parou de aceitar novas conexoes");
+            
  
-    
-    public static void main(String[] args) throws IOException 
-    {
-        // server is listening on port 5056
-        ServerSocket ss = new ServerSocket(5056);
-          
-        // running infinite loop for getting
-        // client request
-        while (true) 
-        {
-            Socket s = null;
-              
-            try 
-            {
-                // socket object to receive incoming client requests
-                s = ss.accept();
-                  
-                System.out.println("A new client is connected : " + s);
-                  
-                // obtaining input and out streams
-                DataInputStream dis = new DataInputStream(s.getInputStream());
-                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-                  
-                System.out.println("Assigning new thread for this client");
-  
-                // create a new thread object
-                Thread t = new ClientHandler(s, dis, dos);
-  
-                // Invoking the start() method
-                t.start();
-                  
-            }
-            catch (Exception e){
-                s.close();
-                e.printStackTrace();
-            }
-        }
+            
     }
 
  

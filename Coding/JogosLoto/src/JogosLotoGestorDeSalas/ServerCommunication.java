@@ -5,17 +5,13 @@
  */
 package JogosLotoGestorDeSalas;
 
-import JogosLotoJogador.ClientCommunication;
-import static JogosLotoJogador.SocketCommunicationStruct.ENDERECO;
-import static JogosLotoJogador.SocketCommunicationStruct.PORTA;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +23,6 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
     private boolean terminouCartao;
     public boolean terminarJogo;
     int jogadorID;
-    Timer timer;
     String cartaoNumerosEncoded;
     String nomeJogador;
     Double aposta ; 
@@ -42,14 +37,8 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
         this.aposta = -1.0;
         this.jogadorID = jogadorID;
         cartaoNumerosEncoded = null;
-        timer = new Timer(true);
-        this.GestorGUI = GestorGUI;
 
-        
-        
-//                 private javax.swing.Timer timerSocket;
-//        timerSocket = new javax.swing.Timer(1000, this);
-//        timerSocket.start(); 
+        this.GestorGUI = GestorGUI;
         
     }
     public boolean iniciarComunicacao(){
@@ -69,80 +58,57 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
     
     @Override
     public void run() {
-        String texto = null;
-        
-        if(terminarJogo)
+        while(!terminarJogo){
+            String socketMSGEntrada = null;
+            System.out.println(" Executou Thread de Socket com cliente");
+            
             try {
-                this.terminarConexao();
-                timer.cancel();
-                return;
+                socketMSGEntrada = entrada.readLine();
             } catch (IOException ex) {
-                System.out.println("Nao foi possivel terminar a conexao");
-                
+                this.terminarJogo = true;
+                Logger.getLogger(ServerCommunication.class.getName()).log(Level.SEVERE, null, ex);
             }
-        
-        
-        if(this.cartaoNumerosEncoded == null && !jogoIniciou)
-            try {
-                texto = entrada.readLine();
-                System.out.println("Mensagem Entrada inicial: "+ texto);
-                HashMap<String,String> msgns = ServerCommunication.decodificar(texto);
-                System.out.println(msgns.keySet());
-                
+            if(this.cartaoNumerosEncoded == null && !jogoIniciou){
+                System.out.println("Mensagem Entrada inicial: "+ socketMSGEntrada);
+                HashMap<String,String> msgns = ServerCommunication.decodificar(socketMSGEntrada);
+
                 if(msgns.containsKey("cartao")){
                     System.out.println("contem chave cartao");
                     this.cartaoNumerosEncoded = msgns.get("cartao");
                     this.enviarMSG("numIdentificacao->"+ this.jogadorID);
-                    timer.schedule( this, 200);
                 }
 
-                if(msgns.containsKey("apostaNome"))
+                if(msgns.containsKey("apostaNome") && msgns.containsKey("apostaValor") ){
                     this.nomeJogador = msgns.get("apostaNome");
-                if(msgns.containsKey("apostaValor") ){
                     this.aposta = Double.valueOf(msgns.get("apostaValor"));
-                    GestorGUI.addApostas(jogadorID, Double.NEGATIVE_INFINITY);
+                    GestorGUI.addApostas(jogadorID, this.aposta);
                 }
-            } catch ( IOException ex) {
-                Logger.getLogger(ServerCommunication.class.getName()).log(Level.SEVERE, null, ex);
+                socketMSGEntrada = null;
             }
-        
-        try {
-            
-            while(entrada.ready()){
-                texto = entrada.readLine();
-                System.out.println("Mensagem Entrada: "+ texto);
-                if(texto != null){
-                    HashMap<String,String> msgns = ServerCommunication.decodificar(texto);
-                    if(this.cartaoNumerosEncoded == null ){
-//                        socket.setSoTimeout(2000);
-                        
-                        if(msgns.containsKey("cartao")){
-                            this.cartaoNumerosEncoded = msgns.get("cartao");
-                            this.enviarMSG("numIdentificacao->"+ this.jogadorID);
-                            timer.schedule( this, 200);
-                        }
 
-                        if(msgns.containsKey("apostaNome") && !jogoIniciou)
-                            this.nomeJogador = msgns.get("apostaNome");
-                        if(msgns.containsKey("apostaValor") && !jogoIniciou){
-                            this.aposta = Double.valueOf(msgns.get("apostaValor"));
-                            GestorGUI.addApostas(jogadorID, Double.NEGATIVE_INFINITY);
-                        }
-                        
-                    }else{
+                if(socketMSGEntrada != null){
+                    System.out.println("Mensagem Entrada: "+ socketMSGEntrada);
+  
+                        HashMap<String,String> msgns = ServerCommunication.decodificar(socketMSGEntrada);
+
                         if(msgns.containsKey("terminou") && msgns.containsKey("chave")){
-                            this.terminouCartao = true;
+                            
                             this.chaveDecriptar = msgns.get("chave");
+                            this.terminouCartao = true;
+
                         }
-                    }
                     
                 }
-                    
-            }
-        } catch (IOException ex) {
-            System.out.println("Conexao Falhou");
-        }
 
+        }
+        try {
+            System.out.println("Terminou jogo");
+            this.terminarConexao();
+
+        } catch (IOException ex) {
+            System.out.println("Nao foi possivel terminar a conexao");
+
+        }
     }
     
     public void setTerminarJogo(boolean terminarJogo) {

@@ -41,6 +41,7 @@ public class SessaoDeJogoDeLoto {
         if(numero < numeroMin || numero > numeroMax)
             return false;
         numerosSorteados.add(numero);
+        System.out.println("Numero " + numero + "retorna True;");
         return true;
     }
 /**

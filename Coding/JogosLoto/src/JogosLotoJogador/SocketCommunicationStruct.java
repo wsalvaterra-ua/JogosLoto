@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -43,8 +44,8 @@ public abstract class SocketCommunicationStruct  extends TimerTask{
         HashMap<String,String> dadosFiltrados = new HashMap();
         if(inpt_ == null)
             return dadosFiltrados;
-        String[] dados = inpt_.split("(&)");
-        System.out.println(dados);
+        String[] dados = inpt_.split("\\(&\\)");
+//        System.out.println(Arrays.toString(dados));
         
         for(int i = 0; i<dados.length; i++)
             if((dados[i].split("->")).length==2)
@@ -58,6 +59,7 @@ public abstract class SocketCommunicationStruct  extends TimerTask{
         entrada.close();
         saida.close();
         socket.close();
+        
     }
     public void enviarMSG(String msg) {
         System.out.println("Enviar MSG:"+ msg);
