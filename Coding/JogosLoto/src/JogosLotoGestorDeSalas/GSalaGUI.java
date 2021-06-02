@@ -4,6 +4,7 @@
 package JogosLotoGestorDeSalas;
 
 
+import JogosLotoJogador.Cartao;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -471,8 +472,10 @@ public class GSalaGUI extends javax.swing.JFrame{
         HashMap<Integer,Integer> finalistasQtdNumerosConfirmados = new HashMap<>();
         
         Iterator<Integer> nmrosorteadosIT =  this.sessaoDeJogo.getNumerosSorteados().iterator();
+        System.out.println("Quantidade de Nuemros Sorteados:" + sessaoDeJogo.getNumerosSorteados().size());
         while(nmrosorteadosIT.hasNext() ){
             int numeroSorteado = nmrosorteadosIT.next();
+            System.out.println("Número sorteado a ser verificado sorteado :" + numeroSorteado);
             Iterator<String[]> iteradorfinalistas = finalistasDadosEntrada.iterator();
 
             
@@ -482,11 +485,17 @@ public class GSalaGUI extends javax.swing.JFrame{
                 Matcher matcher = pattern.matcher(finalista[1]);
                 try {
                     if(matcher.find()){
+                        System.out.println(numeroSorteado + " foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
+                          System.out.println("Cartao: " + finalista[1]);
                         int finalistaID = Integer.parseInt(finalista[0]);
                         if(finalistasQtdNumerosConfirmados.containsKey(finalistaID))
                             finalistasQtdNumerosConfirmados.put(finalistaID, finalistasQtdNumerosConfirmados.get(finalistaID)+ 1);
                         else
                             finalistasQtdNumerosConfirmados.put(finalistaID, 1);
+                    }else{
+                        
+                         System.out.println(numeroSorteado + " nao foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
+                         System.out.println("Cartao: " + finalista[1]);
                     }
 
                 } catch (NumberFormatException e) {
@@ -494,10 +503,14 @@ public class GSalaGUI extends javax.swing.JFrame{
                 }
     
             }
+            boolean temFinalistaValido = false;
             for(int finalistaID : finalistasQtdNumerosConfirmados.keySet())
                 if(finalistasQtdNumerosConfirmados.get(finalistaID) >= 15)
-                    break;
-            return false;
+                    temFinalistaValido = true;
+            if(temFinalistaValido)
+                break;
+            if(nmrosorteadosIT.hasNext() == false)
+                return false;
         }
         
         ArrayList<Integer> vencedores = new ArrayList<>();

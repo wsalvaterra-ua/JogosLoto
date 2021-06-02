@@ -321,7 +321,7 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
             
         }
         
-        String cartaoNumeros = "cartaoNumeros->";
+        String cartaoNumeros = new String();
         
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
         while ( iteradorArrayList.hasNext() ){
@@ -331,10 +331,11 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
             Collections.sort(sortedKeys);
             
             for (int i : sortedKeys) 
-                cartaoNumeros+= coluna.get(i) +",";
+                if(coluna.get(i) != null)
+                   cartaoNumeros+= coluna.get(i).getNumero() +",";
             }
         
-        cartaoNumeros = cartaoNumeros.substring(0, cartaoNumeros.length()-2);
+        cartaoNumeros = cartaoNumeros.substring(0, cartaoNumeros.length()-1);
         String msg_Encriptada = EncriptacaoAES.encrypt(cartaoNumeros, chave);
         
         
@@ -344,9 +345,9 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         myDialog.setLocationRelativeTo(null);  
         myDialog.setVisible(true);
         if(myDialog.data[0] != null)
-            this.clientCommunication.enviarMSG("apostaNome->" + myDialog.data[0] +"(&)apostaValor->"+myDialog.data[1] + "(&)cartao->" + msg_Encriptada);
+            this.clientCommunication.enviarMSG("apostaNome->" + myDialog.data[0] +"(&)apostaValor->"+myDialog.data[1] + "(&)cartaoNumeros->" + msg_Encriptada);
         else
-            this.clientCommunication.enviarMSG("cartao->" + msg_Encriptada);
+            this.clientCommunication.enviarMSG("cartaoNumeros->" + msg_Encriptada);
 
          String msgRecebida;
          
@@ -401,9 +402,9 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         jLabelJogoStatus.setText("<Jogo Iniciado>");
 
         jogoIniciado = true;
-        timerSocket = new javax.swing.Timer(1000, clientCommunication);
+        timerSocket = new javax.swing.Timer(100, clientCommunication);
         timerSocket.start();        
-        timerJogo = new javax.swing.Timer(1000, this);
+        timerJogo = new javax.swing.Timer(100, this);
         timerJogo.start();        
 
         

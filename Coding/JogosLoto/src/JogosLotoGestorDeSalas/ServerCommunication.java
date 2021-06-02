@@ -60,7 +60,7 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
     public void run() {
         while(!terminarJogo){
             String socketMSGEntrada = null;
-            System.out.println(" Executou Thread de Socket com cliente");
+
             
             try {
                 socketMSGEntrada = entrada.readLine();
@@ -72,9 +72,9 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
                 System.out.println("Mensagem Entrada inicial: "+ socketMSGEntrada);
                 HashMap<String,String> msgns = ServerCommunication.decodificar(socketMSGEntrada);
 
-                if(msgns.containsKey("cartao")){
+                if(msgns.containsKey("cartaoNumeros")){
                     System.out.println("contem chave cartao");
-                    this.cartaoNumerosEncoded = msgns.get("cartao");
+                    this.cartaoNumerosEncoded = msgns.get("cartaoNumeros");
                     this.enviarMSG("numIdentificacao->"+ this.jogadorID);
                 }
 
