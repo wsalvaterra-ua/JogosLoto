@@ -22,13 +22,12 @@ import java.util.logging.Logger;
 public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStruct implements Runnable{
     private boolean terminouCartao;
     public boolean terminarJogo;
-    int jogadorID;
-    String cartaoNumerosEncoded;
-    String nomeJogador;
-    Double aposta ; 
+    private int jogadorID;
+    private String cartaoNumerosEncoded;
+    private String nomeJogador;
+    private Double aposta ; 
     private final GSalaGUI GestorGUI;
-    boolean jogoIniciou;
-    String chaveDecriptar;
+    private String chaveDecriptar;
  
     public ServerCommunication(Socket s ,int jogadorID,GSalaGUI GestorGUI){
         super();
@@ -66,14 +65,12 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
                 socketMSGEntrada = entrada.readLine();
             } catch (IOException ex) {
                 this.terminarJogo = true;
-                Logger.getLogger(ServerCommunication.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if(this.cartaoNumerosEncoded == null && !jogoIniciou){
+            if(this.cartaoNumerosEncoded == null){
                 System.out.println("Mensagem Entrada inicial: "+ socketMSGEntrada);
                 HashMap<String,String> msgns = ServerCommunication.decodificar(socketMSGEntrada);
 
                 if(msgns.containsKey("cartaoNumeros")){
-                    System.out.println("contem chave cartao");
                     this.cartaoNumerosEncoded = msgns.get("cartaoNumeros");
                     this.enviarMSG("numIdentificacao->"+ this.jogadorID);
                 }
@@ -99,6 +96,12 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
                         }
                     
                 }
+                
+            try {
+                Thread.sleep(ServerCommunication.INTERVALO_ATUALIZACAO);
+            } catch (InterruptedException ex) {
+                this.terminarJogo = true;
+            }
 
         }
         try {
@@ -106,14 +109,35 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
             this.terminarConexao();
 
         } catch (IOException ex) {
-            System.out.println("Nao foi possivel terminar a conexao");
-
+           
+            System.out.println("erro ao terminar");
         }
+
+    }
+
+    public Double getAposta() {
+        return aposta;
+    }
+
+    public String getNomeJogador() {
+        return nomeJogador;
+    }
+
+    public int getJogadorID() {
+        return jogadorID;
     }
     
-    public void setTerminarJogo(boolean terminarJogo) {
-        this.terminarJogo = terminarJogo;
+    
+
+    public String getChaveDecriptar() {
+        return chaveDecriptar;
     }
+
+    public String getCartaoNumerosEncoded() {
+        return cartaoNumerosEncoded;
+    }
+    
+ 
     public boolean terminouCartao(){
         return this.terminouCartao;
         

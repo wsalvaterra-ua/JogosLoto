@@ -31,7 +31,7 @@ public abstract class SocketCommunicationStruct  extends TimerTask{
     protected PrintWriter saida;
     protected BufferedReader entrada;
     protected ArrayList<String> MSGEntrada;
-    private javax.swing.Timer timerSocket;
+    public  static int INTERVALO_ATUALIZACAO = 200;
     public SocketCommunicationStruct() {
 
         
