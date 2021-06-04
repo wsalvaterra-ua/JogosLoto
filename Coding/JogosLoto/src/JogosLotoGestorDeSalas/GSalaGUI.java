@@ -3,8 +3,15 @@
  */
 package JogosLotoGestorDeSalas;
 
+
+import JogosLotoJogador.Cartao;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -14,12 +21,14 @@ import javax.swing.JOptionPane;
  * 
  * @author William Salvaterra e Rui Oliveira
  */
-public class GSalaGUI extends javax.swing.JFrame {
+public class GSalaGUI extends javax.swing.JFrame{
     private final int MIN = 1;
     private final int MAX = 90;
     private DefaultListModel modelNumerosSorteados;   
     private DefaultListModel modelApostas;   
     private SessaoDeJogoDeLoto sessaoDeJogo;
+    private Server serversocket;
+
 /**
  * Método construtor da classe que inicia a Interface gráfica do jogo
  * 
@@ -32,6 +41,7 @@ public class GSalaGUI extends javax.swing.JFrame {
         jListTrueNumerosSorteados.setModel(modelNumerosSorteados);
         jListTrueApostas.setModel(modelApostas);
         sessaoDeJogo = new SessaoDeJogoDeLoto(MIN,MAX);
+
         this.pack();
         
     }
@@ -49,7 +59,7 @@ public class GSalaGUI extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jListNumerosSorteados = new javax.swing.JScrollPane();
         jListTrueNumerosSorteados = new javax.swing.JList<>();
-        jButtonNumerosSorteados = new javax.swing.JButton();
+        jButtonTerminarJogo = new javax.swing.JButton();
         jLabelNumerosSorteados = new javax.swing.JLabel();
         jPanelHead = new javax.swing.JPanel();
         jLabelTitulo = new javax.swing.JLabel();
@@ -58,7 +68,7 @@ public class GSalaGUI extends javax.swing.JFrame {
         jPanelApostas = new javax.swing.JPanel();
         jListApostas = new javax.swing.JScrollPane();
         jListTrueApostas = new javax.swing.JList<>();
-        jButtonAposta = new javax.swing.JButton();
+        jButtonIniciarJogo = new javax.swing.JButton();
         jLabelApostas = new javax.swing.JLabel();
         jPanelAtualNumeroSorteado = new javax.swing.JPanel();
         jButtonatuallNumeroSorteado = new javax.swing.JButton();
@@ -69,7 +79,6 @@ public class GSalaGUI extends javax.swing.JFrame {
         setTitle("Jogos De Loto - Gestor de Sala");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setLocation(new java.awt.Point(0, 0));
-        setPreferredSize(new java.awt.Dimension(800, 600));
         setSize(new java.awt.Dimension(800, 600));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -94,11 +103,12 @@ public class GSalaGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 2, 1, 4);
         jPanel1.add(jListNumerosSorteados, gridBagConstraints);
 
-        jButtonNumerosSorteados.setText("Terminar Jogo");
-        jButtonNumerosSorteados.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jButtonNumerosSorteados.addActionListener(new java.awt.event.ActionListener() {
+        jButtonTerminarJogo.setText("Cancelar Jogo");
+        jButtonTerminarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButtonTerminarJogo.setEnabled(false);
+        jButtonTerminarJogo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonNumerosSorteadosActionPerformed(evt);
+                jButtonTerminarJogoActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -108,7 +118,7 @@ public class GSalaGUI extends javax.swing.JFrame {
         gridBagConstraints.ipady = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 0.1;
-        jPanel1.add(jButtonNumerosSorteados, gridBagConstraints);
+        jPanel1.add(jButtonTerminarJogo, gridBagConstraints);
 
         jLabelNumerosSorteados.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabelNumerosSorteados.setForeground(new java.awt.Color(0, 1, 0));
@@ -198,11 +208,11 @@ public class GSalaGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 1, 2);
         jPanelApostas.add(jListApostas, gridBagConstraints);
 
-        jButtonAposta.setText("Adicionar Aposta");
-        jButtonAposta.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jButtonAposta.addActionListener(new java.awt.event.ActionListener() {
+        jButtonIniciarJogo.setText("Hospedar Jogo");
+        jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButtonIniciarJogo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonApostaActionPerformed(evt);
+                jButtonIniciarJogoActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -212,7 +222,7 @@ public class GSalaGUI extends javax.swing.JFrame {
         gridBagConstraints.ipady = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 0.1;
-        jPanelApostas.add(jButtonAposta, gridBagConstraints);
+        jPanelApostas.add(jButtonIniciarJogo, gridBagConstraints);
 
         jLabelApostas.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabelApostas.setForeground(new java.awt.Color(0, 1, 0));
@@ -242,6 +252,7 @@ public class GSalaGUI extends javax.swing.JFrame {
         jButtonatuallNumeroSorteado.setText("Sortear Número");
         jButtonatuallNumeroSorteado.setBorder(null);
         jButtonatuallNumeroSorteado.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButtonatuallNumeroSorteado.setEnabled(false);
         jButtonatuallNumeroSorteado.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonatuallNumeroSorteadoActionPerformed(evt);
@@ -273,7 +284,6 @@ public class GSalaGUI extends javax.swing.JFrame {
         jLabelBigLabelatualNumeroSorteado.setFont(new java.awt.Font("Tahoma", 0, 140)); // NOI18N
         jLabelBigLabelatualNumeroSorteado.setForeground(new java.awt.Color(0, 1, 0));
         jLabelBigLabelatualNumeroSorteado.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabelBigLabelatualNumeroSorteado.setText("72");
         jLabelBigLabelatualNumeroSorteado.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 3));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -297,74 +307,86 @@ public class GSalaGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 // referencia https://stackoverflow.com/questions/26685326/clearing-a-jlist
-    private void jButtonApostaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonApostaActionPerformed
-        //Botão para adicionar aposta, colocando a aposta no painel de apostas
-        modaAddlAposta myDialog = new modaAddlAposta(this, true);
-        myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    private void jButtonIniciarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonIniciarJogoActionPerformed
+       if(serversocket == null){
+            try {
+                serversocket = new Server(this);
+                Thread t = new Thread(serversocket);
+                t.start();
+                modalWait modalWait = (new modalWait(this, true, "A aguardar que jogadores entrem", "Parar"));
+                serversocket.inscricaoDeJogadoresTerminou = true;
+                jButtonIniciarJogo.setText("Iniciar Jogo");
+                
+                return;
+            } catch (IOException ex) {
+                
+                JOptionPane.showMessageDialog(this,  "Não foi possível criar o servidor, certifique-se de que a porta " + ServerCommunication.PORTA +" não está ocupada!","Erro!",javax.swing.JOptionPane.ERROR_MESSAGE); 
+                return;
+            }
+       }
 
-        myDialog.setLocationRelativeTo(null);  
-        myDialog.setVisible(true);
-        
-        if(myDialog.data[0] != null){
-            sessaoDeJogo.adicionarAposta(Integer.valueOf(myDialog.data[0]), Double.valueOf(myDialog.data[1]));
-            modelApostas.addElement("ID: " + myDialog.data[0] + " - Valor: " + myDialog.data[1] );
-        }
-        
-    }//GEN-LAST:event_jButtonApostaActionPerformed
 
+        serversocket.iniciar_jogo();
+        jButtonIniciarJogo.setEnabled(false);
+        jButtonatuallNumeroSorteado.setEnabled(true);
+        jButtonTerminarJogo.setEnabled(true);
+        
+    }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
+    public void estado_BotaoSortear(boolean estado){
+        jButtonatuallNumeroSorteado.setEnabled(estado);
+        
+    }
     private void jButtonatuallNumeroSorteadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonatuallNumeroSorteadoActionPerformed
         //Botão para sortear número random, que ao sortear desativa a opção de adicionar mais apostas 
-        jButtonAposta.setEnabled(false);
-        int numRand = randomNum(MIN, MAX);
-        if(sessaoDeJogo.sortearNumero(numRand)){
-            jLabelBigLabelatualNumeroSorteado.setText(String.valueOf(numRand));
-                modelNumerosSorteados.addElement(numRand);
+        
+        int numRand = 0;
+        while(!sessaoDeJogo.sortearNumero(numRand)){
+            numRand = randomNum(MIN, MAX);
+            if(sessaoDeJogo.getNumerosSorteados().size()>=MAX){
+                JOptionPane.showMessageDialog(this,  "Não existem mais números para ser sorteado","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
+                jButtonatuallNumeroSorteado.setEnabled(false);
+                return;
+            }
         }
+        
+        jLabelBigLabelatualNumeroSorteado.setText(String.valueOf(numRand));
+        this.serversocket.enviarMSG("numeroSorteado->" + Integer.toString(numRand));
+        modelNumerosSorteados.addElement(numRand);
         
     }//GEN-LAST:event_jButtonatuallNumeroSorteadoActionPerformed
 
-    private void jButtonNumerosSorteadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNumerosSorteadosActionPerformed
-        //Botão para terminar aposta onde os  vencedores  podem ser escolhidos  através de uma lista caso o jogador tenha adicionado uma aposta ou podem ser escolhidos manualmente
-        if(sessaoDeJogo.getNumerosSorteados().size()<15){
-            JOptionPane.showMessageDialog(this,  "Pelo menos 15 números devem ser sorteados antes de poder terminar o jogo ","Erro!",javax.swing.JOptionPane.INFORMATION_MESSAGE); 
+    private void jButtonTerminarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTerminarJogoActionPerformed
+        if(this.serversocket != null){    
+        int reply = JOptionPane.showConfirmDialog(null, "Tens um jogo em progresso.\nSe continuar esta ação irá perder o seu progresso da sessão, deseja prosseguir?", "Jogo em progresso!", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.NO_OPTION) 
             return;
-        }
-   
-        String[] opcoes = new String[sessaoDeJogo.getApostasFeitas().keySet().toArray().length+1];
-        
-        for(int i = 0; i<sessaoDeJogo.getApostasFeitas().keySet().toArray().length;i++)
-            opcoes[i] = Integer.toString((Integer)sessaoDeJogo.getApostasFeitas().keySet().toArray()[i]);
-        
-        opcoes[sessaoDeJogo.getApostasFeitas().keySet().toArray().length ] = "Manual/Mais de Um Vencedor";
-        String resultado = (String)JOptionPane.showInputDialog(null, "Escolha o(s) vencedor(es):", 
-                "Jogadores", JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
-        
-        ArrayList<Integer> vencedores = new ArrayList<>();
-        if(resultado == null)
-            return;
-        else if(resultado.equals(opcoes[sessaoDeJogo.getApostasFeitas().keySet().toArray().length ])){
-            resultado = JOptionPane.showInputDialog(null, "Adicione os vencedores separados por espaço!", 
-                   "Adicione os vencedores", JOptionPane.QUESTION_MESSAGE);
-            
-            if(resultado != null){
-                String[] vencedoresToFilter = resultado.split(" ");
-                for(String vencedorToFilter : vencedoresToFilter)
-                    try{
-                        vencedores.add(Integer.parseInt(vencedorToFilter));
-                    } catch (NumberFormatException e) {}
-
-            }
             
         }
-        else
-            vencedores.add(Integer.valueOf(resultado));
-        ModalGameScores myDialog = new ModalGameScores(this, true,sessaoDeJogo.getScores(vencedores));
-        myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        if(serversocket != null)
+            serversocket.setTerminarJogo(true);
+        reiniciar_UI();
+        this.sessaoDeJogo = new SessaoDeJogoDeLoto(MIN,MAX);
+        this.serversocket = null;
 
-        myDialog.setLocationRelativeTo(null);  
-        myDialog.setVisible(true);
-    }//GEN-LAST:event_jButtonNumerosSorteadosActionPerformed
 
+    }//GEN-LAST:event_jButtonTerminarJogoActionPerformed
+    private void reiniciar_UI(){
+        DefaultListModel listModel = (DefaultListModel) jListTrueApostas.getModel();
+        listModel.removeAllElements();
+        DefaultListModel listModel2 = (DefaultListModel) jListTrueNumerosSorteados.getModel();
+        listModel2.removeAllElements();
+        this.modelApostas = listModel;
+        this.modelNumerosSorteados = listModel2;
+
+        this.jButtonIniciarJogo.setEnabled(true);
+        this.jButtonIniciarJogo.setText("Iniciar Jogo");
+        this.jButtonatuallNumeroSorteado.setEnabled(false);
+        this.jLabelBigLabelatualNumeroSorteado.setText("");
+        this.jButtonTerminarJogo.setEnabled(false);
+        this.pack();
+        
+        
+    }
     /**
      * @param args the command line arguments
      */
@@ -403,8 +425,8 @@ public class GSalaGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButtonAposta;
-    private javax.swing.JButton jButtonNumerosSorteados;
+    private javax.swing.JButton jButtonIniciarJogo;
+    private javax.swing.JButton jButtonTerminarJogo;
     private javax.swing.JButton jButtonatuallNumeroSorteado;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -427,6 +449,91 @@ public class GSalaGUI extends javax.swing.JFrame {
     private static int randomNum(int min, int max) {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
+    }
+    public void addApostas(int jogadorNovoID, Double jogadorValorAposta){
+            sessaoDeJogo.adicionarAposta(jogadorNovoID, jogadorValorAposta);
+            System.out.println("aposta add");
+                String nomeJogadorNovo = serversocket.getJogadorNome(jogadorNovoID);
+                for(int jogadoresID_it : this.sessaoDeJogo.getApostasFeitas().keySet())
+                    if( serversocket.getJogadorNome( jogadoresID_it).equals(nomeJogadorNovo) && jogadoresID_it != jogadorNovoID){
+                        modelApostas.addElement(nomeJogadorNovo + "_"+jogadorNovoID + "->" +  jogadorValorAposta);
+                        return;
+                    }
+                modelApostas.addElement(nomeJogadorNovo + "->" +  jogadorValorAposta);
+    }       
+
+    public boolean finalizarJogo(ArrayList<String[]> finalistasDadosEntrada){
+        if(sessaoDeJogo.getNumerosSorteados().size() < 15)
+            return false;
+
+        HashMap<Integer,Integer> finalistasQtdNumerosConfirmados = new HashMap<>();
+        
+        Iterator<Integer> nmrosorteadosIT =  this.sessaoDeJogo.getNumerosSorteados().iterator();
+        System.out.println("Quantidade de Nuemros Sorteados:" + sessaoDeJogo.getNumerosSorteados().size());
+        while(nmrosorteadosIT.hasNext() ){
+            int numeroSorteado = nmrosorteadosIT.next();
+            System.out.println("Número sorteado a ser verificado sorteado :" + numeroSorteado);
+            Iterator<String[]> iteradorfinalistas = finalistasDadosEntrada.iterator();
+
+            
+            while(iteradorfinalistas.hasNext()){
+                String[] finalista = iteradorfinalistas.next();
+                Pattern pattern = Pattern.compile("("+numeroSorteado+ "),?", Pattern.CASE_INSENSITIVE);
+                Matcher matcher = pattern.matcher(finalista[1]);
+                try {
+                    if(matcher.find()){
+                        System.out.println(numeroSorteado + " foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
+                          System.out.println("Cartao: " + finalista[1]);
+                        int finalistaID = Integer.parseInt(finalista[0]);
+                        if(finalistasQtdNumerosConfirmados.containsKey(finalistaID))
+                            finalistasQtdNumerosConfirmados.put(finalistaID, finalistasQtdNumerosConfirmados.get(finalistaID)+ 1);
+                        else
+                            finalistasQtdNumerosConfirmados.put(finalistaID, 1);
+                    }else{
+                        
+                         System.out.println(numeroSorteado + " nao foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
+                         System.out.println("Cartao: " + finalista[1]);
+                    }
+
+                } catch (NumberFormatException e) {
+                    System.out.println("numero nao pode ser convertido para Int em finalizarJogo");
+                }
+    
+            }
+            boolean temFinalistaValido = false;
+            for(int finalistaID : finalistasQtdNumerosConfirmados.keySet())
+                if(finalistasQtdNumerosConfirmados.get(finalistaID) >= 15)
+                    temFinalistaValido = true;
+            if(temFinalistaValido)
+                break;
+            if(nmrosorteadosIT.hasNext() == false)
+                return false;
+        }
+        
+        ArrayList<Integer> vencedores = new ArrayList<>();
+        String mensagemAEnviar= "jogoTerminou->true";
+        for(int id : finalistasQtdNumerosConfirmados.keySet()){
+            if(finalistasQtdNumerosConfirmados.get(id) >=15){
+                vencedores.add(id);
+                
+
+            }
+        }
+        if(vencedores.size() <1)
+            return false;
+        for(int idFinalista : vencedores)
+            mensagemAEnviar = mensagemAEnviar + "(&)"+idFinalista+"->"+ sessaoDeJogo.getScores(vencedores).get(idFinalista) ;
+            
+        serversocket.enviarMSG(mensagemAEnviar);
+        ModalGameScores myDialog = new ModalGameScores(this, true,sessaoDeJogo.getScores(vencedores));
+        myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        myDialog.setLocationRelativeTo(null);  
+        myDialog.setVisible(true);
+        
+        
+        return true;
+        
     }
 }
 
