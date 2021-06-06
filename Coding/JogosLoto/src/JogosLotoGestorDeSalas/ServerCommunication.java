@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author bil
  */
-public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStruct implements Runnable{
+public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStruct{
     private boolean terminouCartao;
     public boolean terminarJogo;
     private int jogadorID;
