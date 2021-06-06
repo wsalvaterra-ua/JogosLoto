@@ -6,33 +6,27 @@
 package JogosLotoGestorDeSalas;
 
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
  * @author bil
  */
-public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStruct{
+public class ServerCommunication extends JogosLotoLivraria.SocketCommunicationStruct{
     private boolean terminouCartao;
-    public boolean terminarJogo;
-    private int jogadorID;
     private String cartaoNumerosEncoded;
     private String nomeJogador;
-    private Double aposta ; 
+    private Double aposta; 
     private final GSalaGUI GestorGUI;
-    private String chaveDecriptar;
- 
+
+    
     public ServerCommunication(Socket s ,int jogadorID,GSalaGUI GestorGUI){
-        super();
+        super(s);
         terminouCartao = false;
-        this.socket = s;
         this.aposta = -1.0;
         this.jogadorID = jogadorID;
         cartaoNumerosEncoded = null;
@@ -40,20 +34,7 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
         this.GestorGUI = GestorGUI;
         
     }
-    public boolean iniciarComunicacao(){
-                try {
-            saida = new PrintWriter(socket.getOutputStream(), true);
-            entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            
-            Thread t = new Thread(this);
-            t.start();
-            return true;
-            
-        } catch (IOException ex) {
-            return false;
-        }
 
-    }
     
     @Override
     public void run() {
@@ -62,12 +43,13 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
 
             
             try {
-                socketMSGEntrada = entrada.readLine();
+                socketMSGEntrada = entrada().readLine();
             } catch (IOException ex) {
                 this.terminarJogo = true;
             }
-            if(this.cartaoNumerosEncoded == null){
-                System.out.println("Mensagem Entrada inicial: "+ socketMSGEntrada);
+            //primeiramente receber numero de cartao e propriedades da aposta 
+            if(socketMSGEntrada != null && this.cartaoNumerosEncoded == null){
+                System.out.println("Mensagem Entrada inicial: " + socketMSGEntrada);
                 HashMap<String,String> msgns = ServerCommunication.decodificar(socketMSGEntrada);
 
                 if(msgns.containsKey("cartaoNumeros")){
@@ -81,66 +63,40 @@ public class ServerCommunication extends JogosLotoJogador.SocketCommunicationStr
                     GestorGUI.addApostas(jogadorID, this.aposta);
                 }
                 socketMSGEntrada = null;
+            }else if(socketMSGEntrada != null ){
+                System.out.println("Mensagem Entrada: "+ socketMSGEntrada);
+                    HashMap<String,String> msgns = ServerCommunication.decodificar(socketMSGEntrada);
+                    if(msgns.containsKey("terminou") && msgns.containsKey("chave")){
+                        this.chaveDecriptar = msgns.get("chave");
+                        this.terminouCartao = true;
+                    }
             }
-
-                if(socketMSGEntrada != null){
-                    System.out.println("Mensagem Entrada: "+ socketMSGEntrada);
-  
-                        HashMap<String,String> msgns = ServerCommunication.decodificar(socketMSGEntrada);
-
-                        if(msgns.containsKey("terminou") && msgns.containsKey("chave")){
-                            
-                            this.chaveDecriptar = msgns.get("chave");
-                            this.terminouCartao = true;
-
-                        }
-                    
-                }
-                
             try {
                 Thread.sleep(ServerCommunication.INTERVALO_ATUALIZACAO);
             } catch (InterruptedException ex) {
                 this.terminarJogo = true;
             }
-
         }
         try {
             System.out.println("Terminou jogo");
             this.terminarConexao();
 
-        } catch (IOException ex) {
-           
-            System.out.println("erro ao terminar");
-        }
+        } catch (IOException ex) {}
 
     }
 
     public Double getAposta() {
         return aposta;
     }
-
     public String getNomeJogador() {
         return nomeJogador;
-    }
-
-    public int getJogadorID() {
-        return jogadorID;
-    }
-    
-    
-
-    public String getChaveDecriptar() {
-        return chaveDecriptar;
     }
 
     public String getCartaoNumerosEncoded() {
         return cartaoNumerosEncoded;
     }
-    
- 
     public boolean terminouCartao(){
         return this.terminouCartao;
-        
     }
     
     

@@ -5,15 +5,11 @@
  */
 package JogosLotoJogador;
 
-import JogosLotoGestorDeSalas.ModalGameScores;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
+import JogosLotoLivraria.SocketCommunicationStruct;
+import JogosLotoLivraria.ModalGameScores;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,35 +23,22 @@ import javax.swing.JOptionPane;
  */
 public class ClientCommunication extends SocketCommunicationStruct{
     private boolean temErro;
-    private boolean terminarJogo; 
+
     //compartilhar idJogador
     private final JogadorGUI GUIJogo;
-    public String chave;
-    public int numIdentificacao;
     public ClientCommunication(JogadorGUI GUIJogo){
         super();
-        MSGEntrada = new ArrayList<>();
         temErro = false;
-        terminarJogo = false;
         this.GUIJogo = GUIJogo;
     }
-    public  boolean conectar() {
-        try {
-            socket = new Socket(ENDERECO,PORTA);
-            saida = new PrintWriter(socket.getOutputStream(), true);
-            entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            return true;
-        } catch (IOException ex) {
-            return false;
-        }
-    }
+
  
 
     @Override
     public void run() {
         try {
             while(!temErro  && !terminarJogo){
-                String inpt_ = entrada.readLine();
+                String inpt_ = entrada().readLine();
                 if(inpt_ != null){
                     HashMap<String,String> dados = ClientCommunication.decodificar(inpt_);
 
@@ -82,7 +65,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
                                             if(vencedor[2].length()<1)
                                                 throw new NumberFormatException();
                                             vencedores.put(vencedor[2], Double.parseDouble(vencedor[1]));
-                                            if( Integer.valueOf(vencedor[0]) == this.numIdentificacao )
+                                            if( Integer.valueOf(vencedor[0]) == this.jogadorID )
                                                 nomeDoJogador = vencedor[2];
                                         } catch (NumberFormatException e) {
                                         }
@@ -121,7 +104,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
                 Thread.sleep(ClientCommunication.INTERVALO_ATUALIZACAO);
             }
         } catch (IOException | InterruptedException ex) {
-            temErro = true;
+            temErro = true; 
         } 
         if(temErro){
             JOptionPane.showMessageDialog(GUIJogo,"Houve um erro de conexão! Jogo será recomeçado!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
@@ -133,10 +116,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
             Logger.getLogger(ClientCommunication.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public void terminarJogo(){
-        
-        this.terminarJogo = true;
-    }
+
 
 
 }

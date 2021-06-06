@@ -4,6 +4,8 @@
 package JogosLotoGestorDeSalas;
 
 
+import JogosLotoLivraria.ModalGameScores;
+import JogosLotoLivraria.modalWait;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -371,23 +373,21 @@ public class GSalaGUI extends javax.swing.JFrame{
     }//GEN-LAST:event_jButtonTerminarJogoActionPerformed
     private void reiniciar_UI(int excecao){
         DefaultListModel listModel = (DefaultListModel) jListTrueApostas.getModel();
-        listModel.removeAllElements();
+        
         DefaultListModel listModel2 = (DefaultListModel) jListTrueNumerosSorteados.getModel();
         if(excecao != 1){
+            listModel.removeAllElements();
+            this.modelApostas = listModel;
             listModel2.removeAllElements();
             this.modelNumerosSorteados = listModel2;
         }
-        this.modelApostas = listModel;
         
-
         this.jButtonIniciarJogo.setEnabled(true);
         this.jButtonIniciarJogo.setText("Hospedar");
         this.jButtonatuallNumeroSorteado.setEnabled(false);
         this.jLabelBigLabelatualNumeroSorteado.setText("");
         this.jButtonTerminarJogo.setEnabled(false);
         this.pack();
-        
-        
     }
     /**
      * @param args the command line arguments
@@ -473,10 +473,10 @@ public class GSalaGUI extends javax.swing.JFrame{
         HashMap<Integer,Integer> finalistasQtdNumerosConfirmados = new HashMap<>();
         
         Iterator<Integer> nmrosorteadosIT =  this.sessaoDeJogo.getNumerosSorteados().iterator();
-//        System.out.println("Quantidade de Nuemros Sorteados:" + sessaoDeJogo.getNumerosSorteados().size());
+
         while(nmrosorteadosIT.hasNext() ){
             int numeroSorteado = nmrosorteadosIT.next();
-//            System.out.println("Número sorteado a ser verificado sorteado :" + numeroSorteado);
+
             Iterator<String[]> iteradorfinalistas = finalistasDadosEntrada.iterator();
             boolean temFinalistaValido = false;
             
@@ -487,23 +487,14 @@ public class GSalaGUI extends javax.swing.JFrame{
                 Matcher matcher = pattern.matcher(finalista[1]);
                 try {
                     if(matcher.find()){
-//                        System.out.println(numeroSorteado + " foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
-//                          System.out.println("Cartao: " + finalista[1]);
                         int finalistaID = Integer.parseInt(finalista[0]);
                         if(finalistasQtdNumerosConfirmados.containsKey(finalistaID))
                             finalistasQtdNumerosConfirmados.put(finalistaID, finalistasQtdNumerosConfirmados.get(finalistaID)+ 1);
                         else
                             finalistasQtdNumerosConfirmados.put(finalistaID, 1);
-                    }else{
-                        
-//                         System.out.println(numeroSorteado + " nao foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
-//                         System.out.println("Cartao: " + finalista[1]);
                     }
 
-                } catch (NumberFormatException e) {
-                    //numero nao pode ser convertido para Int em finalizarJogo
-                }
-    
+                } catch (NumberFormatException e) {}
             }
             
             for(int finalistaID : finalistasQtdNumerosConfirmados.keySet())
@@ -537,6 +528,7 @@ public class GSalaGUI extends javax.swing.JFrame{
                 System.out.println("nome vencedor nulo");
                 break;
             }
+            //evitar duplicacao de nomes
             for(int IDUmDosVencedores : vencedoresIDeAposta.keySet())
                 if( serversocket.getJogadorNome(IDUmDosVencedores).equals(nomeVencedor) && IDUmDosVencedores != idVencedor)
                         nomeVencedor += "_" + idVencedor;

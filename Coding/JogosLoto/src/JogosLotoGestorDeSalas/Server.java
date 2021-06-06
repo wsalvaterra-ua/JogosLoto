@@ -5,6 +5,7 @@
  */
 package JogosLotoGestorDeSalas;
 
+import JogosLotoLivraria.modalWait;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -44,100 +45,97 @@ public class Server implements Runnable
     
     @Override
     public void run() {
-    
-        receberClientes();
-        if(jogadoresSocket.size()<1){
-            System.out.println("Nnenhum cliente ingressou se");
+        synchronized(jogadoresSocket)
+        {
+            receberClientes();
+            if(jogadoresSocket.size()<1){
+                System.out.println("Nnenhum cliente ingressou se");
+                try {
+                    this.serverSocket.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                return;
+            }   
+            while(!terminarJogo){
+                ArrayList<String[]> finalistas = new ArrayList<>();
+               int[] jogadores_IT = new int[jogadoresSocket.size()];
+               {
+                    int i = 0;
+                    for (int c : jogadoresSocket.keySet()) {
+                         jogadores_IT[i++] = c;
+                    }
+                }
+
+                for(int i: jogadores_IT){
+                    ServerCommunication cliente = jogadoresSocket.get(i);
+
+                    if(cliente.terminouCartao() && cliente.isTerminarJogo() == false){
+                        try {
+
+
+                            String numerosDecript = JogosLotoLivraria.EncriptacaoAES.decrypt(cliente.getCartaoNumerosEncoded(), cliente.getChaveDecriptar());
+                            if(numerosDecript == null)
+                                System.out.println("Chave de Encriptacao Incorreta");
+                            else{
+                                if(numerosDecript.split(",").length == 15){
+                                    finalistas.add(new String[]{Integer.toString(cliente.getJogadorID()),numerosDecript});
+                                    GestorGUI.estado_BotaoSortear(false);
+                                    //tempo para que os outros clientes se atualizem caso queiram se declarar como vencedores também
+                                    modalWait modalWait = (new modalWait(this.GestorGUI, true, "A Processar Possíveis Vencedores", ServerCommunication.TEMPO_ESPERA_RESPOSTA));
+
+                                    if(modalWait.getTempoRestante() > 0){
+                                        System.out.println("tempo maior k 20");
+                                        System.out.println(modalWait.getTempoRestante());
+                                        Thread.sleep(modalWait.getTempoRestante());
+
+                                    }
+                                }else
+                                    System.out.println("quantidade de numeros no cartao errada: " + numerosDecript.split(",").length);
+                            }
+                        } catch (InterruptedException ex) {
+                                for(int b: jogadoresSocket.keySet())
+                                    jogadoresSocket.get(b).setTerminarJogo(true);
+                                this.terminarJogo = true;
+                                System.out.println("temrinou jogo durante o timer checar clientes");
+                        }
+                        System.out.println("finallistas:" + finalistas.size());
+                   }
+                    if(cliente.isTerminarJogo())
+                        jogadoresSocket.remove(i);
+                }
+
+                if(finalistas.size() > 0)
+                    if(this.GestorGUI.finalizarJogo(finalistas)){
+                        this.terminarJogo = true;
+                    }else{
+
+                        String mensagem = "O(s) jogador(es) ";
+                        for( ServerCommunication jogador : this.jogadoresSocket.values())
+                            mensagem+= jogador.getNomeJogador() + ", ";
+                        mensagem+=" tentaram terminar o jogo mas não têm números sorteados suficientes no cartão para o fazer";
+                        System.out.println(mensagem);
+                        GestorGUI.estado_BotaoSortear(true);
+                    }
+
+                //sleep para ciclo nao trabalhar excessivamente
+                try {
+                    Thread.sleep(ServerCommunication.INTERVALO_ATUALIZACAO);
+                } catch (InterruptedException ex) {
+                    this.terminarJogo = true;
+                }
+            }
+            this.enviarMSG("jogoTerminou->true");
+            System.out.println("terminou");
+            for(int b: jogadoresSocket.keySet())
+                jogadoresSocket.get(b).setTerminarJogo(true);
+
             try {
                 this.serverSocket.close();
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return;
-        }   
-        while(!terminarJogo){
-          
-
-            ArrayList<String[]> finalistas = new ArrayList<>();
-
-
-           int[] jogadores_IT = new int[jogadoresSocket.size()];
-           {
-           int i = 0;
-            for (int c : jogadoresSocket.keySet()) {
-            jogadores_IT[i++] = c;
-            }
-}
-           
-            for(int i: jogadores_IT){
-                ServerCommunication cliente = jogadoresSocket.get(i);
-                
-                if(cliente.terminouCartao() && cliente.terminarJogo == false){
-                    try {
-
-    
-                        String numerosDecript = JogosLotoJogador.EncriptacaoAES.decrypt(cliente.getCartaoNumerosEncoded(), cliente.getChaveDecriptar());
-                        if(numerosDecript == null)
-                            System.out.println("Chave de Encriptacao Incorreta");
-                        else{
-                            if(numerosDecript.split(",").length == 15){
-                                finalistas.add(new String[]{Integer.toString(cliente.getJogadorID()),numerosDecript});
-                                GestorGUI.estado_BotaoSortear(false);
-                                //tempo para que os outros clientes se atualizem caso queiram se declarar como vencedores também
-                                modalWait modalWait = (new modalWait(this.GestorGUI, true, "A Processar Possíveis Vencedores", ServerCommunication.TEMPO_ESPERA_RESPOSTA));
-                                
-                                if(modalWait.getTempoRestante() > 0){
-                                    System.out.println("tempo maior k 20");
-                                    System.out.println(modalWait.getTempoRestante());
-                                    Thread.sleep(modalWait.getTempoRestante());
-                                    
-                                }
-                            }else
-                                System.out.println("quantidade de numeros no cartao errada: " + numerosDecript.split(",").length);
-                        }
-                    } catch (InterruptedException ex) {
-                            for(int b: jogadoresSocket.keySet())
-                                jogadoresSocket.get(b).terminarJogo = true;
-                            this.terminarJogo = true;
-                            System.out.println("temrinou jogo durante o timer checar clientes");
-                    }
-                    System.out.println("finallistas:" + finalistas.size());
-               }
-                if(cliente.terminarJogo)
-                    jogadoresSocket.remove(i);
-            }
-
-            if(finalistas.size() > 0)
-                if(this.GestorGUI.finalizarJogo(finalistas)){
-                    this.terminarJogo = true;
-                }else{
-
-                    String mensagem = "O(s) jogador(es) ";
-                    for( ServerCommunication jogador : this.jogadoresSocket.values())
-                        mensagem+= jogador.getNomeJogador() + ", ";
-                    mensagem+=" tentaram terminar o jogo mas não têm números sorteados suficientes no cartão para o fazer";
-                    System.out.println(mensagem);
-                    GestorGUI.estado_BotaoSortear(true);
-                }
-            
-            //sleep para ciclo nao trabalhar excessivamente
-            try {
-                Thread.sleep(ServerCommunication.INTERVALO_ATUALIZACAO);
-            } catch (InterruptedException ex) {
-                this.terminarJogo = true;
-            }
         }
-        this.enviarMSG("jogoTerminou->true");
-        System.out.println("terminou");
-        for(int b: jogadoresSocket.keySet())
-            jogadoresSocket.get(b).terminarJogo = true;
-
-        try {
-            this.serverSocket.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        }
-   
    }
 
 
@@ -185,9 +183,10 @@ public class Server implements Runnable
                     int jogadorID = jogadoresSocket.size()+1;
                     ServerCommunication  cliente_novo = new ServerCommunication(socket, jogadorID, GestorGUI);
 
-                    if(cliente_novo.iniciarComunicacao()) 
+                    if(cliente_novo.conectar()){
                         jogadoresSocket.put(jogadorID , cliente_novo);
-
+                        cliente_novo.iniciarThread();
+                    }
 
 
 

@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package JogosLotoGestorDeSalas;
+package JogosLotoLivraria;
 
-import JogosLotoJogador.SocketCommunicationStruct;
+import JogosLotoLivraria.SocketCommunicationStruct;
 import java.io.IOException;
 
 /**
@@ -80,7 +80,6 @@ public class modalWait extends javax.swing.JDialog implements Runnable{
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Aguarde...");
-        setMaximumSize(new java.awt.Dimension(400, 100));
         setMinimumSize(new java.awt.Dimension(400, 100));
         setSize(new java.awt.Dimension(500, 100));
         setType(java.awt.Window.Type.POPUP);

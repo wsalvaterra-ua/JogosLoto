@@ -3,8 +3,9 @@
  */
 package JogosLotoJogador;
 
+import JogosLotoLivraria.EncriptacaoAES;
 import JogosLotoGestorDeSalas.ServerCommunication;
-import JogosLotoGestorDeSalas.modalWait;
+import JogosLotoLivraria.modalWait;
 import java.awt.GridBagConstraints;
 
 import java.io.IOException;
@@ -161,15 +162,16 @@ public final class JogadorGUI extends javax.swing.JFrame{
     }
      void sortearNumero(int numero){
        if(jogoIniciado){
+           //verificar se o numero foi sorteado, marcar o numero no GUI 
             boolean temNumerosNaoMarcados = false;
             HashMap<Integer,Slot_Numero > colunaNumeroMarcado  = this.cartao.MarcarNumeroSorteado(numero);
             if(colunaNumeroMarcado != null){
                 System.out.println("marcou um numero" + numero);
-               for(JLabelCartao jlabelcartao : this.LinhasDeLabel.get(this.cartao.getLinhasArrayList().indexOf(colunaNumeroMarcado)))
-                   if(jlabelcartao.getSlot_numero()!= null)
-                       if(jlabelcartao.getSlot_numero()!= null)
-                           if(jlabelcartao.getSlot_numero().getNumero() == numero){
-                               jLabelBigAtualNumero.setBackground(this.tema.NUMERO_ACERTADO_BACKGROUND);
+                for(JLabelCartao jlabelcartao : this.LinhasDeLabel.get(this.cartao.getLinhasArrayList().indexOf(colunaNumeroMarcado)))
+                    if(jlabelcartao.getSlot_numero()!= null)
+                        if(jlabelcartao.getSlot_numero()!= null)
+                            if(jlabelcartao.getSlot_numero().getNumero() == numero){
+                                jLabelBigAtualNumero.setBackground(this.tema.NUMERO_ACERTADO_BACKGROUND);
                                 if(ultimo_NumeroAcertado != null)
                                     ultimo_NumeroAcertado.marcarJLabel(false);
                                 jlabelcartao.marcarJLabel(true);
@@ -179,23 +181,19 @@ public final class JogadorGUI extends javax.swing.JFrame{
                 jTextAreaLogger.append("< O Número " + numero+ " foi marcado no seu cartão! >\n"); 
                 this.pack();
                    
+//                verificar se todos os números foram marcados
                 Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
-
                 while ( iteradorArrayList.hasNext() ){
                     HashMap<Integer,Slot_Numero > coluna_IT = iteradorArrayList.next();
-
-
                     for (int i : coluna_IT.keySet()) 
                         if(coluna_IT.get(i)!= null)
                             if(coluna_IT.get(i).getMarcado() == false)
                                 temNumerosNaoMarcados = true;
                 }
                 if(temNumerosNaoMarcados == false){
-
                     jTextAreaLogger.append("< Cartão está completo! >\n");
-                    clientCommunication.enviarMSG("terminou->"+this.clientCommunication.numIdentificacao +"(&)chave->"+this.clientCommunication.chave);
+                    clientCommunication.enviarMSG("terminou->true(&)chave->"+this.clientCommunication.getChaveDecriptar());
                     jogoIniciado = false;
-
                 } 
             }
             else{
@@ -245,10 +243,9 @@ public final class JogadorGUI extends javax.swing.JFrame{
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(10, 30, 0, 30);
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 30);
         jPanelOpcoes.add(jButtonIniciarJogo, gridBagConstraints);
 
         jButtonNovoCartao.setText("Novo Cartão ");
@@ -260,10 +257,10 @@ public final class JogadorGUI extends javax.swing.JFrame{
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 30);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 30);
         jPanelOpcoes.add(jButtonNovoCartao, gridBagConstraints);
 
         jButtonTerminarJogo.setText("Terminar Jogo");
@@ -273,7 +270,10 @@ public final class JogadorGUI extends javax.swing.JFrame{
                 jButtonTerminarJogoActionPerformed(evt);
             }
         });
-        jPanelOpcoes.add(jButtonTerminarJogo, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 3;
+        jPanelOpcoes.add(jButtonTerminarJogo, gridBagConstraints);
 
         jlabelTips.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         jlabelTips.setText("*Para editar um número clique nele e escolha o novo valor");
@@ -295,8 +295,9 @@ public final class JogadorGUI extends javax.swing.JFrame{
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.1;
         gridBagConstraints.weighty = 0.1;
@@ -366,7 +367,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
     }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
   
     private void iniciarJogo(){
-        //gerar chave para decriptar cartão no servidor
+        //gerar chaveDecriptar para decriptar cartão no servidor
         char[] key = new char[Cartao.randomNum(6,15)];
         for(int i = 0; i< key.length;i++){
             switch(Cartao.randomNum(1,3)){
@@ -380,11 +381,11 @@ public final class JogadorGUI extends javax.swing.JFrame{
                 case 3:
                     key[i] = (char)Cartao.randomNum(97,122);
                     break; 
-            }
-            this.clientCommunication.chave = String.valueOf(key);
+            } 
+            this.clientCommunication.addChave(String.valueOf(key));
             
         }
-        //encriptar cartao com chave
+        //encriptar cartao com chaveDecriptar
         String cartaoNumeros = new String();
         
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
@@ -400,10 +401,10 @@ public final class JogadorGUI extends javax.swing.JFrame{
             }
         
         cartaoNumeros = cartaoNumeros.substring(0, cartaoNumeros.length()-1);
-        String msg_Encriptada = EncriptacaoAES.encrypt(cartaoNumeros, this.clientCommunication.chave);
+        String msg_Encriptada = EncriptacaoAES.encrypt(cartaoNumeros, this.clientCommunication.getChaveDecriptar());
         
         //adicionar aposta e enviar cartao
-        JogosLotoGestorDeSalas.modaAddlAposta myDialog = new JogosLotoGestorDeSalas.modaAddlAposta(this, true);
+        JogosLotoLivraria.modaAddlAposta myDialog = new JogosLotoLivraria.modaAddlAposta(this, true);
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         myDialog.setLocationRelativeTo(null);  
@@ -419,7 +420,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
          //esperar numero id
         try {
 
-            clientCommunication.socket.setSoTimeout( ServerCommunication.TEMPO_ESPERA_RESPOSTA);
+            clientCommunication.setSocketTimeout(ServerCommunication.TEMPO_ESPERA_RESPOSTA);
             msgRecebida = ClientCommunication.decodificar(clientCommunication.esperarMSG()).get("numIdentificacao");
   
         } catch ( java.net.SocketTimeoutException ex ) {
@@ -440,13 +441,12 @@ public final class JogadorGUI extends javax.swing.JFrame{
                 JOptionPane.showMessageDialog(this,"Ocorreu um erro ao validar a resposta do servidor, por favor tente novamente!","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            this.clientCommunication.numIdentificacao = Integer.valueOf(msgRecebida);
-            
+            this.clientCommunication.setJogadorID( Integer.valueOf(msgRecebida));
         }  
 
         //esperar que o servidor  avise que o jogo iniciou
             try {
-                clientCommunication.socket.setSoTimeout(0);
+                clientCommunication.setSocketTimeout(0);
                 while(true){
                 jTextAreaLogger.append("A aguardar até que o anfitriao inicie o jogo!");
                 modalWait modalWait = (new modalWait(this, true, "A aguardar que o jogo inicie...", "Cancelar" , this.clientCommunication));
@@ -481,8 +481,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
         jButtonNovoCartao.setEnabled(false);
         jButtonTerminarJogo.setEnabled(true);
         jogoIniciado = true;
-        Thread socketThread = new Thread(clientCommunication);      
-        socketThread.start();
+        clientCommunication.iniciarThread();
         
         
     }
@@ -513,7 +512,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
 
         this.jogoIniciado = false;
         if(this.clientCommunication != null)
-                this.clientCommunication.terminarJogo();
+                this.clientCommunication.isTerminarJogo();
         this.clientCommunication = null;
         
         int reply = JOptionPane.showConfirmDialog(null, "Podes reiniciar o cartão ou mante-lo no estado em que o jogo decorria.\n Desejas reiniciar o cartão?", "Atenção!", JOptionPane.YES_NO_OPTION);
@@ -544,7 +543,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
         this.cartao = new Cartao(JogadorGUI.COLUNAS_DIM,JogadorGUI.LINHAS_DIM,JogadorGUI.QTD_NUMEROS_DIM);
         this.construirCartao();
         if(clientCommunication != null)
-            this.clientCommunication.terminarJogo();
+            this.clientCommunication.isTerminarJogo();
         this.clientCommunication = null;
         
         

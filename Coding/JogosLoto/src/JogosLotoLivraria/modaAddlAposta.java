@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package JogosLotoGestorDeSalas;
+package JogosLotoLivraria;
 
 import java.math.BigInteger;
 import java.util.regex.Pattern;
