@@ -59,7 +59,16 @@ public class Server implements Runnable
           
 
             ArrayList<String[]> finalistas = new ArrayList<>();
-           Set<Integer> jogadores_IT = jogadoresSocket.keySet();
+
+
+           int[] jogadores_IT = new int[jogadoresSocket.size()];
+           {
+           int i = 0;
+            for (int c : jogadoresSocket.keySet()) {
+            jogadores_IT[i++] = c;
+            }
+}
+           
             for(int i: jogadores_IT){
                 ServerCommunication cliente = jogadoresSocket.get(i);
                 
@@ -71,10 +80,19 @@ public class Server implements Runnable
                         if(numerosDecript == null)
                             System.out.println("Chave de Encriptacao Incorreta");
                         else{
-                            finalistas.add(new String[]{Integer.toString(cliente.getJogadorID()),numerosDecript});
-                            GestorGUI.estado_BotaoSortear(false);
-                        //tempo para que os outros clientes se atualizem caso queiram se declarar como vencedores também
-                            Thread.sleep(3000);
+                            if(numerosDecript.split(",").length == 15){
+                                finalistas.add(new String[]{Integer.toString(cliente.getJogadorID()),numerosDecript});
+                                GestorGUI.estado_BotaoSortear(false);
+                                //tempo para que os outros clientes se atualizem caso queiram se declarar como vencedores também
+                                modalWait modalWait = (new modalWait(this.GestorGUI, true, "A Processar Possíveis Vencedores", ServerCommunication.TEMPO_ESPERA_RESPOSTA));
+                                
+                                if(modalWait.getTempoEsperar() > 0){
+                                    System.out.println("tempo maior k 20");
+                                    Thread.sleep(modalWait.getTempoEsperar());
+                                    
+                                }
+                            }else
+                                System.out.println("quantidade de numeros no cartao errada: " + numerosDecript.split(",").length);
                         }
                     } catch (InterruptedException ex) {
                             for(int b: jogadoresSocket.keySet())
@@ -86,16 +104,11 @@ public class Server implements Runnable
                }
                 if(cliente.terminarJogo)
                     jogadoresSocket.remove(i);
-                
-                    
             }
 
             if(finalistas.size() > 0)
                 if(this.GestorGUI.finalizarJogo(finalistas)){
-                    for(int b: jogadoresSocket.keySet())
-                        jogadoresSocket.get(b).terminarJogo = true;
                     this.terminarJogo = true;
-                     break;
                 }else{
 
                     String mensagem = "O(s) jogador(es) ";
@@ -110,8 +123,6 @@ public class Server implements Runnable
             try {
                 Thread.sleep(ServerCommunication.INTERVALO_ATUALIZACAO);
             } catch (InterruptedException ex) {
-                for(int b: jogadoresSocket.keySet())
-                    jogadoresSocket.get(b).terminarJogo = true;
                 this.terminarJogo = true;
             }
         }
@@ -151,6 +162,7 @@ public class Server implements Runnable
 
     public void receberClientes() {
 // referencia: https://www.baeldung.com/java-measure-elapsed-time
+
 
             try {
                 serverSocket.setSoTimeout(400);
