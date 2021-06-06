@@ -189,12 +189,12 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Indroduza o n&#xfa;mero de identifica&#xe7;&#xe3;o do Jogador:"/>
+            <Property name="text" type="java.lang.String" value="Introduza o nome do utilizador:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel3">
           <Properties>
-            <Property name="text" type="java.lang.String" value="*Identifica&#xe7;&#xe3;o deve ser um n&#xfa;mero natural menor que 2.147.483.647"/>
+            <Property name="text" type="java.lang.String" value="Nome de utilizador s&#xf3; pode ter letras e numeros"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jValor">

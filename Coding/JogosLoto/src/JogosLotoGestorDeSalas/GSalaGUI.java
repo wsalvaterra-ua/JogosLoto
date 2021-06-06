@@ -4,7 +4,6 @@
 package JogosLotoGestorDeSalas;
 
 
-import JogosLotoJogador.Cartao;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -337,8 +336,8 @@ public class GSalaGUI extends javax.swing.JFrame{
         
     }
     private void jButtonatuallNumeroSorteadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonatuallNumeroSorteadoActionPerformed
-        //Botão para sortear número random, que ao sortear desativa a opção de adicionar mais apostas 
-        
+        if(!jButtonatuallNumeroSorteado.isEnabled())
+            return;
         int numRand = 0;
         while(!sessaoDeJogo.sortearNumero(numRand)){
             numRand = randomNum(MIN, MAX);
@@ -352,7 +351,6 @@ public class GSalaGUI extends javax.swing.JFrame{
         jLabelBigLabelatualNumeroSorteado.setText(String.valueOf(numRand));
         this.serversocket.enviarMSG("numeroSorteado->" + Integer.toString(numRand));
         modelNumerosSorteados.addElement(numRand);
-        
     }//GEN-LAST:event_jButtonatuallNumeroSorteadoActionPerformed
 
     private void jButtonTerminarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTerminarJogoActionPerformed
@@ -379,7 +377,7 @@ public class GSalaGUI extends javax.swing.JFrame{
         this.modelNumerosSorteados = listModel2;
 
         this.jButtonIniciarJogo.setEnabled(true);
-        this.jButtonIniciarJogo.setText("Iniciar Jogo");
+        this.jButtonIniciarJogo.setText("Hospedar");
         this.jButtonatuallNumeroSorteado.setEnabled(false);
         this.jLabelBigLabelatualNumeroSorteado.setText("");
         this.jButtonTerminarJogo.setEnabled(false);
@@ -451,9 +449,10 @@ public class GSalaGUI extends javax.swing.JFrame{
         return r.nextInt((max - min) + 1) + min;
     }
     public void addApostas(int jogadorNovoID, Double jogadorValorAposta){
+        
             sessaoDeJogo.adicionarAposta(jogadorNovoID, jogadorValorAposta);
-            System.out.println("aposta add");
                 String nomeJogadorNovo = serversocket.getJogadorNome(jogadorNovoID);
+                //evitar duplicacao de nome
                 for(int jogadoresID_it : this.sessaoDeJogo.getApostasFeitas().keySet())
                     if( serversocket.getJogadorNome( jogadoresID_it).equals(nomeJogadorNovo) && jogadoresID_it != jogadorNovoID){
                         modelApostas.addElement(nomeJogadorNovo + "_"+jogadorNovoID + "->" +  jogadorValorAposta);
@@ -463,9 +462,10 @@ public class GSalaGUI extends javax.swing.JFrame{
     }       
 
     public boolean finalizarJogo(ArrayList<String[]> finalistasDadosEntrada){
-        if(sessaoDeJogo.getNumerosSorteados().size() < 15)
+        
+        if(sessaoDeJogo.getNumerosSorteados().size() < 15 )
             return false;
-
+        //validar e recolher os jogadores que terminaram
         HashMap<Integer,Integer> finalistasQtdNumerosConfirmados = new HashMap<>();
         
         Iterator<Integer> nmrosorteadosIT =  this.sessaoDeJogo.getNumerosSorteados().iterator();
@@ -474,11 +474,12 @@ public class GSalaGUI extends javax.swing.JFrame{
             int numeroSorteado = nmrosorteadosIT.next();
             System.out.println("Número sorteado a ser verificado sorteado :" + numeroSorteado);
             Iterator<String[]> iteradorfinalistas = finalistasDadosEntrada.iterator();
-
+            boolean temFinalistaValido = false;
             
             while(iteradorfinalistas.hasNext()){
                 String[] finalista = iteradorfinalistas.next();
-                Pattern pattern = Pattern.compile("("+numeroSorteado+ "),?", Pattern.CASE_INSENSITIVE);
+
+                Pattern pattern = Pattern.compile("(^|,)("+numeroSorteado+")(,|$)", Pattern.CASE_INSENSITIVE);
                 Matcher matcher = pattern.matcher(finalista[1]);
                 try {
                     if(matcher.find()){
@@ -500,7 +501,7 @@ public class GSalaGUI extends javax.swing.JFrame{
                 }
     
             }
-            boolean temFinalistaValido = false;
+            
             for(int finalistaID : finalistasQtdNumerosConfirmados.keySet())
                 if(finalistasQtdNumerosConfirmados.get(finalistaID) >= 15)
                     temFinalistaValido = true;
@@ -511,25 +512,46 @@ public class GSalaGUI extends javax.swing.JFrame{
         }
         
         ArrayList<Integer> vencedores = new ArrayList<>();
-        String mensagemAEnviar= "jogoTerminou->true";
-        for(int id : finalistasQtdNumerosConfirmados.keySet()){
-            if(finalistasQtdNumerosConfirmados.get(id) >=15){
-                vencedores.add(id);
-                
 
-            }
-        }
+        for(int id : finalistasQtdNumerosConfirmados.keySet())
+            if(finalistasQtdNumerosConfirmados.get(id) >=15)
+                vencedores.add(id);
+            
+        
         if(vencedores.size() <1)
             return false;
-        for(int idFinalista : vencedores)
-            mensagemAEnviar = mensagemAEnviar + "(&)"+idFinalista+"->"+ sessaoDeJogo.getScores(vencedores).get(idFinalista) ;
+        
+        //avisar aos jogadores que jogo terminou e os respetivos vencedores
+        String mensagemAEnviar= "jogoTerminou->true(&)vencedores->";
+ 
+        HashMap<String, Double> scoreComNome = new HashMap<>();
+        HashMap<Integer, Double> vencedoresIDeAposta = sessaoDeJogo.getScores(vencedores);
+        
+        for(int idVencedor : vencedoresIDeAposta.keySet()){
+            String nomeVencedor = serversocket.getJogadorNome(idVencedor);
+            if(nomeVencedor == null){
+                System.out.println("nome vencedor nulo");
+                break;
+            }
+            for(int IDUmDosVencedores : vencedoresIDeAposta.keySet())
+                if( serversocket.getJogadorNome(IDUmDosVencedores).equals(nomeVencedor) && IDUmDosVencedores != idVencedor)
+                        nomeVencedor += "_" + idVencedor;
+            scoreComNome.put(nomeVencedor, vencedoresIDeAposta.get(idVencedor) );
+            mensagemAEnviar += idVencedor + "," + vencedoresIDeAposta.get(idVencedor) + ","  + nomeVencedor+ ";";
+        }
             
         serversocket.enviarMSG(mensagemAEnviar);
-        ModalGameScores myDialog = new ModalGameScores(this, true,sessaoDeJogo.getScores(vencedores));
+        
+        //anunciar ao gestor os vencedores
+        ModalGameScores myDialog = new ModalGameScores(this, true,scoreComNome);
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        myDialog.setLocationRelativeTo(null);  
+        myDialog.setLocationRelativeTo(this);  
         myDialog.setVisible(true);
+        
+        reiniciar_UI();
+        this.sessaoDeJogo = new SessaoDeJogoDeLoto(MIN,MAX);
+        this.serversocket = null;
         
         
         return true;

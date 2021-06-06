@@ -6,6 +6,7 @@
 package JogosLotoGestorDeSalas;
 
 import java.math.BigInteger;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 /**
@@ -110,9 +111,9 @@ public class modaAddlAposta extends javax.swing.JDialog {
             }
         });
 
-        jLabel1.setText("Indroduza o número de identificação do Jogador:");
+        jLabel1.setText("Introduza o nome do utilizador:");
 
-        jLabel3.setText("*Identificação deve ser um número natural menor que 2.147.483.647");
+        jLabel3.setText("Nome de utilizador só pode ter letras e numeros");
 
         jLabel2.setText("Introduza o valor apostado pelo Jogador");
 
@@ -199,17 +200,23 @@ public class modaAddlAposta extends javax.swing.JDialog {
         } catch (NumberFormatException e) {
             validadeValor = false;
         }
-        try {
-            Integer.parseInt(jTextIdentificacao.getText());
-            if(Integer.valueOf(jTextIdentificacao.getText()) >0)
-                validadeID = true;
-        } catch (NumberFormatException e) {
+  
+        String regex = "^[a-zA-Z0-9]+$";
+ 
+        Pattern pattern = Pattern.compile(regex);
+        if(pattern.matcher(jTextIdentificacao.getText()).matches())
+            validadeID = true;
+        else
             validadeID = false;
-        }
+  
+        
+        
+        
+        
         if(!validadeID && !validadeValor)
             JOptionPane.showMessageDialog(this,"Os dados introduzidos não são válidos","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE); 
         else if(!validadeID)
-            JOptionPane.showMessageDialog(this,"Verifique o valor introduzido no campo de identificação!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,"Verifique o valor introduzido o nome de utilizador!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
         else if(!validadeValor)
             JOptionPane.showMessageDialog(this,"Verifique o valor introduzido no campo valor!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);  
        

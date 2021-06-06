@@ -31,6 +31,18 @@ public  class Tema {
  */
     public final java.awt.Color NUMERO_HOVEROUT_BACKGROUND;
 /**
+ * Cor de Fundo  do ultimo número acertado
+ */
+    public final java.awt.Color NUMERO_ACERTADO_BACKGROUND;
+/**
+ * Cor de Fundo  de um numero já marcado
+ */
+    public final java.awt.Color NUMERO_MARCADO_BACKGROUND;
+/**
+ * Cor de Texto de um numero já marcado
+ */
+    public final java.awt.Color NUMERO_MARCADO_FOREGROUND;
+/**
  *Tema a ser utilizado
  */
     public final Temas TEMA;
@@ -50,6 +62,9 @@ public  class Tema {
                  NUMERO_BACKGROUND =  new java.awt.Color(255,153,0);
                 NUMERO_HOVERIN_BACKGROUND = new java.awt.Color(206,125,3);
                 NUMERO_HOVEROUT_BACKGROUND =  new java.awt.Color(255,153,0);
+                NUMERO_ACERTADO_BACKGROUND = new java.awt.Color(102,102,0);
+                NUMERO_MARCADO_BACKGROUND = new java.awt.Color(153,153,153);
+                NUMERO_MARCADO_FOREGROUND = new java.awt.Color(242, 242, 242);
                 break;
             case FUTURAMA:
                 PANEL_CONTENT_BACKGROUND = new java.awt.Color(68,72,189);
@@ -57,6 +72,9 @@ public  class Tema {
                  NUMERO_BACKGROUND =  new java.awt.Color(0,153,51);
                 NUMERO_HOVERIN_BACKGROUND = new java.awt.Color(2,94,33);
                 NUMERO_HOVEROUT_BACKGROUND =  new java.awt.Color(0,153,51);
+                NUMERO_ACERTADO_BACKGROUND = new java.awt.Color(102,102,0);
+                NUMERO_MARCADO_BACKGROUND = new java.awt.Color(153,153,153);
+                NUMERO_MARCADO_FOREGROUND = new java.awt.Color(242, 242, 242);
                  break;
             default:
                 
@@ -64,8 +82,10 @@ public  class Tema {
                 PANEL_OPCOES_BACKGROUND =  new java.awt.Color(255, 102, 102);
                  NUMERO_BACKGROUND =  new java.awt.Color(102, 0, 204);
                 NUMERO_HOVERIN_BACKGROUND =  new java.awt.Color(65, 3, 127);
-                NUMERO_HOVEROUT_BACKGROUND =  new java.awt.Color(102, 0, 204);  
-            
+                NUMERO_HOVEROUT_BACKGROUND =  new java.awt.Color(102, 0, 204);
+                NUMERO_ACERTADO_BACKGROUND = new java.awt.Color(102,102,0);
+                NUMERO_MARCADO_BACKGROUND = new java.awt.Color(153,153,153);
+                NUMERO_MARCADO_FOREGROUND = new java.awt.Color(242, 242, 242);
         }
         
     }

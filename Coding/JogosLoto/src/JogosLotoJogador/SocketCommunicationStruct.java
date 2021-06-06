@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  *
  * @author bil
  */
-public abstract class SocketCommunicationStruct  extends TimerTask{
+public abstract class SocketCommunicationStruct implements Runnable{
     
     protected Socket socket;
     public static final int PORTA = 5056;
@@ -32,6 +32,7 @@ public abstract class SocketCommunicationStruct  extends TimerTask{
     protected BufferedReader entrada;
     protected ArrayList<String> MSGEntrada;
     public  static int INTERVALO_ATUALIZACAO = 200;
+    public  static int TEMPO_ESPERA_RESPOSTA = 4000;
     public SocketCommunicationStruct() {
 
         
@@ -55,11 +56,11 @@ public abstract class SocketCommunicationStruct  extends TimerTask{
 
 
     public void terminarConexao() throws IOException {
-        System.out.println("terminou coexao com o socket");
+  
         entrada.close();
         saida.close();
         socket.close();
-        
+        System.out.println("terminou coexao com o socket");
     }
     public void enviarMSG(String msg) {
         System.out.println("Enviar MSG:"+ msg);

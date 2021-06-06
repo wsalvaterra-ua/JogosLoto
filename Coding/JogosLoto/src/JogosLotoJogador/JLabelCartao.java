@@ -5,7 +5,7 @@
  */
 package JogosLotoJogador;
 
-import java.util.HashMap;
+import java.awt.Color;
 import javax.swing.JOptionPane;
 
 /**
@@ -25,6 +25,39 @@ public class JLabelCartao extends javax.swing.JLabel{
  * Tema a ser utilizado no jogo 
  */
     Tema TEMA;
+
+    
+    
+     public JLabelCartao(Temas tema){
+        super();
+        
+
+        this.TEMA = new Tema(tema);
+        this.setBackground(this.TEMA.NUMERO_BACKGROUND);
+        this.setFont(new java.awt.Font("Tahoma", 0, 53)); // NOI18N
+        this.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        this.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 4));
+        this.setOpaque(false);
+        this.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        this.setText("");
+           
+        this.setOpaque(true);
+        
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseEntered(java.awt.event.MouseEvent evt) {
+              mouse_Hover(0);
+
+        }
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent evt) {
+
+            mouse_Hover(1);
+
+        }
+
+    });
+     }
 /**
  * Construtor do objeto  JLabelCartão
      * @param slot_numero objeto Slot_Numero a ser utilizado
@@ -71,13 +104,12 @@ public class JLabelCartao extends javax.swing.JLabel{
         }
 
     });
-
-  
-        
-        
-        
     }
 
+    public void setTEMA(Tema TEMA) {
+        this.TEMA = TEMA;
+        this.setBackground(this.TEMA.NUMERO_BACKGROUND);
+    }
     private void mouse_Hover(int acao){
         if(this.slot_numero != null && this.slot_numero.getMarcado())
             return;
@@ -122,14 +154,31 @@ public class JLabelCartao extends javax.swing.JLabel{
 /**
  * Método que define o número contido nesta instancia como marcado e alterando as cores do objeto de forma a deixar , 
  */
-    public void marcarJLabel(){
+    public void marcarJLabel(boolean numeroNovo){
         if(!jogoIniciado)
             return;
         this.slot_numero.setMarcado(true);
-        this.setForeground(new java.awt.Color(242, 242, 242));
-        this.setBackground(new java.awt.Color(153,153,153));
-        
+        if(numeroNovo){
+            this.setBackground(this.TEMA.NUMERO_ACERTADO_BACKGROUND);
+            this.setForeground(this.TEMA.NUMERO_MARCADO_FOREGROUND);
+            return;
+        }
+            this.setBackground(this.TEMA.NUMERO_MARCADO_BACKGROUND);
     }
+    
+    
+    public void desmarcarJLabel(){
+        this.jogoIniciado = false;
+        this.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        this.setBackground(this.TEMA.NUMERO_BACKGROUND);
+        this.setForeground(Color.BLACK);
+        if(this.slot_numero != null)
+            this.slot_numero.setMarcado(false);
+    
+    }
+    
+    
+   
     
 /**
  * Método retorna o Slot_Numero contido nesta instancia

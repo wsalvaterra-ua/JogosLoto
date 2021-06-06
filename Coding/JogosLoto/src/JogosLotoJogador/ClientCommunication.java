@@ -15,6 +15,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+<<<<<<< Updated upstream
+=======
+import java.util.logging.Level;
+import java.util.logging.Logger;
+>>>>>>> Stashed changes
 import javax.swing.JDialog;
 
 import javax.swing.JOptionPane;
@@ -25,7 +30,11 @@ import javax.swing.JOptionPane;
  */
 public class ClientCommunication extends SocketCommunicationStruct{
     private boolean temErro;
+<<<<<<< Updated upstream
     private boolean terminouJogo; 
+=======
+    private boolean terminarJogo; 
+>>>>>>> Stashed changes
     //compartilhar idJogador
     private final JogadorGUI GUIJogo;
     public String chave;
@@ -34,7 +43,11 @@ public class ClientCommunication extends SocketCommunicationStruct{
         super();
         MSGEntrada = new ArrayList<>();
         temErro = false;
+<<<<<<< Updated upstream
         terminouJogo = false;
+=======
+        terminarJogo = false;
+>>>>>>> Stashed changes
         this.GUIJogo = GUIJogo;
     }
     public  boolean conectar() {
@@ -47,13 +60,24 @@ public class ClientCommunication extends SocketCommunicationStruct{
             return false;
         }
     }
+<<<<<<< Updated upstream
     
+=======
+ 
+>>>>>>> Stashed changes
 
     @Override
     public void run() {
         try {
+<<<<<<< Updated upstream
             while(!temErro && !terminouJogo){
                 String inpt_ = entrada.readLine();
+=======
+            while(!temErro && GUIJogo.jogoIniciado() && !terminarJogo){
+                String inpt_ = entrada.readLine();
+                if(!GUIJogo.jogoIniciado() || terminarJogo)
+                    break;
+>>>>>>> Stashed changes
                 if(inpt_ != null){
                     HashMap<String,String> dados = ClientCommunication.decodificar(inpt_);
 
@@ -70,7 +94,11 @@ public class ClientCommunication extends SocketCommunicationStruct{
                         HashMap<String, Double> vencedores = new HashMap<>();
                         System.out.println("dados de jogoterminou:" + dados.keySet());
                         if(dados.get("jogoTerminou").equals("true")){
+<<<<<<< Updated upstream
                             this.terminouJogo = true;
+=======
+                            this.terminarJogo = true;
+>>>>>>> Stashed changes
                             //estrutura de dado de vencedor a receber: ID,recompensa,Nome
                             if(dados.containsKey("vencedores"))
                                 for(String vencedorIT : dados.get("vencedores").split(";")){
@@ -121,8 +149,20 @@ public class ClientCommunication extends SocketCommunicationStruct{
             JOptionPane.showMessageDialog(GUIJogo,"Houve um erro de conexão! Jogo será recomeçado!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
             GUIJogo.novoJogo();
         }
+<<<<<<< Updated upstream
+=======
+        try {
+            this.terminarConexao();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientCommunication.class.getName()).log(Level.SEVERE, null, ex);
+        }
+>>>>>>> Stashed changes
     }
 
 
 
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes

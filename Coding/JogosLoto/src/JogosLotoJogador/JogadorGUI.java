@@ -3,8 +3,10 @@
  */
 package JogosLotoJogador;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import JogosLotoGestorDeSalas.ServerCommunication;
+import JogosLotoGestorDeSalas.modalWait;
+import java.awt.GridBagConstraints;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,12 +22,12 @@ import javax.swing.JOptionPane;
  *Jogo De Loto com Interface gráfica em que o utilizador tem um Cartão com 3 linhas, e 9 colunas e 5 números por linha
  * @author bil
  */
-public final class JogadorGUI extends javax.swing.JFrame implements ActionListener{
+public final class JogadorGUI extends javax.swing.JFrame{
 
 /**
  * Coleção de Linhas  que armazenam por sua vez uma coleção de Labels especiais
  */
-    public final ArrayList<ArrayList<JLabelCartao >> LinhasDeLabel;
+    private final ArrayList<ArrayList<JLabelCartao >> LinhasDeLabel;
 /**
  * Cartão utilizado durante o Jogo
  */
@@ -45,17 +47,18 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
 /**
  * Indica se jogo foi iniciado ou não. 
  */
-    public boolean jogoIniciado;
+    private boolean jogoIniciado;
 /**
  * Tema a ser utilizado no jogo 
  */
-    public Tema tema;
+    private Tema tema;
     
     private ClientCommunication clientCommunication; 
-    private javax.swing.Timer timerSocket;
-    private javax.swing.Timer timerJogo;
-    private String chave;
-    private int numIdentificacao;
+
+    private final JLabelCartao jLabelBigAtualNumero;
+
+    private JLabelCartao ultimo_NumeroAcertado;
+    
 /**
  * Contrói o JogosDeLoto com interface gráfica com um cartão com 3 linhas, 5 colunas e 5 números em posições aleatórias por linha
  */
@@ -64,20 +67,43 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
     public JogadorGUI() {
         super();
         
+        
+        
          this.tema =  new Tema(Temas.values()[Cartao.randomNum(0, 2)]);
          //Cores dos JPaneis sao declaradas no método initComponents
         initComponents();
+        
+        
+        
         this.jogoIniciado = false;
         this.LinhasDeLabel = new ArrayList<>();
         this.cartao = new Cartao(JogadorGUI.COLUNAS_DIM,JogadorGUI.LINHAS_DIM,JogadorGUI.QTD_NUMEROS_DIM);
         
+        
+        ultimo_NumeroAcertado = null;
+        jLabelBigAtualNumero = new JLabelCartao( tema.TEMA);
+        jLabelBigAtualNumero.setFont(new java.awt.Font("Tahoma", 1, 120)); 
+        GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.weighty = 0.1;
+        gridBagConstraints.ipadx = 80;
+        gridBagConstraints.insets = new java.awt.Insets(1, 0, 0, 1);
+        getContentPane().add(jLabelBigAtualNumero, gridBagConstraints);
         construirCartao();
     }
     
 /**
  * Método que adiciona os números do Cartão e adiciona-os a Interface gráfica
  */
-    public void construirCartao(){
+    private void construirCartao(){
+        
+
+        jTextAreaLogger.setBackground(tema.PANEL_CONTENT_BACKGROUND);
+        
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
         
         while ( iteradorArrayList.hasNext() ){
@@ -133,7 +159,7 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         return false;
         
     }
-    private void sortearNumero(int numero){
+     void sortearNumero(int numero){
        if(jogoIniciado){
             boolean temNumerosNaoMarcados = false;
             HashMap<Integer,Slot_Numero > colunaNumeroMarcado  = this.cartao.MarcarNumeroSorteado(numero);
@@ -142,9 +168,16 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
                for(JLabelCartao jlabelcartao : this.LinhasDeLabel.get(this.cartao.getLinhasArrayList().indexOf(colunaNumeroMarcado)))
                    if(jlabelcartao.getSlot_numero()!= null)
                        if(jlabelcartao.getSlot_numero()!= null)
-                           if(jlabelcartao.getSlot_numero().getNumero() == numero)
-                                   jlabelcartao.marcarJLabel();
-                jLabelJogoStatus.setText("< O Número " + numero+ " foi marcado no seu cartão! >"); 
+                           if(jlabelcartao.getSlot_numero().getNumero() == numero){
+                               jLabelBigAtualNumero.setBackground(this.tema.NUMERO_ACERTADO_BACKGROUND);
+                                if(ultimo_NumeroAcertado != null)
+                                    ultimo_NumeroAcertado.marcarJLabel(false);
+                                jlabelcartao.marcarJLabel(true);
+                                ultimo_NumeroAcertado = jlabelcartao;
+                           }
+
+                jTextAreaLogger.append("< O Número " + numero+ " foi marcado no seu cartão! >\n"); 
+                this.pack();
                    
                 Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
 
@@ -158,17 +191,21 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
                                 temNumerosNaoMarcados = true;
                 }
                 if(temNumerosNaoMarcados == false){
-                    System.out.println("terminou o jogo");
-                    clientCommunication.enviarMSG("terminou->"+this.numIdentificacao +"(&)chave->"+this.chave);
+
+                    jTextAreaLogger.append("< Cartão está completo! >\n");
+                    clientCommunication.enviarMSG("terminou->"+this.clientCommunication.numIdentificacao +"(&)chave->"+this.clientCommunication.chave);
                     jogoIniciado = false;
 
-                }
+                } 
             }
             else{
                 System.out.println("nao foi marcado nmr " + numero);
-                jLabelJogoStatus.setText("< O Número " + numero+ " não existe no seu cartão! >");
+                jLabelBigAtualNumero.setBackground(this.tema.NUMERO_BACKGROUND);
+                if(ultimo_NumeroAcertado != null)
+                    ultimo_NumeroAcertado.marcarJLabel(false);
+                jTextAreaLogger.append("< O Número " + numero+ " não existe no seu cartão! >\n");
             }
-
+        jLabelBigAtualNumero.setText(Integer.toString(numero));
         }else System.out.println("Esta a marcar numeros mas jogo nao foi iniciado");
     }
 
@@ -184,9 +221,11 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
 
         jPanelOpcoes = new javax.swing.JPanel();
         jButtonIniciarJogo = new javax.swing.JButton();
-        jLabelJogoStatus = new javax.swing.JLabel();
         jButtonNovoCartao = new javax.swing.JButton();
+        jButtonTerminarJogo = new javax.swing.JButton();
         jlabelTips = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextAreaLogger = new javax.swing.JTextArea();
         jPanelCartaoContent = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -212,15 +251,6 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         gridBagConstraints.insets = new java.awt.Insets(10, 30, 0, 30);
         jPanelOpcoes.add(jButtonIniciarJogo, gridBagConstraints);
 
-        jLabelJogoStatus.setText("< Jogo Não Inicializado >");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
-        jPanelOpcoes.add(jLabelJogoStatus, gridBagConstraints);
-
         jButtonNovoCartao.setText("Novo Cartão ");
         jButtonNovoCartao.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonNovoCartao.addActionListener(new java.awt.event.ActionListener() {
@@ -233,8 +263,17 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(10, 30, 0, 30);
+        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 30);
         jPanelOpcoes.add(jButtonNovoCartao, gridBagConstraints);
+
+        jButtonTerminarJogo.setText("Terminar Jogo");
+        jButtonTerminarJogo.setEnabled(false);
+        jButtonTerminarJogo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonTerminarJogoActionPerformed(evt);
+            }
+        });
+        jPanelOpcoes.add(jButtonTerminarJogo, new java.awt.GridBagConstraints());
 
         jlabelTips.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         jlabelTips.setText("*Para editar um número clique nele e escolha o novo valor");
@@ -242,7 +281,27 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         jPanelOpcoes.add(jlabelTips, gridBagConstraints);
+
+        jTextAreaLogger.setEditable(false);
+        jTextAreaLogger.setBackground(this.tema.PANEL_CONTENT_BACKGROUND);
+        jTextAreaLogger.setColumns(20);
+        jTextAreaLogger.setLineWrap(true);
+        jTextAreaLogger.setRows(3);
+        jTextAreaLogger.setText(" ");
+        jTextAreaLogger.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        jScrollPane1.setViewportView(jTextAreaLogger);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.weighty = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 8, 5, 0);
+        jPanelOpcoes.add(jScrollPane1, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -272,13 +331,17 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
  * Método executado quando se clica no botão para sortear um número, que pede ao utilizador que introduza o número a ser sorteado
  */
     private void jButtonIniciarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonIniciarJogoActionPerformed
-       //Botão para iniciar o jogo
-        if(jogoIniciado)
-           return;
-        
+
+        if(jogoIniciado){
+            int reply = JOptionPane.showConfirmDialog(null, "Tens um jogo em progresso.\nSe continuar esta ação irá perder o seu progresso do jogo anterior, deseja prosseguir?", "Jogo em progresso!", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.NO_OPTION) 
+                return;
+        }
+
+        //conectar se ao servidor
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR)); 
         jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
-        this.clientCommunication = new ClientCommunication();
+        this.clientCommunication = new ClientCommunication(this);
         if(!this.clientCommunication.conectar()){
             JOptionPane.showMessageDialog(this,"Não foi possivel estabelecer uma conexão com o servidor, por favor tente novamente","Erro ao conectar-se",javax.swing.JOptionPane.WARNING_MESSAGE);
             this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
@@ -301,8 +364,12 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
             
 
     }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
+    public boolean jogoIniciado(){
+        return this.jogoIniciado;
+        
+    }
     private void iniciarJogo(){
-
+        //gerar chave para decriptar cartão no servidor
         char[] key = new char[Cartao.randomNum(6,15)];
         for(int i = 0; i< key.length;i++){
             switch(Cartao.randomNum(1,3)){
@@ -317,10 +384,10 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
                     key[i] = (char)Cartao.randomNum(97,122);
                     break; 
             }
-            chave = String.valueOf(key);
+            this.clientCommunication.chave = String.valueOf(key);
             
         }
-        
+        //encriptar cartao com chave
         String cartaoNumeros = new String();
         
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
@@ -336,77 +403,88 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
             }
         
         cartaoNumeros = cartaoNumeros.substring(0, cartaoNumeros.length()-1);
-        String msg_Encriptada = EncriptacaoAES.encrypt(cartaoNumeros, chave);
+        String msg_Encriptada = EncriptacaoAES.encrypt(cartaoNumeros, this.clientCommunication.chave);
         
-        
-        modaAddlAposta myDialog = new modaAddlAposta(this, true);
+        //adicionar aposta e enviar cartao
+        JogosLotoGestorDeSalas.modaAddlAposta myDialog = new JogosLotoGestorDeSalas.modaAddlAposta(this, true);
         myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         myDialog.setLocationRelativeTo(null);  
         myDialog.setVisible(true);
+
         if(myDialog.data[0] != null)
             this.clientCommunication.enviarMSG("apostaNome->" + myDialog.data[0] +"(&)apostaValor->"+myDialog.data[1] + "(&)cartaoNumeros->" + msg_Encriptada);
         else
-            this.clientCommunication.enviarMSG("cartaoNumeros->" + msg_Encriptada);
-
+            return;
+        
+        jTextAreaLogger.append("\nVocê apostou " + myDialog.data[1] + " utilizando o username " +  myDialog.data[0] + "\n");
          String msgRecebida;
-         
+         //esperar numero id
         try {
-            System.out.println("espera numID");
+
+            clientCommunication.socket.setSoTimeout( ServerCommunication.TEMPO_ESPERA_RESPOSTA);
             msgRecebida = ClientCommunication.decodificar(clientCommunication.esperarMSG()).get("numIdentificacao");
   
+        } catch ( java.net.SocketTimeoutException ex ) {
+            JOptionPane.showMessageDialog(this,"Foi possível conectar-se ao servidor, porém o mesmo não responde!\nCertifique-se de que o Servidor já não tenha um jogo em progresso",
+                    "Sem Resposta",javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
         } catch (IOException ex) {
-
             JOptionPane.showMessageDialog(this,"A conexão entre o servidor e o cliente falhou, verifique a sua conexão","Erro de conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
+        
         if(msgRecebida !=null){
-
-            if(msgRecebida.equals("false")){
-                JOptionPane.showMessageDialog(this,"O Anfitrião rejeitou o seu cartão","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
+            try {
+             Integer.parseInt(msgRecebida);
+            if(Integer.valueOf(msgRecebida) < 1)
+              throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this,"Ocorreu um erro ao validar a resposta do servidor, por favor tente novamente!","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            numIdentificacao = Integer.valueOf(msgRecebida);
-            System.out.println("numID: " + numIdentificacao  );
+            this.clientCommunication.numIdentificacao = Integer.valueOf(msgRecebida);
+            
         }  
 
-        
-        
-        
-        
-            
-        while(true){
-       
+        //esperar que o servidor  avise que o jogo iniciou
             try {
-                System.out.println("Aguarde até que o anfitriao inicie o jogo!");
-                msgRecebida = ClientCommunication.decodificar(clientCommunication.esperarMSG()).get("jogoIniciado");
-                System.out.println();
-                if(msgRecebida.equals("true"))
-                    break;
+                clientCommunication.socket.setSoTimeout(0);
+                while(true){
+                jTextAreaLogger.append("A aguardar até que o anfitriao inicie o jogo!");
+                modalWait modalWait = (new modalWait(this, true, "A aguardar que o jogo inicie...", "Cancelar" , this.clientCommunication));
+                if(modalWait.mensagem_recebida != null){
+                    if(ClientCommunication.decodificar(modalWait.mensagem_recebida).containsKey("jogoIniciado") &&
+                            ClientCommunication.decodificar(modalWait.mensagem_recebida).get("jogoIniciado").equals("true"))
+                        break;
+                }
+                else
+                    if(modalWait.conexao_Falhou)
+                        throw new IOException();
+                }
+
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,"A conexão entre o servidor e o cliente falhou, verifique a sua conexão","Erro de conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
-        }
-       
         
-        Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel = LinhasDeLabel.iterator();
-        iteradorArrayListJLabel = LinhasDeLabel.iterator();
+       
+        //iterar sobre as labels com numeros e avisa las que o jogo comecou
+        Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel  = LinhasDeLabel.iterator();
 
         while ( iteradorArrayListJLabel.hasNext()  ){
             ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();
             for(JLabelCartao jlabelcartao : colunaJLabel)
                 jlabelcartao.setJogoIniciado(true);
         }
+        //iniciar efetivamente o jogo
         jlabelTips.setVisible(false);
-        jLabelJogoStatus.setText("<Jogo Iniciado>");
-
+        jTextAreaLogger.append("<Jogo Iniciado>\n");
+        jButtonIniciarJogo.setEnabled(false);
+        jButtonNovoCartao.setEnabled(false);
         jogoIniciado = true;
-        timerSocket = new javax.swing.Timer(100, clientCommunication);
-        timerSocket.start();        
-        timerJogo = new javax.swing.Timer(100, this);
-        timerJogo.start();        
-
+        Thread socketThread = new Thread(clientCommunication);      
+        socketThread.start();
         
         
     }
@@ -418,31 +496,61 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
  */
     private void jButtonNovoCartaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNovoCartaoActionPerformed
         //Botão para gerar novo cartão
+
+        novoJogo();
+  
+    }//GEN-LAST:event_jButtonNovoCartaoActionPerformed
+
+    private void jButtonTerminarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTerminarJogoActionPerformed
+        // TODO add your handling code here:
+        
         if(jogoIniciado){
             int reply = JOptionPane.showConfirmDialog(null, "Tens um jogo em progresso.\nSe continuar esta ação irá perder o seu progresso do jogo anterior, deseja prosseguir?", "Jogo em progresso!", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.NO_OPTION) 
                 return;
         }
-        novoJogo();
-    }//GEN-LAST:event_jButtonNovoCartaoActionPerformed
+        this.jButtonIniciarJogo.setEnabled(true);
+        this.jButtonTerminarJogo.setEnabled(false);
+        this.jButtonNovoCartao.setEnabled(true);
+        this.jogoIniciado = false;
+        this.clientCommunication = null;
+        
+    }//GEN-LAST:event_jButtonTerminarJogoActionPerformed
     
-    private void novoJogo(){
+     void novoJogo(){
         this.tema =  new Tema(Temas.values()[Cartao.randomNum(0, 2)]);
+         jLabelBigAtualNumero.setTEMA(tema);
+         jLabelBigAtualNumero.setText(" ");
          jPanelCartaoContent.setBackground(this.tema.PANEL_CONTENT_BACKGROUND);
          jPanelOpcoes.setBackground(this.tema.PANEL_OPCOES_BACKGROUND);
-
+         this.ultimo_NumeroAcertado = null;
  
         jPanelCartaoContent.removeAll();
-        jLabelJogoStatus.setText("< Jogo Não Inicializado >");
         jlabelTips.setVisible(true);
         jPanelCartaoContent.updateUI();
         this.jogoIniciado = false;
         this.LinhasDeLabel.clear();
+
+        
         this.cartao = new Cartao(JogadorGUI.COLUNAS_DIM,JogadorGUI.LINHAS_DIM,JogadorGUI.QTD_NUMEROS_DIM);
         this.construirCartao();
+        if(clientCommunication != null)
+            this.clientCommunication = null;
         
         
     }
+     public void resetarNumeros(){
+        this.clientCommunication = null;
+        this.jogoIniciado = false;
+        this.ultimo_NumeroAcertado = null;
+        this.jLabelBigAtualNumero.setText(" ");
+        Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel = LinhasDeLabel.iterator();
+        while ( iteradorArrayListJLabel.hasNext()   ){
+            ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();
+            for(JLabelCartao jlabelcartao : colunaJLabel)
+                jlabelcartao.desmarcarJLabel();
+        }
+     }
     /**
      * @param args the command line arguments
      */
@@ -484,43 +592,13 @@ public final class JogadorGUI extends javax.swing.JFrame implements ActionListen
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonIniciarJogo;
     private javax.swing.JButton jButtonNovoCartao;
-    private javax.swing.JLabel jLabelJogoStatus;
+    private javax.swing.JButton jButtonTerminarJogo;
     private javax.swing.JPanel jPanelCartaoContent;
     private javax.swing.JPanel jPanelOpcoes;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextAreaLogger;
     private javax.swing.JLabel jlabelTips;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        HashMap<String,String> dados = ClientCommunication.decodificar(this.clientCommunication.lerMSGs());
-        
-        System.out.println(dados.toString());
-        if(dados.containsKey("jogoTerminou")){
-            System.out.println("dados de jogoterminou:" + dados.keySet());
-            if(dados.get("jogoTerminou").equals("true")){
-                if(dados.containsKey(Integer.toString(this.numIdentificacao)))
-                    System.out.println("Parabens, como vencedor ganhaste uma recompensa de" + dados.get(Integer.toString(this.numIdentificacao)));
-                else
-                    System.out.println("Jogo terminou e nao foste um dos vencedores");
-                int reply = JOptionPane.showConfirmDialog(null, "Deseja comecar um novo jogo??", "Jogo Terminou!", JOptionPane.YES_NO_OPTION);
-                if (reply == JOptionPane.NO_OPTION) 
-                    return;
 
-                novoJogo();
-            }
-
-        }
-
-            
-        if(dados.containsKey("numeroSorteado")){
-            try {
-                sortearNumero(Integer.parseInt(dados.get("numeroSorteado")));
-//                System.out.println("um numero foi sorteado , será que pertence ao seu cartao?" + dados.get("numeroSorteado"));
-            } catch (NumberFormatException n) {
-                System.out.println("numero sorteado nao é numero");
-            }
-            
-        }
-        
-    }
 }

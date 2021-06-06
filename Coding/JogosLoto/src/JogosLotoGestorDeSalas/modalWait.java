@@ -5,26 +5,64 @@
  */
 package JogosLotoGestorDeSalas;
 
-import javax.swing.JDialog;
+import JogosLotoJogador.SocketCommunicationStruct;
+import java.io.IOException;
 
 /**
  *
  * @author bil
  */
-public class modalWait extends javax.swing.JDialog {
-
+public class modalWait extends javax.swing.JDialog implements Runnable{
+    private SocketCommunicationStruct socket_comm;
+    public  String mensagem_recebida;
+    public boolean conexao_Falhou;
+    private int tempoEsperar; 
     /**
      * Creates new form modalWait
      */
     public modalWait(java.awt.Frame parent, boolean modal, String LoadingTexto,String BotaoTexto) {
         super(parent, modal);
+        
+
         initComponents();
         this.jProgressBar1.setString(LoadingTexto);
         this.jButtonCancelar.setText(BotaoTexto);
-
-        this.setLocationRelativeTo(null);  
+        conexao_Falhou = false;
+        tempoEsperar = -1;
+        this.setLocationRelativeTo(parent);
         this.setVisible(true);
+    }
+    
+    public modalWait(java.awt.Frame parent, boolean modal, String LoadingTexto,int tempoEsperar) {
+        super(parent, modal);
+        this.tempoEsperar = tempoEsperar;
+        Thread t = new Thread(this);
+        t.start();
+        initComponents();
+        this.jProgressBar1.setString(LoadingTexto);
+        getContentPane().remove(jButtonCancelar);
+        conexao_Falhou = false;
 
+        this.setLocationRelativeTo(parent);
+        this.setVisible(true);
+    }
+    
+    public modalWait(java.awt.Frame parent, boolean modal, String LoadingTexto,String BotaoTexto , SocketCommunicationStruct socketcomm) {
+        super(parent, modal);
+        this.socket_comm = socketcomm;
+        
+        Thread t = new Thread(this);
+        t.start();
+        initComponents();
+        this.jProgressBar1.setString(LoadingTexto);
+        this.jButtonCancelar.setText(BotaoTexto);
+        tempoEsperar = -1;
+        this.socket_comm = socketcomm;
+        this.mensagem_recebida = null;
+        this.setLocationRelativeTo(parent);  
+        conexao_Falhou = false;
+        this.setVisible(true);
+        
     }
 
     /**
@@ -87,7 +125,34 @@ public class modalWait extends javax.swing.JDialog {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButtonCancelar;
+    public javax.swing.JButton jButtonCancelar;
     private javax.swing.JProgressBar jProgressBar1;
     // End of variables declaration//GEN-END:variables
+    
+    public int getTempoRestante(){
+        return tempoEsperar;
+    }
+    
+    
+    @Override
+    public void run() {
+        //tempo é contado dessa forma para evitar que o utilizador carregue no X e "sabote" o tempo .  
+        if(tempoEsperar> 1){
+            while(tempoEsperar >= 0)
+                try {
+                    Thread.sleep(20);
+                    tempoEsperar -=20;
+                } catch (InterruptedException ex) {
+                }
+            dispose();
+            return;
+        }
+        try {
+            mensagem_recebida = socket_comm.esperarMSG();
+        } catch (IOException ex) {
+            conexao_Falhou = true;
+        }
+
+       dispose();
+    }
 }

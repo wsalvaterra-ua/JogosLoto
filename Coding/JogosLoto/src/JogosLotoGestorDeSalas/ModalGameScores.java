@@ -5,6 +5,7 @@
  */
 package JogosLotoGestorDeSalas;
 
+import java.awt.Panel;
 import java.util.HashMap;
 
 /**
@@ -15,26 +16,63 @@ import java.util.HashMap;
 public class ModalGameScores extends javax.swing.JDialog {
 
    private final String[][] vencedoresEmArray;
-/**
+   public int acao;
+    /**
  *Esta classe cria uma Interface gráfica de um gestor de Salas .
      * @param parent o diálogo do proprietário a partir do qual o diálogo é mostrado ou nulo se este diálogo não tiver dono
      * @param modal especifica se a caixa de diálogo bloqueia a entrada do usuário em outras janelas de nível superior quando mostrada. 
      * @param vencedores recebe a Coleção de Vencedores
  */
-    public ModalGameScores(java.awt.Frame parent, boolean modal, HashMap<Integer,Double> vencedores) {
+    public ModalGameScores(java.awt.Frame parent, boolean modal, HashMap<String,Double> vencedores , String nomeDoJogadorVencedor) {
         super(parent, modal);
         
-           
+         acao = -1; 
         vencedoresEmArray = new String[vencedores.size()][2];
-
+        int indexJogadorVencedor = -1;
         int x = 0;
-        for(int valor : vencedores.keySet()){
-            vencedoresEmArray[x][0] = Integer.toString(valor);
-            vencedoresEmArray[x][1] = Double.toString(vencedores.get(valor));
+  
+        for(String nome : vencedores.keySet()){
+            if(nomeDoJogadorVencedor != null)
+                 if(nome.equals(nomeDoJogadorVencedor))
+                      indexJogadorVencedor = x;
+            vencedoresEmArray[x][0] = nome;
+            vencedoresEmArray[x][1] = Double.toString(vencedores.get(nome));
             x++;
         }       
         
         initComponents();
+        if(indexJogadorVencedor>=0){
+            jTable1.addRowSelectionInterval(indexJogadorVencedor, indexJogadorVencedor);
+            JLabelPremiacaoParticular.setText("Tu(" + nomeDoJogadorVencedor +") ganhaste: " + vencedoresEmArray[indexJogadorVencedor][1]);
+        }
+        else JLabelPremiacaoParticular.setText("Não foste um dos vencedores.");
+        this.pack();
+    }
+    /**
+ *Esta classe cria uma Interface gráfica de um gestor de Salas .
+     * @param parent o diálogo do proprietário a partir do qual o diálogo é mostrado ou nulo se este diálogo não tiver dono
+     * @param modal especifica se a caixa de diálogo bloqueia a entrada do usuário em outras janelas de nível superior quando mostrada. 
+     * @param vencedores recebe a Coleção de Vencedores
+ */
+    public ModalGameScores(java.awt.Frame parent, boolean modal, HashMap<String,Double> vencedores ) {
+        super(parent, modal);
+        
+         acao = -1; 
+        vencedoresEmArray = new String[vencedores.size()][2];
+
+        int x = 0;
+   
+        for(String nome : vencedores.keySet()){
+  
+            vencedoresEmArray[x][0] = nome;
+            vencedoresEmArray[x][1] = Double.toString(vencedores.get(nome));
+            x++;
+        }       
+        
+        initComponents();
+    
+        getContentPane().remove(jPanel1);
+        this.pack();
     }
 
     /**
@@ -46,20 +84,27 @@ public class ModalGameScores extends javax.swing.JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jPanel1 = new javax.swing.JPanel();
+        JLabelPremiacaoParticular = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Lista de Vencedores");
         setBackground(new java.awt.Color(0, 204, 0));
-        getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
+        getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
 
-        jTable1.setBackground(new java.awt.Color(102, 204, 0));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             vencedoresEmArray,
             new String [] {
-                "Jogador ID", "Valor Premiado"
+                "Jogador", "Valor Premiado"
             }
         ) {
             Class[] types = new Class [] {
@@ -74,10 +119,110 @@ public class ModalGameScores extends javax.swing.JDialog {
 
         getContentPane().add(jScrollPane1);
 
+        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.Y_AXIS));
+
+        JLabelPremiacaoParticular.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        JLabelPremiacaoParticular.setText("jLabel1");
+        JLabelPremiacaoParticular.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        jPanel1.add(JLabelPremiacaoParticular);
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        jButton2.setText("Novo Jogo c\\ o Mesmo Cartão");
+        jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.1;
+        jPanel2.add(jButton2, gridBagConstraints);
+
+        jButton3.setText("Novo Jogo c\\ novo cartão");
+        jButton3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.1;
+        jPanel2.add(jButton3, gridBagConstraints);
+
+        jButton1.setText("Fechar Jogo");
+        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 0.1;
+        jPanel2.add(jButton1, gridBagConstraints);
+
+        jButton4.setText("Fechar Janela");
+        jButton4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 0.1;
+        jPanel2.add(jButton4, gridBagConstraints);
+
+        jPanel1.add(jPanel2);
+
+        getContentPane().add(jPanel1);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       this.acao = 3;
+        dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        this.acao = 2;
+        dispose();
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        this.acao = 1;
+        dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        this.acao = 0;
+        dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel JLabelPremiacaoParticular;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
