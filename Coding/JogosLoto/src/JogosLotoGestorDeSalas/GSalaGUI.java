@@ -308,6 +308,7 @@ public class GSalaGUI extends javax.swing.JFrame{
 // referencia https://stackoverflow.com/questions/26685326/clearing-a-jlist
     private void jButtonIniciarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonIniciarJogoActionPerformed
        if(serversocket == null){
+           this.reiniciar_UI(0);
             try {
                 serversocket = new Server(this);
                 Thread t = new Thread(serversocket);
@@ -362,19 +363,22 @@ public class GSalaGUI extends javax.swing.JFrame{
         }
         if(serversocket != null)
             serversocket.setTerminarJogo(true);
-        reiniciar_UI();
+        reiniciar_UI(0);
         this.sessaoDeJogo = new SessaoDeJogoDeLoto(MIN,MAX);
         this.serversocket = null;
 
 
     }//GEN-LAST:event_jButtonTerminarJogoActionPerformed
-    private void reiniciar_UI(){
+    private void reiniciar_UI(int excecao){
         DefaultListModel listModel = (DefaultListModel) jListTrueApostas.getModel();
         listModel.removeAllElements();
         DefaultListModel listModel2 = (DefaultListModel) jListTrueNumerosSorteados.getModel();
-        listModel2.removeAllElements();
+        if(excecao != 1){
+            listModel2.removeAllElements();
+            this.modelNumerosSorteados = listModel2;
+        }
         this.modelApostas = listModel;
-        this.modelNumerosSorteados = listModel2;
+        
 
         this.jButtonIniciarJogo.setEnabled(true);
         this.jButtonIniciarJogo.setText("Hospedar");
@@ -469,10 +473,10 @@ public class GSalaGUI extends javax.swing.JFrame{
         HashMap<Integer,Integer> finalistasQtdNumerosConfirmados = new HashMap<>();
         
         Iterator<Integer> nmrosorteadosIT =  this.sessaoDeJogo.getNumerosSorteados().iterator();
-        System.out.println("Quantidade de Nuemros Sorteados:" + sessaoDeJogo.getNumerosSorteados().size());
+//        System.out.println("Quantidade de Nuemros Sorteados:" + sessaoDeJogo.getNumerosSorteados().size());
         while(nmrosorteadosIT.hasNext() ){
             int numeroSorteado = nmrosorteadosIT.next();
-            System.out.println("Número sorteado a ser verificado sorteado :" + numeroSorteado);
+//            System.out.println("Número sorteado a ser verificado sorteado :" + numeroSorteado);
             Iterator<String[]> iteradorfinalistas = finalistasDadosEntrada.iterator();
             boolean temFinalistaValido = false;
             
@@ -483,8 +487,8 @@ public class GSalaGUI extends javax.swing.JFrame{
                 Matcher matcher = pattern.matcher(finalista[1]);
                 try {
                     if(matcher.find()){
-                        System.out.println(numeroSorteado + " foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
-                          System.out.println("Cartao: " + finalista[1]);
+//                        System.out.println(numeroSorteado + " foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
+//                          System.out.println("Cartao: " + finalista[1]);
                         int finalistaID = Integer.parseInt(finalista[0]);
                         if(finalistasQtdNumerosConfirmados.containsKey(finalistaID))
                             finalistasQtdNumerosConfirmados.put(finalistaID, finalistasQtdNumerosConfirmados.get(finalistaID)+ 1);
@@ -492,12 +496,12 @@ public class GSalaGUI extends javax.swing.JFrame{
                             finalistasQtdNumerosConfirmados.put(finalistaID, 1);
                     }else{
                         
-                         System.out.println(numeroSorteado + " nao foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
-                         System.out.println("Cartao: " + finalista[1]);
+//                         System.out.println(numeroSorteado + " nao foi verificado no cartao do jogador" + serversocket.getJogadorNome(Integer.valueOf(finalista[0])));
+//                         System.out.println("Cartao: " + finalista[1]);
                     }
 
                 } catch (NumberFormatException e) {
-                    System.out.println("numero nao pode ser convertido para Int em finalizarJogo");
+                    //numero nao pode ser convertido para Int em finalizarJogo
                 }
     
             }
@@ -549,7 +553,7 @@ public class GSalaGUI extends javax.swing.JFrame{
         myDialog.setLocationRelativeTo(this);  
         myDialog.setVisible(true);
         
-        reiniciar_UI();
+        reiniciar_UI(1);
         this.sessaoDeJogo = new SessaoDeJogoDeLoto(MIN,MAX);
         this.serversocket = null;
         

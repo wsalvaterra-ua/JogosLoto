@@ -32,7 +32,7 @@ public abstract class SocketCommunicationStruct implements Runnable{
     protected BufferedReader entrada;
     protected ArrayList<String> MSGEntrada;
     public  static int INTERVALO_ATUALIZACAO = 200;
-    public  static int TEMPO_ESPERA_RESPOSTA = 4000;
+    public  static int TEMPO_ESPERA_RESPOSTA = 2000;
     public SocketCommunicationStruct() {
 
         

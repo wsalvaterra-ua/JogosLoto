@@ -86,16 +86,10 @@ public class Server implements Runnable
                                 //tempo para que os outros clientes se atualizem caso queiram se declarar como vencedores também
                                 modalWait modalWait = (new modalWait(this.GestorGUI, true, "A Processar Possíveis Vencedores", ServerCommunication.TEMPO_ESPERA_RESPOSTA));
                                 
-<<<<<<< Updated upstream
-                                if(modalWait.getTempoEsperar() > 0){
-                                    System.out.println("tempo maior k 20");
-                                    Thread.sleep(modalWait.getTempoEsperar());
-=======
                                 if(modalWait.getTempoRestante() > 0){
                                     System.out.println("tempo maior k 20");
                                     System.out.println(modalWait.getTempoRestante());
                                     Thread.sleep(modalWait.getTempoRestante());
->>>>>>> Stashed changes
                                     
                                 }
                             }else
@@ -216,9 +210,5 @@ public class Server implements Runnable
  
 
 
-<<<<<<< Updated upstream
-}
-=======
 }
   
->>>>>>> Stashed changes

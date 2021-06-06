@@ -364,10 +364,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
             
 
     }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
-    public boolean jogoIniciado(){
-        return this.jogoIniciado;
-        
-    }
+  
     private void iniciarJogo(){
         //gerar chave para decriptar cartão no servidor
         char[] key = new char[Cartao.randomNum(6,15)];
@@ -482,6 +479,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
         jTextAreaLogger.append("<Jogo Iniciado>\n");
         jButtonIniciarJogo.setEnabled(false);
         jButtonNovoCartao.setEnabled(false);
+        jButtonTerminarJogo.setEnabled(true);
         jogoIniciado = true;
         Thread socketThread = new Thread(clientCommunication);      
         socketThread.start();
@@ -496,9 +494,10 @@ public final class JogadorGUI extends javax.swing.JFrame{
  */
     private void jButtonNovoCartaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNovoCartaoActionPerformed
         //Botão para gerar novo cartão
-
+        
+        if(!jButtonIniciarJogo.isEnabled())
+            botoesEstadosModelos(0);
         novoJogo();
-  
     }//GEN-LAST:event_jButtonNovoCartaoActionPerformed
 
     private void jButtonTerminarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTerminarJogoActionPerformed
@@ -509,11 +508,21 @@ public final class JogadorGUI extends javax.swing.JFrame{
             if (reply == JOptionPane.NO_OPTION) 
                 return;
         }
-        this.jButtonIniciarJogo.setEnabled(true);
-        this.jButtonTerminarJogo.setEnabled(false);
-        this.jButtonNovoCartao.setEnabled(true);
+    
+ 
+
         this.jogoIniciado = false;
+        if(this.clientCommunication != null)
+                this.clientCommunication.terminarJogo();
         this.clientCommunication = null;
+        
+        int reply = JOptionPane.showConfirmDialog(null, "Podes reiniciar o cartão ou mante-lo no estado em que o jogo decorria.\n Desejas reiniciar o cartão?", "Atenção!", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.NO_OPTION){ 
+            botoesEstadosModelos(1);
+            return;
+        }
+        resetarNumeros();
+        botoesEstadosModelos(0);
         
     }//GEN-LAST:event_jButtonTerminarJogoActionPerformed
     
@@ -535,7 +544,8 @@ public final class JogadorGUI extends javax.swing.JFrame{
         this.cartao = new Cartao(JogadorGUI.COLUNAS_DIM,JogadorGUI.LINHAS_DIM,JogadorGUI.QTD_NUMEROS_DIM);
         this.construirCartao();
         if(clientCommunication != null)
-            this.clientCommunication = null;
+            this.clientCommunication.terminarJogo();
+        this.clientCommunication = null;
         
         
     }
@@ -587,7 +597,26 @@ public final class JogadorGUI extends javax.swing.JFrame{
             }
         });
     }
-    
+    public void botoesEstadosModelos(int estado){
+        
+        switch(estado){
+            case 0:
+                jButtonIniciarJogo.setEnabled(true);
+                jButtonTerminarJogo.setEnabled(false);
+                jButtonNovoCartao.setEnabled(true);
+                break;
+            case 1:
+                jButtonIniciarJogo.setEnabled(false);
+                jButtonTerminarJogo.setEnabled(false);
+                jButtonNovoCartao.setEnabled(true);
+                break;
+            default:
+                jButtonIniciarJogo.setEnabled(false);
+                jButtonTerminarJogo.setEnabled(false);
+                jButtonNovoCartao.setEnabled(true);
+                break;
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonIniciarJogo;
