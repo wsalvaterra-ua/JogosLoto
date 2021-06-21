@@ -113,10 +113,13 @@ public final class JogadorGUI extends javax.swing.JFrame{
             HashMap<Integer,Slot_Numero > coluna = iteradorArrayList.next();
             List<Integer> sortedKeys=new ArrayList(coluna.keySet());
             Collections.sort(sortedKeys);
+            int y =0;
             for (int i : sortedKeys) {
-                JLabelCartao customLabel = new JLabelCartao(coluna.get(i), tema.TEMA);
+                
+                JLabelCartao customLabel = new JLabelCartao(coluna.get(i), tema.TEMA , y);
                 colunaJLabel.add(customLabel);
                 jPanelCartaoContent.add(customLabel);
+                y++;
             }
             LinhasDeLabel.add(colunaJLabel);
 
@@ -124,7 +127,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
         this.pack();
     }
    
-    private boolean validarJogo(){
+    private boolean validarJogo(String textoDebug){
 
         if(!jogoIniciado){   
 
@@ -153,7 +156,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
                         colunaCartao.put( Cartao.randomNum(Cartao.getColumnMin(i), Cartao.getColumnMax(i, COLUNAS_DIM )), null);
                 }
             }
-            if(cartao.verificar_integridade())
+            if(cartao.verificar_integridade(textoDebug))
                 return true;
           
         } 
@@ -187,8 +190,10 @@ public final class JogadorGUI extends javax.swing.JFrame{
                     HashMap<Integer,Slot_Numero > coluna_IT = iteradorArrayList.next();
                     for (int i : coluna_IT.keySet()) 
                         if(coluna_IT.get(i)!= null)
-                            if(coluna_IT.get(i).getMarcado() == false)
+                            if(coluna_IT.get(i).getMarcado() == false){
                                 temNumerosNaoMarcados = true;
+                                break;
+                            }
                 }
                 if(temNumerosNaoMarcados == false){
                     jTextAreaLogger.append("< Cartão está completo! >\n");
@@ -342,28 +347,25 @@ public final class JogadorGUI extends javax.swing.JFrame{
         //conectar se ao servidor
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR)); 
         jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
+        String textoDebug  = "ee";
+        if(!validarJogo(textoDebug)){
+            JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique os números!" + textoDebug,"Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         this.clientCommunication = new ClientCommunication(this);
         if(!this.clientCommunication.conectar()){
             JOptionPane.showMessageDialog(this,"Não foi possivel estabelecer uma conexão com o servidor, por favor tente novamente","Erro ao conectar-se",javax.swing.JOptionPane.WARNING_MESSAGE);
             this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
             jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
+            this.clientCommunication.setTerminarJogo(true);
+            this.clientCommunication = null;
             return;
         }
         
-        if(!validarJogo()){
-             JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique os números!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
-             return;
-        }
-        
         iniciarJogo();
-      
- 
+        
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
-        jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
-
-
-            
-
+        jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
     }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
   
     private void iniciarJogo(){
@@ -426,9 +428,13 @@ public final class JogadorGUI extends javax.swing.JFrame{
         } catch ( java.net.SocketTimeoutException ex ) {
             JOptionPane.showMessageDialog(this,"Foi possível conectar-se ao servidor, porém o mesmo não responde!\nCertifique-se de que o Servidor já não tenha um jogo em progresso",
                     "Sem Resposta",javax.swing.JOptionPane.WARNING_MESSAGE);
+            this.clientCommunication.setTerminarJogo(true);
+            this.clientCommunication = null;
             return;
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,"A conexão entre o servidor e o cliente falhou, verifique a sua conexão","Erro de conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
+            this.clientCommunication.setTerminarJogo(true);
+            this.clientCommunication = null;
             return;
         }
         
@@ -448,16 +454,23 @@ public final class JogadorGUI extends javax.swing.JFrame{
             try {
                 clientCommunication.setSocketTimeout(0);
                 while(true){
-                jTextAreaLogger.append("A aguardar até que o anfitriao inicie o jogo!");
-                modalWait modalWait = (new modalWait(this, true, "A aguardar que o jogo inicie...", "Cancelar" , this.clientCommunication));
-                if(modalWait.mensagem_recebida != null){
-                    if(ClientCommunication.decodificar(modalWait.mensagem_recebida).containsKey("jogoIniciado") &&
-                            ClientCommunication.decodificar(modalWait.mensagem_recebida).get("jogoIniciado").equals("true"))
-                        break;
-                }
-                else
-                    if(modalWait.conexao_Falhou)
-                        throw new IOException();
+                    jTextAreaLogger.append("A aguardar até que o anfitriao inicie o jogo!\n");
+                    modalWait modalWait = (new modalWait(this, true, "A aguardar que o jogo inicie...", "Cancelar" , this.clientCommunication));
+                    if(modalWait.mensagem_recebida != null){
+                        if(ClientCommunication.decodificar(modalWait.mensagem_recebida).containsKey("jogoIniciado") &&
+                              ClientCommunication.decodificar(modalWait.mensagem_recebida).get("jogoIniciado").equals("true"))
+                            break;
+                    }
+                    else{
+                        if(modalWait.conexao_Falhou)
+                            throw new IOException();
+                        if(modalWait.mensagem_recebida == null){
+                            this.jTextAreaLogger.append("Cancelaste o jogo");
+                            this.clientCommunication.setTerminarJogo(true);
+                            this.clientCommunication = null;
+                            return;
+                        }
+                    }
                 }
 
             } catch (IOException ex) {
@@ -511,17 +524,17 @@ public final class JogadorGUI extends javax.swing.JFrame{
  
 
         this.jogoIniciado = false;
-        if(this.clientCommunication != null)
-                this.clientCommunication.isTerminarJogo();
-        this.clientCommunication = null;
+        this.clientCommunication.setTerminarJogo(true);
+
         
         int reply = JOptionPane.showConfirmDialog(null, "Podes reiniciar o cartão ou mante-lo no estado em que o jogo decorria.\n Desejas reiniciar o cartão?", "Atenção!", JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.NO_OPTION){ 
             botoesEstadosModelos(1);
             return;
         }
+        
         resetarNumeros();
-        botoesEstadosModelos(0);
+        
         
     }//GEN-LAST:event_jButtonTerminarJogoActionPerformed
     
@@ -549,7 +562,13 @@ public final class JogadorGUI extends javax.swing.JFrame{
         
     }
      public void resetarNumeros(){
-        this.clientCommunication = null;
+        this.botoesEstadosModelos(0);
+        if(this.clientCommunication != null){
+            this.clientCommunication.setTerminarJogo(true);
+            this.clientCommunication = null;
+        }
+
+
         this.jogoIniciado = false;
         this.ultimo_NumeroAcertado = null;
         this.jLabelBigAtualNumero.setText(" ");

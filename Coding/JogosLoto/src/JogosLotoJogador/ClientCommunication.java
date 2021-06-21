@@ -37,8 +37,10 @@ public class ClientCommunication extends SocketCommunicationStruct{
     @Override
     public void run() {
         try {
-            while(!temErro  && !terminarJogo){
+            while(!temErro  && !this.isTerminarJogo()){
                 String inpt_ = entrada().readLine();
+                if(this.isTerminarJogo())
+                    break;
                 if(inpt_ != null){
                     HashMap<String,String> dados = ClientCommunication.decodificar(inpt_);
 
@@ -79,7 +81,6 @@ public class ClientCommunication extends SocketCommunicationStruct{
                       
                             switch(myDialog.acao){
                                 case 0:
-                                    GUIJogo.botoesEstadosModelos(0);
                                     GUIJogo.resetarNumeros();
                                     break;
                                 case 1:
@@ -107,8 +108,8 @@ public class ClientCommunication extends SocketCommunicationStruct{
             temErro = true; 
         } 
         if(temErro){
-            JOptionPane.showMessageDialog(GUIJogo,"Houve um erro de conexão! Jogo será recomeçado!","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
-            GUIJogo.novoJogo();
+            JOptionPane.showMessageDialog(GUIJogo,"Houve um erro de conexão! Jogo será recomeçado! Conecte-se novamente ao servidor","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+            GUIJogo.resetarNumeros();
         }
         try {
             this.terminarConexao();

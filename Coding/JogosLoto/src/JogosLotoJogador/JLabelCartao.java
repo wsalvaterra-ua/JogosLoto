@@ -24,13 +24,14 @@ public class JLabelCartao extends javax.swing.JLabel{
 /**
  * Tema a ser utilizado no jogo 
  */
-    Tema TEMA;
+    private Tema TEMA;
+    private  final int localizacaoColuna;
 
     
     
      public JLabelCartao(Temas tema){
         super();
-        
+        localizacaoColuna = -1;
 
         this.TEMA = new Tema(tema);
         this.setBackground(this.TEMA.NUMERO_BACKGROUND);
@@ -63,7 +64,7 @@ public class JLabelCartao extends javax.swing.JLabel{
      * @param slot_numero objeto Slot_Numero a ser utilizado
      * @param tema Tema a ser utilizado durante o jogo.
  */
-    public JLabelCartao(Slot_Numero slot_numero,Temas tema){
+    public JLabelCartao(Slot_Numero slot_numero,Temas tema, int localizacaoColuna){
         super();
         this.TEMA = new Tema(tema);
         this.slot_numero = slot_numero;
@@ -74,6 +75,7 @@ public class JLabelCartao extends javax.swing.JLabel{
         this.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 4));
         this.setOpaque(false);
         this.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        this.localizacaoColuna = localizacaoColuna;
         
         if(slot_numero != null){
             this.setText(Integer.toString(slot_numero.getNumero()));
@@ -94,16 +96,14 @@ public class JLabelCartao extends javax.swing.JLabel{
         @Override
         public void mouseEntered(java.awt.event.MouseEvent evt) {
               mouse_Hover(0);
-
         }
         @Override
         public void mouseExited(java.awt.event.MouseEvent evt) {
-
             mouse_Hover(1);
-
         }
 
     });
+     
     }
 
     public void setTEMA(Tema TEMA) {
@@ -129,9 +129,13 @@ public class JLabelCartao extends javax.swing.JLabel{
         if(resultado.length()>0)
             try {
                 Integer.parseInt(resultado);
-                if(Integer.valueOf( resultado) <0 || Integer.valueOf( resultado) > 90){
-                        JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre 0 e 90","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+                if(Integer.valueOf( resultado) <1 || Integer.valueOf( resultado) > 90){
+                        JOptionPane.showMessageDialog(this,"Somente são válidos números inteiros entre 1 e 90","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
                         return;
+                }
+                if(Integer.valueOf( resultado) < Cartao.getColumnMin(localizacaoColuna) || Integer.valueOf( resultado) > Cartao.getColumnMax(localizacaoColuna,JogadorGUI.COLUNAS_DIM)){
+                    JOptionPane.showMessageDialog(this,"Nesta coluna só são válidos números entre " + Cartao.getColumnMin(localizacaoColuna)  + " e " + Cartao.getColumnMax(localizacaoColuna,JogadorGUI.COLUNAS_DIM) ,"Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
                 if(this.slot_numero !=null)
                      this.slot_numero.setNumero(Integer.valueOf(resultado));
@@ -142,7 +146,7 @@ public class JLabelCartao extends javax.swing.JLabel{
                 return;
             } catch (NumberFormatException e) {
 
-                JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre 0 e 90","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre 1 e 90","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
         
@@ -177,9 +181,6 @@ public class JLabelCartao extends javax.swing.JLabel{
     
     }
     
-    
-   
-    
 /**
  * Método retorna o Slot_Numero contido nesta instancia
      * @return  o Slot_Numero contido nesta instancia
@@ -196,9 +197,5 @@ public class JLabelCartao extends javax.swing.JLabel{
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
 
     }
-    
-    
-    
-    
     
 }

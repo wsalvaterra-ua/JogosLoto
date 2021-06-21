@@ -167,7 +167,7 @@ public final class Cartao {
 /**
  *  retorna o número máximo permitido no dado index
      * @param j número do index(começa em 0)
-     * @param maxColuna Número de colunas no cartão
+     * @param maxColuna index da ultima colunas no cartão
  * @return  o número máximo permitido no dado index
  */
     public static int getColumnMax(int j, int maxColuna){
@@ -188,6 +188,14 @@ public final class Cartao {
  * @return  True se cartão for íntegro, False se cartão não cumprir as regras de um jogo de Loto
  */
     public boolean verificar_integridade(){
+        
+      return  verificar_integridade("");
+    }
+/**
+ *  Função para verificar se o Cartão cumpre as regras do Cartão de Jogo de Loto
+ * @return  True se cartão for íntegro, False se cartão não cumprir as regras de um jogo de Loto
+ */
+    public boolean verificar_integridade(String textoDebug){
         final int  espacos_vazios_permitidos = colunas_dim - slot_numero_dim ;
         final int espacos_numeros_permitidos = slot_numero_dim;
         
@@ -204,16 +212,19 @@ public final class Cartao {
                     if(!(LinhasArrayList.get(ln).get(key).getNumero() >= getColumnMin(c) && (LinhasArrayList.get(ln).get(key).getNumero() <= getColumnMax(c)  )))
                         return false;
                     for(int b = 0; b < linhas_dim; b++)
-                        if (LinhasArrayList.get(b) != LinhasArrayList.get(ln) && LinhasArrayList.get(b).containsKey(key)  && LinhasArrayList.get(b).get(key) != null)
+                        if (LinhasArrayList.get(b) != LinhasArrayList.get(ln) && LinhasArrayList.get(b).containsKey(key)  && LinhasArrayList.get(b).get(key) != null){
+                            textoDebug.replace(textoDebug, textoDebug + "\n Existem dois números iguais na coluna " + c );
                             return false;
-                    
+                        }
                     espacos_numeros_usados++;
                 }else
                     espacos_vazios_usados++;
                 c++;
             }
-            if(espacos_numeros_usados != espacos_numeros_permitidos || espacos_vazios_usados != espacos_vazios_permitidos)
+            if(espacos_numeros_usados != espacos_numeros_permitidos || espacos_vazios_usados != espacos_vazios_permitidos){
+                textoDebug.replace(textoDebug, textoDebug + "\n Existem dois números iguais na coluna " + c );
                 return false;
+            }
         }
       return true;
     }

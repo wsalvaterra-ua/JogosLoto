@@ -6,11 +6,7 @@
 package JogosLotoGestorDeSalas;
 
 import JogosLotoLivraria.modalWait;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
-import static java.lang.Thread.sleep;
-import java.text.*;
 import java.util.*;
 import java.net.*;
 import java.util.logging.Level;
