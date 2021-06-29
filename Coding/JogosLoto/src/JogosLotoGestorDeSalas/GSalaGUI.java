@@ -439,7 +439,7 @@ public class GSalaGUI extends javax.swing.JFrame{
     private javax.swing.JLabel jLabelatualNumeroSorteado;
     private javax.swing.JScrollPane jListApostas;
     private javax.swing.JScrollPane jListNumerosSorteados;
-    public javax.swing.JList<String> jListTrueApostas;
+    private javax.swing.JList<String> jListTrueApostas;
     private javax.swing.JList<String> jListTrueNumerosSorteados;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelApostas;
