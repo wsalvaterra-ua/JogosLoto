@@ -47,6 +47,10 @@ public class ServerCommunication extends JogosLotoLivraria.SocketCommunicationSt
             } catch (IOException ex) {
                 this.terminarJogo = true;
             }
+            if(ServerCommunication.decodificar(socketMSGEntrada).containsKey("quitGame") || terminarJogo){
+                terminarJogo = true;
+                break;
+            }
             //primeiramente receber numero de cartao e propriedades da aposta 
             if(socketMSGEntrada != null && this.cartaoNumerosEncoded == null){
                 System.out.println("Mensagem Entrada inicial: " + socketMSGEntrada);

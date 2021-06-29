@@ -351,7 +351,7 @@ public class GSalaGUI extends javax.swing.JFrame{
             }
         }
         
-        jLabelBigLabelatualNumeroSorteado.setText(String.valueOf(numRand));
+        jLabelBigLabelatualNumeroSorteado.setText(String.format("%02d", numRand));
         this.serversocket.enviarMSG("numeroSorteado->" + Integer.toString(numRand));
         modelNumerosSorteados.addElement(numRand);
     }//GEN-LAST:event_jButtonatuallNumeroSorteadoActionPerformed
@@ -439,7 +439,7 @@ public class GSalaGUI extends javax.swing.JFrame{
     private javax.swing.JLabel jLabelatualNumeroSorteado;
     private javax.swing.JScrollPane jListApostas;
     private javax.swing.JScrollPane jListNumerosSorteados;
-    private javax.swing.JList<String> jListTrueApostas;
+    public javax.swing.JList<String> jListTrueApostas;
     private javax.swing.JList<String> jListTrueNumerosSorteados;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelApostas;
@@ -463,7 +463,14 @@ public class GSalaGUI extends javax.swing.JFrame{
                         return;
                     }
                 modelApostas.addElement(nomeJogadorNovo + "->" +  jogadorValorAposta);
-    }       
+
+    }
+    public void clearApostas(){
+        DefaultListModel listModel = (DefaultListModel) jListTrueApostas.getModel();
+        listModel.removeAllElements();
+        this.sessaoDeJogo.clearApostas();
+        
+    }
 
     public boolean finalizarJogo(ArrayList<String[]> finalistasDadosEntrada){
         

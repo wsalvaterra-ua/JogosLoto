@@ -44,17 +44,19 @@ public class Server implements Runnable
         synchronized(jogadoresSocket)
         {
             receberClientes();
+            //fechar conexao caso nenhum utiliador tenha se ingressado
             if(jogadoresSocket.size()<1){
-                System.out.println("Nnenhum cliente ingressou se");
                 try {
                     this.serverSocket.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    
                 }
                 return;
             }   
             while(!terminarJogo){
                 ArrayList<String[]> finalistas = new ArrayList<>();
+                
+                //tecnica para criar iterador para hashmap
                int[] jogadores_IT = new int[jogadoresSocket.size()];
                {
                     int i = 0;
@@ -62,14 +64,15 @@ public class Server implements Runnable
                          jogadores_IT[i++] = c;
                     }
                 }
-
+                //fim de tecnica para criar iterador para hashmap
+               boolean jaEsperouVencedores = false;
                 for(int i: jogadores_IT){
                     ServerCommunication cliente = jogadoresSocket.get(i);
 
                     if(cliente.terminouCartao() && cliente.isTerminarJogo() == false){
                         try {
 
-
+                            //decriptar os numeros dos cartoes
                             String numerosDecript = JogosLotoLivraria.EncriptacaoAES.decrypt(cliente.getCartaoNumerosEncoded(), cliente.getChaveDecriptar());
                             if(numerosDecript == null)
                                 System.out.println("Chave de Encriptacao Incorreta");
@@ -78,13 +81,15 @@ public class Server implements Runnable
                                     finalistas.add(new String[]{Integer.toString(cliente.getJogadorID()),numerosDecript});
                                     GestorGUI.estado_BotaoSortear(false);
                                     //tempo para que os outros clientes se atualizem caso queiram se declarar como vencedores também
-                                    modalWait modalWait = (new modalWait(this.GestorGUI, true, "A Processar Possíveis Vencedores", ServerCommunication.TEMPO_ESPERA_RESPOSTA));
+                                    if(!jaEsperouVencedores){
+                                        modalWait modalWait = (new modalWait(this.GestorGUI, true, "A Processar Possíveis Vencedores", ServerCommunication.TEMPO_ESPERA_RESPOSTA));
 
-                                    if(modalWait.getTempoRestante() > 0){
-                                        System.out.println("tempo maior k 20");
-                                        System.out.println(modalWait.getTempoRestante());
-                                        Thread.sleep(modalWait.getTempoRestante());
-
+                                        if(modalWait.getTempoRestante() > 0){
+                                            System.out.println("tempo maior k 20");
+                                            System.out.println(modalWait.getTempoRestante());
+                                            Thread.sleep(modalWait.getTempoRestante());
+                                        }
+                                        jaEsperouVencedores = true;
                                     }
                                 }else
                                     System.out.println("quantidade de numeros no cartao errada: " + numerosDecript.split(",").length);
@@ -97,8 +102,13 @@ public class Server implements Runnable
                         }
                         System.out.println("finallistas:" + finalistas.size());
                    }
-                    if(cliente.isTerminarJogo())
-                        jogadoresSocket.remove(i);
+                    if(cliente.isTerminarJogo()){
+                        jogadoresSocket.remove(cliente.getJogadorID());
+                        GestorGUI.clearApostas();
+                        for (int b : jogadoresSocket.keySet()) 
+                           GestorGUI.addApostas(b,jogadoresSocket.get(b).getAposta());
+                        
+                    }
                 }
 
                 if(finalistas.size() > 0)
@@ -116,7 +126,7 @@ public class Server implements Runnable
 
                 //sleep para ciclo nao trabalhar excessivamente
                 try {
-                    Thread.sleep(ServerCommunication.INTERVALO_ATUALIZACAO);
+                    Thread.sleep(2*ServerCommunication.INTERVALO_ATUALIZACAO);
                 } catch (InterruptedException ex) {
                     this.terminarJogo = true;
                 }
@@ -125,7 +135,7 @@ public class Server implements Runnable
             System.out.println("terminou");
             for(int b: jogadoresSocket.keySet())
                 jogadoresSocket.get(b).setTerminarJogo(true);
-
+            System.out.println("verificar cena que progrma envia msg e dps trmina termina imediatamente");
             try {
                 this.serverSocket.close();
             } catch (IOException ex) {
@@ -155,7 +165,7 @@ public class Server implements Runnable
     }
     
 
-    public void receberClientes() {
+    private void receberClientes() {
 // referencia: https://www.baeldung.com/java-measure-elapsed-time
 
 
@@ -166,36 +176,47 @@ public class Server implements Runnable
                 JOptionPane.showMessageDialog(this.GestorGUI,  "Ocorreu um erro, por favor inicie um novo jogo!","Erro!",javax.swing.JOptionPane.ERROR_MESSAGE); 
                 return;
             }
+            int lastID = 1;
             while( !inscricaoDeJogadoresTerminou){
                 try {
 
                     Socket socket;
-
-                    System.out.println("a espera" );
-
+                //tecnica para criar iterador para hashmap
+                    int[] jogadores_IT = new int[jogadoresSocket.size()];
+                   {
+                        int i = 0;
+                        for (int c : jogadoresSocket.keySet()) {
+                             jogadores_IT[i++] = c;
+                        }
+                    }
+                //fim de tecnica para criar iterador para hashmap
+                //remover aposta do jogo caso cliente tenha disconectado
+                    for (int c : jogadores_IT){ 
+                        if(jogadoresSocket.get(c).isTerminarJogo()){
+                            jogadoresSocket.remove(c);
+                            GestorGUI.clearApostas();
+         
+                            for (int b : jogadoresSocket.keySet()) 
+                               GestorGUI.addApostas(b,jogadoresSocket.get(b).getAposta());
+                        }
+                    }
+                    //aceitar cliente novo 
                     socket = serverSocket.accept();
                     if(inscricaoDeJogadoresTerminou) break;
 
-                    int jogadorID = jogadoresSocket.size()+1;
+                    int jogadorID = lastID++;
                     ServerCommunication  cliente_novo = new ServerCommunication(socket, jogadorID, GestorGUI);
-
+                    
                     if(cliente_novo.conectar()){
                         jogadoresSocket.put(jogadorID , cliente_novo);
                         cliente_novo.iniciarThread();
                     }
-
-
-
+                    
                 } catch (IOException ex) {
                     
                 }
          
             }
-            
-            System.out.println("Parou de aceitar novas conexoes");
-            
- 
-            
     }
 
     public void setTerminarJogo(boolean tterminarJogo) {

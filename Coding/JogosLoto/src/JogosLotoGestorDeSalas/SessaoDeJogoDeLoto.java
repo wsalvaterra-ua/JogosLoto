@@ -105,6 +105,9 @@ public class SessaoDeJogoDeLoto {
     public HashMap<Integer, Double> getApostasFeitas() {
         return apostasFeitas;
     }
+    public void clearApostas(){
+        apostasFeitas.clear();
+    }
     
     
     

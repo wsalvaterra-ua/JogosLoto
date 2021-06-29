@@ -127,7 +127,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
         this.pack();
     }
    
-    private boolean validarJogo(String textoDebug){
+    private boolean validarJogo(StringBuilder textoDebug){
 
         if(!jogoIniciado){   
 
@@ -158,7 +158,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
             }
             if(cartao.verificar_integridade(textoDebug))
                 return true;
-          
+            
         } 
         return false;
         
@@ -208,7 +208,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
                     ultimo_NumeroAcertado.marcarJLabel(false);
                 jTextAreaLogger.append("< O Número " + numero+ " não existe no seu cartão! >\n");
             }
-        jLabelBigAtualNumero.setText(Integer.toString(numero));
+        jLabelBigAtualNumero.setText(String.format("%02d", numero));
         }else System.out.println("Esta a marcar numeros mas jogo nao foi iniciado");
     }
 
@@ -347,9 +347,11 @@ public final class JogadorGUI extends javax.swing.JFrame{
         //conectar se ao servidor
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR)); 
         jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
-        String textoDebug  = "ee";
+        StringBuilder textoDebug  = new StringBuilder("");
         if(!validarJogo(textoDebug)){
-            JOptionPane.showMessageDialog(this,"O cartão não é válido, por favor verifique os números!" + textoDebug,"Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+            this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
+            jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+            JOptionPane.showMessageDialog(this, textoDebug,"Cartão Inválido!",javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
         this.clientCommunication = new ClientCommunication(this);
@@ -442,8 +444,10 @@ public final class JogadorGUI extends javax.swing.JFrame{
             try {
              Integer.parseInt(msgRecebida);
             if(Integer.valueOf(msgRecebida) < 1)
-              throw new NumberFormatException();
+                throw new NumberFormatException();
             } catch (NumberFormatException e) {
+                System.out.println(msgRecebida+"fff");
+                
                 JOptionPane.showMessageDialog(this,"Ocorreu um erro ao validar a resposta do servidor, por favor tente novamente!","Erro!",javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -466,6 +470,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
                             throw new IOException();
                         if(modalWait.mensagem_recebida == null){
                             this.jTextAreaLogger.append("Cancelaste o jogo");
+                            this.clientCommunication.enviarMSG("quitGame->true");
                             this.clientCommunication.setTerminarJogo(true);
                             this.clientCommunication = null;
                             return;
@@ -510,6 +515,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
         if(!jButtonIniciarJogo.isEnabled())
             botoesEstadosModelos(0);
         novoJogo();
+        jTextAreaLogger.setText("");
     }//GEN-LAST:event_jButtonNovoCartaoActionPerformed
 
     private void jButtonTerminarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTerminarJogoActionPerformed
@@ -522,7 +528,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
         }
     
  
-
+        this.clientCommunication.enviarMSG("quitGame->true");
         this.jogoIniciado = false;
         this.clientCommunication.setTerminarJogo(true);
 
@@ -541,7 +547,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
      void novoJogo(){
         this.tema =  new Tema(Temas.values()[Cartao.randomNum(0, 2)]);
          jLabelBigAtualNumero.setTEMA(tema);
-         jLabelBigAtualNumero.setText(" ");
+         jLabelBigAtualNumero.setText("00");
          jPanelCartaoContent.setBackground(this.tema.PANEL_CONTENT_BACKGROUND);
          jPanelOpcoes.setBackground(this.tema.PANEL_OPCOES_BACKGROUND);
          this.ultimo_NumeroAcertado = null;
@@ -571,7 +577,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
 
         this.jogoIniciado = false;
         this.ultimo_NumeroAcertado = null;
-        this.jLabelBigAtualNumero.setText(" ");
+        this.jLabelBigAtualNumero.setText("00");
         Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel = LinhasDeLabel.iterator();
         while ( iteradorArrayListJLabel.hasNext()   ){
             ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();

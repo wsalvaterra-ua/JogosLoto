@@ -49,9 +49,6 @@ public class ClientCommunication extends SocketCommunicationStruct{
                             this.GUIJogo.sortearNumero(Integer.parseInt(dados.get("numeroSorteado")));
                         } catch (NumberFormatException n) {
                         }
-                    
-                    
-                    
                     if(dados.containsKey("jogoTerminou")){
                         String nomeDoJogador = null;
                         HashMap<String, Double> vencedores = new HashMap<>();
@@ -59,6 +56,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
                         if(dados.get("jogoTerminou").equals("true")){
                             this.terminarJogo = true;
                             //estrutura de dado de vencedor a receber: ID,recompensa,Nome
+                            Double valorpremio = -1.0;
                             if(dados.containsKey("vencedores"))
                                 for(String vencedorIT : dados.get("vencedores").split(";")){
                                     String[] vencedor = vencedorIT.split(",");
@@ -67,13 +65,22 @@ public class ClientCommunication extends SocketCommunicationStruct{
                                             if(vencedor[2].length()<1)
                                                 throw new NumberFormatException();
                                             vencedores.put(vencedor[2], Double.parseDouble(vencedor[1]));
-                                            if( Integer.valueOf(vencedor[0]) == this.jogadorID )
+                                            if( Integer.valueOf(vencedor[0]) == this.jogadorID ){
                                                 nomeDoJogador = vencedor[2];
+                                                valorpremio = Double.parseDouble(vencedor[1]);
+                                            }
+                                               
                                         } catch (NumberFormatException e) {
                                         }
                                 }
-                            
-                            
+                            if(valorpremio>0.0){
+                                JOptionPane.showMessageDialog(GUIJogo,  "Parabéns!\nO jogo terminou e tu ganhaste " + valorpremio +".","Ganhaste!",javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                            }else if( valorpremio==0.0){
+                                JOptionPane.showMessageDialog(GUIJogo,  "Parabéns!\nO jogo terminou e tu ganhaste.","Ganhaste!",javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                            }
+                            else if( valorpremio<0.0){
+                                JOptionPane.showMessageDialog(GUIJogo,  "Jogo terminou e infelizmente não ganhaste.","Perdeste!",javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                            }
                             ModalGameScores myDialog = new ModalGameScores(GUIJogo, true,vencedores , nomeDoJogador);
                             myDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                             myDialog.setLocationRelativeTo(GUIJogo);  
@@ -108,7 +115,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
             temErro = true; 
         } 
         if(temErro){
-            JOptionPane.showMessageDialog(GUIJogo,"Houve um erro de conexão! Jogo será recomeçado! Conecte-se novamente ao servidor","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(GUIJogo,"Houve um erro de conexão! Jogo será recomeçado! Conecte-se novamente ao servidor","Erro de Conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
             GUIJogo.resetarNumeros();
         }
         try {

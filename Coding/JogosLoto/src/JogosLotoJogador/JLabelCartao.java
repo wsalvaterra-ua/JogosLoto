@@ -40,7 +40,7 @@ public class JLabelCartao extends javax.swing.JLabel{
         this.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 4));
         this.setOpaque(false);
         this.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
-        this.setText("");
+        this.setText("00");
            
         this.setOpaque(true);
         

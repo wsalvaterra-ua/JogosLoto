@@ -189,13 +189,13 @@ public final class Cartao {
  */
     public boolean verificar_integridade(){
         
-      return  verificar_integridade("");
+      return  verificar_integridade(new StringBuilder(""));
     }
 /**
  *  Função para verificar se o Cartão cumpre as regras do Cartão de Jogo de Loto
  * @return  True se cartão for íntegro, False se cartão não cumprir as regras de um jogo de Loto
  */
-    public boolean verificar_integridade(String textoDebug){
+    public boolean verificar_integridade(StringBuilder textoDebug){
         final int  espacos_vazios_permitidos = colunas_dim - slot_numero_dim ;
         final int espacos_numeros_permitidos = slot_numero_dim;
         
@@ -213,7 +213,7 @@ public final class Cartao {
                         return false;
                     for(int b = 0; b < linhas_dim; b++)
                         if (LinhasArrayList.get(b) != LinhasArrayList.get(ln) && LinhasArrayList.get(b).containsKey(key)  && LinhasArrayList.get(b).get(key) != null){
-                            textoDebug.replace(textoDebug, textoDebug + "\n Existem dois números iguais na coluna " + c );
+                            textoDebug.append( textoDebug + "O número " + LinhasArrayList.get(b).get(key).getNumero() + " repete-se na coluna " + (c + 1) + "!\n" );
                             return false;
                         }
                     espacos_numeros_usados++;
@@ -222,7 +222,8 @@ public final class Cartao {
                 c++;
             }
             if(espacos_numeros_usados != espacos_numeros_permitidos || espacos_vazios_usados != espacos_vazios_permitidos){
-                textoDebug.replace(textoDebug, textoDebug + "\n Existem dois números iguais na coluna " + c );
+                textoDebug.append(textoDebug + "A linha " + (ln+1) +  " tem uma quantidade inválida de espaços vazios e números!\n");
+                
                 return false;
             }
         }
