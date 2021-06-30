@@ -18,14 +18,19 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 /**
- *
- * @author bil
+ * Classe que irá comunicar com o Servidor.
+
+ * @author Rui Oliveira e William Salvaterra
  */
 public class ClientCommunication extends SocketCommunicationStruct{
     private boolean temErro;
 
-    //compartilhar idJogador
+   
     private final JogadorGUI GUIJogo;
+    /**
+ * Método Construtor da Classe
+     * @param GUIJogo JogadorGUI a ser utilizado
+ */
     public ClientCommunication(JogadorGUI GUIJogo){
         super();
         temErro = false;
@@ -33,12 +38,16 @@ public class ClientCommunication extends SocketCommunicationStruct{
     }
 
  
-
+/**
+ * Método que é executado numa Thread diferente, fica a espera para receber mensagens do servidor. 
+ * Essas informaçoes podem ser: Número Sorteado, idDoUtilizador,e a informaçao de que o jogo terminou em conjunto com os seus vencedores.
+ * 
+ */
     @Override
     public void run() {
         try {
             while(!temErro  && !this.isTerminarJogo()){
-                String inpt_ = entrada().readLine();
+                String inpt_ = this.esperarMSG();
                 if(this.isTerminarJogo())
                     break;
                 if(inpt_ != null){
@@ -54,7 +63,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
                         HashMap<String, Double> vencedores = new HashMap<>();
                         System.out.println("dados de jogoterminou:" + dados.keySet());
                         if(dados.get("jogoTerminou").equals("true")){
-                            this.terminarJogo = true;
+                            this.setTerminarJogo(true);
                             //estrutura de dado de vencedor a receber: ID,recompensa,Nome
                             Double valorpremio = -1.0;
                             if(dados.containsKey("vencedores"))
@@ -65,7 +74,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
                                             if(vencedor[2].length()<1)
                                                 throw new NumberFormatException();
                                             vencedores.put(vencedor[2], Double.parseDouble(vencedor[1]));
-                                            if( Integer.valueOf(vencedor[0]) == this.jogadorID ){
+                                            if( Integer.valueOf(vencedor[0]) == this.getJogadorID() ){
                                                 nomeDoJogador = vencedor[2];
                                                 valorpremio = Double.parseDouble(vencedor[1]);
                                             }

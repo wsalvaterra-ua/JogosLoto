@@ -170,8 +170,11 @@ public class JLabelCartao extends javax.swing.JLabel{
             this.setBackground(this.TEMA.NUMERO_MARCADO_BACKGROUND);
     }
     
-    
-    public void desmarcarJLabel(){
+    /**
+ * Método que altera a Label para o estado inicial antes do jogo ser iniciado
+ * 
+ */
+    public void resetarJLabel(){
         this.jogoIniciado = false;
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         this.setBackground(this.TEMA.NUMERO_BACKGROUND);

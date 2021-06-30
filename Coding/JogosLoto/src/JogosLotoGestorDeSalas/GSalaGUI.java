@@ -285,6 +285,7 @@ public class GSalaGUI extends javax.swing.JFrame{
         jLabelBigLabelatualNumeroSorteado.setFont(new java.awt.Font("Tahoma", 0, 140)); // NOI18N
         jLabelBigLabelatualNumeroSorteado.setForeground(new java.awt.Color(0, 1, 0));
         jLabelBigLabelatualNumeroSorteado.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelBigLabelatualNumeroSorteado.setText("00");
         jLabelBigLabelatualNumeroSorteado.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 3));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -307,7 +308,7 @@ public class GSalaGUI extends javax.swing.JFrame{
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-// referencia https://stackoverflow.com/questions/26685326/clearing-a-jlist
+
     private void jButtonIniciarJogoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonIniciarJogoActionPerformed
        if(serversocket == null){
            this.reiniciar_UI(0);
@@ -334,9 +335,14 @@ public class GSalaGUI extends javax.swing.JFrame{
         jButtonTerminarJogo.setEnabled(true);
         
     }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
+  /**
+ * Método que ativa ou desativa botão para Sortear Números
+
+ * 
+     * @param estado Novo estado para o botão: True = Ativado, False = Desativado
+ */
     public void estado_BotaoSortear(boolean estado){
         jButtonatuallNumeroSorteado.setEnabled(estado);
-        
     }
     private void jButtonatuallNumeroSorteadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonatuallNumeroSorteadoActionPerformed
         if(!jButtonatuallNumeroSorteado.isEnabled())
@@ -350,7 +356,6 @@ public class GSalaGUI extends javax.swing.JFrame{
                 return;
             }
         }
-        
         jLabelBigLabelatualNumeroSorteado.setText(String.format("%02d", numRand));
         this.serversocket.enviarMSG("numeroSorteado->" + Integer.toString(numRand));
         modelNumerosSorteados.addElement(numRand);
@@ -385,7 +390,7 @@ public class GSalaGUI extends javax.swing.JFrame{
         this.jButtonIniciarJogo.setEnabled(true);
         this.jButtonIniciarJogo.setText("Hospedar");
         this.jButtonatuallNumeroSorteado.setEnabled(false);
-        this.jLabelBigLabelatualNumeroSorteado.setText("");
+        this.jLabelBigLabelatualNumeroSorteado.setText("00");
         this.jButtonTerminarJogo.setEnabled(false);
         this.pack();
     }
@@ -465,13 +470,19 @@ public class GSalaGUI extends javax.swing.JFrame{
                 modelApostas.addElement(nomeJogadorNovo + "->" +  jogadorValorAposta);
 
     }
+/**
+ * Este método limpa todas as apostas feitas
+ */
     public void clearApostas(){
         DefaultListModel listModel = (DefaultListModel) jListTrueApostas.getModel();
         listModel.removeAllElements();
         this.sessaoDeJogo.clearApostas();
         
     }
-
+/**
+ * Método que verifica se dados jogadores passados como pârametro realmente têm nos seus respetivos cartões os números sorteados e se assim for para algum jogador entao  o jogo é terminado e os clientes conectados são avisados de queo o jogo terminou e os seus respetivos vencedores.
+     * @param finalistasDadosEntrada Lista de candidatos a vencer o jogo.
+ */
     public boolean finalizarJogo(ArrayList<String[]> finalistasDadosEntrada){
         
         if(sessaoDeJogo.getNumerosSorteados().size() < 15 )

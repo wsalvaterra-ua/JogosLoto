@@ -63,23 +63,15 @@ public final class JogadorGUI extends javax.swing.JFrame{
 /**
  * Contrói o JogosDeLoto com interface gráfica com um cartão com 3 linhas, 5 colunas e 5 números em posições aleatórias por linha
  */
-
-
     public JogadorGUI() {
         super();
-        
-        
-        
          this.tema =  new Tema(Temas.values()[Cartao.randomNum(0, 2)]);
          //Cores dos JPaneis sao declaradas no método initComponents
         initComponents();
         
-        
-        
         this.jogoIniciado = false;
         this.LinhasDeLabel = new ArrayList<>();
         this.cartao = new Cartao(JogadorGUI.COLUNAS_DIM,JogadorGUI.LINHAS_DIM,JogadorGUI.QTD_NUMEROS_DIM);
-        
         
         ultimo_NumeroAcertado = null;
         jLabelBigAtualNumero = new JLabelCartao( tema.TEMA);
@@ -101,8 +93,6 @@ public final class JogadorGUI extends javax.swing.JFrame{
  * Método que adiciona os números do Cartão e adiciona-os a Interface gráfica
  */
     private void construirCartao(){
-        
-
         jTextAreaLogger.setBackground(tema.PANEL_CONTENT_BACKGROUND);
         
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
@@ -146,11 +136,9 @@ public final class JogadorGUI extends javax.swing.JFrame{
                     int max =  Cartao.getColumnMax(i, COLUNAS_DIM );
                     if(jlabelcartao.getSlot_numero() != null){
                         if(jlabelcartao.getSlot_numero().getNumero() < min || jlabelcartao.getSlot_numero().getNumero() > max){
-                            
                             return false;
                         }
                         colunaCartao.put(jlabelcartao.getSlot_numero().getNumero(),jlabelcartao.getSlot_numero());
-
                     }
                     else
                         colunaCartao.put( Cartao.randomNum(Cartao.getColumnMin(i), Cartao.getColumnMax(i, COLUNAS_DIM )), null);
@@ -163,7 +151,13 @@ public final class JogadorGUI extends javax.swing.JFrame{
         return false;
         
     }
-     void sortearNumero(int numero){
+    /**
+ * Método que recebe como parâmetro um número e tenta marca-lo no cartao do jogador, e caso o jogador tenha marcado todos os números no cartão este informa 
+ * ao servidor que já terminou o cartao e envia também a chave para decriptar os números.
+ * 
+     * @param numero Número a ser sorteado
+ */
+    protected void sortearNumero(int numero){
        if(jogoIniciado){
            //verificar se o numero foi sorteado, marcar o numero no GUI 
             boolean temNumerosNaoMarcados = false;
@@ -365,11 +359,14 @@ public final class JogadorGUI extends javax.swing.JFrame{
         }
         
         iniciarJogo();
-        
+        this.jButtonIniciarJogo.setText("Iniciar Novo Jogo");
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
         jButtonIniciarJogo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
     }//GEN-LAST:event_jButtonIniciarJogoActionPerformed
-  
+  /**
+ * Método chamado após o cartao do jogador ser validado e este conectar-se ao servidor,
+ * este método envia a aposta e o nome do jogador, o cartão encriptado,  e aguarda que o servidor o informe de que o jogo já começou.
+ */
     private void iniciarJogo(){
         //gerar chaveDecriptar para decriptar cartão no servidor
         char[] key = new char[Cartao.randomNum(6,15)];
@@ -386,7 +383,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
                     key[i] = (char)Cartao.randomNum(97,122);
                     break; 
             } 
-            this.clientCommunication.addChave(String.valueOf(key));
+            this.clientCommunication.setChave(String.valueOf(key));
             
         }
         //encriptar cartao com chaveDecriptar
@@ -543,38 +540,40 @@ public final class JogadorGUI extends javax.swing.JFrame{
         
         
     }//GEN-LAST:event_jButtonTerminarJogoActionPerformed
-    
-     void novoJogo(){
+    /**
+ * Método que reseta a UI e os dados para o seu estado inicial criando novos números para o cartão
+ */
+    protected void novoJogo(){
         this.tema =  new Tema(Temas.values()[Cartao.randomNum(0, 2)]);
-         jLabelBigAtualNumero.setTEMA(tema);
-         jLabelBigAtualNumero.setText("00");
-         jPanelCartaoContent.setBackground(this.tema.PANEL_CONTENT_BACKGROUND);
-         jPanelOpcoes.setBackground(this.tema.PANEL_OPCOES_BACKGROUND);
-         this.ultimo_NumeroAcertado = null;
+        jLabelBigAtualNumero.setTEMA(tema);
+        jLabelBigAtualNumero.setText("00");
+        jPanelCartaoContent.setBackground(this.tema.PANEL_CONTENT_BACKGROUND);
+        jPanelOpcoes.setBackground(this.tema.PANEL_OPCOES_BACKGROUND);
+        this.ultimo_NumeroAcertado = null;
  
         jPanelCartaoContent.removeAll();
         jlabelTips.setVisible(true);
         jPanelCartaoContent.updateUI();
         this.jogoIniciado = false;
         this.LinhasDeLabel.clear();
-
         
         this.cartao = new Cartao(JogadorGUI.COLUNAS_DIM,JogadorGUI.LINHAS_DIM,JogadorGUI.QTD_NUMEROS_DIM);
         this.construirCartao();
         if(clientCommunication != null)
             this.clientCommunication.isTerminarJogo();
         this.clientCommunication = null;
-        
-        
     }
+/**
+ * Método que coloca a UI no estado inicial mantendo os números anteriores.
+ * 
+ */
      public void resetarNumeros(){
         this.botoesEstadosModelos(0);
         if(this.clientCommunication != null){
             this.clientCommunication.setTerminarJogo(true);
             this.clientCommunication = null;
         }
-
-
+        
         this.jogoIniciado = false;
         this.ultimo_NumeroAcertado = null;
         this.jLabelBigAtualNumero.setText("00");
@@ -582,7 +581,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
         while ( iteradorArrayListJLabel.hasNext()   ){
             ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();
             for(JLabelCartao jlabelcartao : colunaJLabel)
-                jlabelcartao.desmarcarJLabel();
+                jlabelcartao.resetarJLabel();
         }
      }
     /**
@@ -621,6 +620,14 @@ public final class JogadorGUI extends javax.swing.JFrame{
             }
         });
     }
+/**
+ * Método que altera o estado do grupo de botoes na UI consoante o número do parâmetro.
+ * 
+     * @param estado Estado do botão:
+     * 0 Ativa Botao Iniciar Jogo, Desativa Botao Terminar Jogo, Ativa Botao Novo Cartao
+     * 1 Desativa Botao Iniciar Jogo, Desativa Botao Terminar Jogo, Ativa Botao Novo Cartao
+     * Qualquer outro numero  Desativa Botao Iniciar Jogo, Desativa Botao Terminar Jogo, Ativa Botao Novo Cartao
+ */
     public void botoesEstadosModelos(int estado){
         
         switch(estado){

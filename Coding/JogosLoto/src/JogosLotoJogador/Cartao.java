@@ -193,6 +193,7 @@ public final class Cartao {
     }
 /**
  *  Função para verificar se o Cartão cumpre as regras do Cartão de Jogo de Loto
+     * @param textoDebug StringBuilder para ser alterado por referencia que conterá as mensagens de erro que o método detetar
  * @return  True se cartão for íntegro, False se cartão não cumprir as regras de um jogo de Loto
  */
     public boolean verificar_integridade(StringBuilder textoDebug){

@@ -16,7 +16,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Fonte: https://howtodoinjava.com/java/java-security/java-aes-encryption-example/
- * @author bil
  */
 public class EncriptacaoAES {
  

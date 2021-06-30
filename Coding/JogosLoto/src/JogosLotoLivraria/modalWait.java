@@ -9,30 +9,45 @@ import JogosLotoLivraria.SocketCommunicationStruct;
 import java.io.IOException;
 
 /**
+ *Classe que cria uma caixa de dialogo em Interface gráfica para informar ao utilizador que este deve aguardar qualquer coisa
+ * @author William Salvaterra e Rui Oliveira
  *
- * @author bil
  */
 public class modalWait extends javax.swing.JDialog implements Runnable{
     private SocketCommunicationStruct socket_comm;
+    /**
+ *  Mensagem recebida
+ */ 
     public  String mensagem_recebida;
+    /**
+ * True se Houve algum erro ao esperar por uma mensagem
+ */ 
     public boolean conexao_Falhou;
     private int tempoEsperar; 
     /**
-     * Creates new form modalWait
+     * Construtor da Classe
+     * @param parent Objeto Pai
+     * @param modal Modal ou Nao
+     * @param LoadingTexto Texto que aparecerá na label
+     * @param BotaoTexto Texto que aparecerá no botao
      */
     public modalWait(java.awt.Frame parent, boolean modal, String LoadingTexto,String BotaoTexto) {
         super(parent, modal);
-        
-
         initComponents();
         this.jProgressBar1.setString(LoadingTexto);
         this.jButtonCancelar.setText(BotaoTexto);
         conexao_Falhou = false;
         tempoEsperar = -1;
-        this.setLocationRelativeTo(parent);
-        this.setVisible(true);
+        super.setLocationRelativeTo(parent);
+        super.setVisible(true);
     }
-    
+        /**
+     * Construtor da Classe
+     * @param parent Objeto Pai
+     * @param modal Modal ou Nao
+     * @param LoadingTexto Texto que aparecerá na label
+     * @param tempoEsperar Tempo que limite para aguardar resposta do servidor
+     */
     public modalWait(java.awt.Frame parent, boolean modal, String LoadingTexto,int tempoEsperar) {
         super(parent, modal);
         this.tempoEsperar = tempoEsperar;
@@ -40,13 +55,20 @@ public class modalWait extends javax.swing.JDialog implements Runnable{
         t.start();
         initComponents();
         this.jProgressBar1.setString(LoadingTexto);
-        getContentPane().remove(jButtonCancelar);
+        super.getContentPane().remove(jButtonCancelar);
         conexao_Falhou = false;
 
-        this.setLocationRelativeTo(parent);
-        this.setVisible(true);
+        super.setLocationRelativeTo(parent);
+        super.setVisible(true);
     }
-    
+        /**
+     * Construtor da Classe
+     * @param parent Objeto Pai
+     * @param modal Modal ou Nao
+     * @param LoadingTexto Texto que aparecerá servidor
+     * @param BotaoTexto Texto que aparecerá na label
+     * @param socketcomm Socket usado para ler a mensagem
+     */
     public modalWait(java.awt.Frame parent, boolean modal, String LoadingTexto,String BotaoTexto , SocketCommunicationStruct socketcomm) {
         super(parent, modal);
         this.socket_comm = socketcomm;
@@ -59,9 +81,9 @@ public class modalWait extends javax.swing.JDialog implements Runnable{
         tempoEsperar = -1;
         this.socket_comm = socketcomm;
         this.mensagem_recebida = null;
-        this.setLocationRelativeTo(parent);  
+        super.setLocationRelativeTo(parent);  
         conexao_Falhou = false;
-        this.setVisible(true);
+        super.setVisible(true);
         
     }
 
@@ -127,12 +149,18 @@ public class modalWait extends javax.swing.JDialog implements Runnable{
     public javax.swing.JButton jButtonCancelar;
     private javax.swing.JProgressBar jProgressBar1;
     // End of variables declaration//GEN-END:variables
-    
+    /**
+     * Método que retorna o tempo restante
+ *
+     * @return Tempo Restante
+ */
     public int getTempoRestante(){
         return tempoEsperar;
     }
     
-    
+    /**
+     *  Método executado numa thread diferente espera uma mensagem do servidor
+ */
     @Override
     public void run() {
         //tempo é contado dessa forma para evitar que o utilizador carregue no X e "sabote" o tempo .  

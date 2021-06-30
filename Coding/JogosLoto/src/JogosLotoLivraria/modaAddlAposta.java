@@ -5,7 +5,6 @@
  */
 package JogosLotoLivraria;
 
-import java.math.BigInteger;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 

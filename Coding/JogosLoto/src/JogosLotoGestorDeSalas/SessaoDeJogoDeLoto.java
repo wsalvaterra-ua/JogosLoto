@@ -105,6 +105,10 @@ public class SessaoDeJogoDeLoto {
     public HashMap<Integer, Double> getApostasFeitas() {
         return apostasFeitas;
     }
+/**
+ * Método que limpa todas as apostas feitas.
+ * 
+ */
     public void clearApostas(){
         apostasFeitas.clear();
     }

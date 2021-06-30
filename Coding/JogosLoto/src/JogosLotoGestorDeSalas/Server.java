@@ -13,18 +13,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
   
-// Server class
+/**
+ * Classe que atua como intermediário entre os clientes conectados e o GUI.
+ *  
+ * 
+ * @author Rui Oliveira e William Salvaterra
+ */
 public class Server implements Runnable
 {
     
     private boolean terminarJogo;
+/**
+ * Propriedade que tira o servidor do modo de aceitação de novos clientes
+ */
     protected boolean inscricaoDeJogadoresTerminou;
 
     private final GSalaGUI GestorGUI;
     private final HashMap<Integer,ServerCommunication> jogadoresSocket;
 
-    ServerSocket serverSocket;
-    
+    private final ServerSocket serverSocket;
+/**
+ * Construtor da Classe.Um servidor é criado.
+     * @param gestorDeSala Gestor de Sala a ser utilizado
+ */
     public Server( GSalaGUI gestorDeSala) throws IOException{
         super();
         
@@ -38,7 +49,9 @@ public class Server implements Runnable
 
         jogadoresSocket = new HashMap<>();
     }
-    
+/**
+ * Método que será executado noutro Thread, este método receberá os clientes no servidor, e verficará se algum Cliente completou o seu cartão ou saiu do jogo.
+ */  
     @Override
     public void run() {
         synchronized(jogadoresSocket)
@@ -144,17 +157,27 @@ public class Server implements Runnable
         }
    }
 
-
+/**
+ *Método que envia uma mensagem para todos os sockets conectados
+     * @param msg Mensagem a ser enviada
+ */  
     public void enviarMSG(String msg) {
         for(int i: jogadoresSocket.keySet())
             jogadoresSocket.get(i).enviarMSG(msg);
     }
     
 
-
+/**
+ * Método que envia informa a todos os clientes conectados de que o jogo iniciou.
+ */  
     public void iniciar_jogo(){
         this.enviarMSG("jogoIniciado->true");
     }
+ /**
+ * Método que retorna o nome de um utilizador .
+     * @param jogadorID ID do Jogador alvo
+     * @return Nome do Jogaodr
+ */  
     public String getJogadorNome(int jogadorID){
         if(!this.jogadoresSocket.containsKey(jogadorID)){
             System.out.println("nome vazio?");
@@ -163,8 +186,6 @@ public class Server implements Runnable
         return this.jogadoresSocket.get(jogadorID).getNomeJogador();
         
     }
-    
-
     private void receberClientes() {
 // referencia: https://www.baeldung.com/java-measure-elapsed-time
 
@@ -218,13 +239,12 @@ public class Server implements Runnable
          
             }
     }
-
+/**
+ * Método que altera o estado do jogo para Terminado ou Não.
+     * @param tterminarJogo Novo Estado do Jogo
+ */ 
     public void setTerminarJogo(boolean tterminarJogo) {
         this.terminarJogo = tterminarJogo;
     }
-
- 
-
-
 }
   
