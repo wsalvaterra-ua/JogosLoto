@@ -1,4 +1,4 @@
-# LP-JogosLoto-2021
+# Jogo do Loto
 Jogos Loto(Ou Bingo) com interface gráfica
 
 Interface Gráfica Jogador:
