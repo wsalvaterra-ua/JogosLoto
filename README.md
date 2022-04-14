@@ -1,4 +1,8 @@
 # LP-JogosLoto-2021
-Jogos Loto com interface gráfica
-Jogo Possui Gestor e Jogador
-![image description](Docs/Screenshot_222.png)
+Jogos Loto(Ou Bingo) com interface gráfica
+
+Interface Gráfica Jogador:
+![Interface Gráfica Jogador](Docs/Screenshot_222.png)
+
+Interface Gráfica Gestor de Mesas:
+![Interface Gráfica Hospedeiro](Docs/Screenshot_223.png)
