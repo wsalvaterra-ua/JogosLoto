@@ -323,7 +323,7 @@ public class GSalaGUI extends javax.swing.JFrame{
                 return;
             } catch (IOException ex) {
                 
-                JOptionPane.showMessageDialog(this,  "Não foi possível criar o servidor, certifique-se de que a porta " + ServerCommunication.PORTA +" não está ocupada!","Erro!",javax.swing.JOptionPane.ERROR_MESSAGE); 
+                JOptionPane.showMessageDialog(this,  "Não foi possível criar o servidor, certifique-se de que a porta " + ServerCommunication.PORTA() +" não está ocupada!","Erro!",javax.swing.JOptionPane.ERROR_MESSAGE); 
                 return;
             }
        }

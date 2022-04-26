@@ -5,6 +5,7 @@
  */
 
 
+import JogosLotoLivraria.SocketCommunicationStruct;
 import JogosLotoLivraria.modalWait;
 import java.io.*;
 import java.util.*;
@@ -42,7 +43,7 @@ public class Server implements Runnable
         GestorGUI = gestorDeSala;
         serverSocket = new ServerSocket();
         serverSocket.setReuseAddress(true);
-        serverSocket.bind(new InetSocketAddress(ServerCommunication.PORTA));
+        serverSocket.bind(new InetSocketAddress(ServerCommunication.PORTA()));
 
         terminarJogo = false;
         inscricaoDeJogadoresTerminou  = false;
