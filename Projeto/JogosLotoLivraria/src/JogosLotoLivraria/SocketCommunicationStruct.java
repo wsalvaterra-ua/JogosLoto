@@ -6,19 +6,13 @@
 package JogosLotoLivraria;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
-
 import java.util.HashMap;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -29,14 +23,7 @@ import java.util.regex.Pattern;
 public abstract class SocketCommunicationStruct implements Runnable{
     
     private Socket socket;
-    /**
-     * Número de Porta da porta a ser utilizada  default
-    */
-    public static final int PORTA = 5056;
-    /**
-     * Endereço do Servidor a ser utilizado
-    */
-    private static final String ENDERECO = "localhost";
+
     private PrintWriter saida;
     private BufferedReader entrada;
     private boolean terminarJogo;
@@ -76,7 +63,7 @@ public abstract class SocketCommunicationStruct implements Runnable{
     public synchronized boolean conectar(){
         try {
             if(socket == null)
-                socket = new Socket(this.ENDERECO(),this.PORTA());
+                socket = new Socket(readConfig.getEndereco(),readConfig.getPorta());
             saida = new PrintWriter(socket.getOutputStream(), true);
             entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             return true;
@@ -182,78 +169,5 @@ public abstract class SocketCommunicationStruct implements Runnable{
  */ 
     public int getJogadorID() {
         return jogadorID;
-    }
-    
-    
-    public static int PORTA() {
- String file = "config.conf";
-        File ficheiro = new File(file);
-
-                
-        Scanner sc;
-        try {
-            sc = new Scanner(ficheiro);
-        } catch (FileNotFoundException ex) {
-            return SocketCommunicationStruct.PORTA;
-        }
-
-                // String to be scanned to find the pattern.
-        String pattern = "(porta)\\s*=\\s*([0-9]{1,5})";
-        //        String pattern = "^([a-z]+)\\\\s*=\\\\s*(\\\\S+)$";
-        // Create a Pattern object
-        String currentLine;
-            
-        while (sc.hasNext()) {
-                        currentLine = sc.nextLine();
-            Pattern r = Pattern.compile(pattern);
-            // Now create matcher object.
-            Matcher m = r.matcher(currentLine.toLowerCase());
-
-            if (m.find()) {
-                if(Integer.valueOf(m.group(2)) > 65535)
-                    return SocketCommunicationStruct.PORTA;
-                return Integer.valueOf(m.group(2));
-            }
-        }
-        sc.close();
-        return SocketCommunicationStruct.PORTA;
-
-    }
-    
-        public static String ENDERECO()  {
-        
-        String file = "config.conf";
-        File ficheiro = new File(file);
-
-                
-        Scanner sc;
-        try {
-            sc = new Scanner(ficheiro);
-        } catch (FileNotFoundException ex) {
-            return SocketCommunicationStruct.ENDERECO;
-        }
-
-        // String to be scanned to find the pattern.
-        String pattern = "(ip)\\s*=\\s*((?:[0-9]{1,3}\\.){3}[0-9]{1,3})";
-        //        String pattern = "^([a-z]+)\\\\s*=\\\\s*(\\\\S+)$";
-        // Create a Pattern object
-        String currentLine;
-            
-        while (sc.hasNext()) {
-                        currentLine = sc.nextLine();
-            Pattern r = Pattern.compile(pattern);
-            // Now create matcher object.
-            Matcher m = r.matcher(currentLine.toLowerCase());
-
-            if (m.find()) 
-                return (m.group(2));
-        }
-        sc.close();
-        return SocketCommunicationStruct.ENDERECO;
-
-    }
-
-
-
-    
+    } 
 }

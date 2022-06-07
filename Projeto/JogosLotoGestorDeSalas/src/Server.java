@@ -5,8 +5,9 @@
  */
 
 
-import JogosLotoLivraria.SocketCommunicationStruct;
+
 import JogosLotoLivraria.modalWait;
+import JogosLotoLivraria.readConfig;
 import java.io.*;
 import java.util.*;
 import java.net.*;
@@ -43,7 +44,7 @@ public class Server implements Runnable
         GestorGUI = gestorDeSala;
         serverSocket = new ServerSocket();
         serverSocket.setReuseAddress(true);
-        serverSocket.bind(new InetSocketAddress(ServerCommunication.PORTA()));
+        serverSocket.bind(new InetSocketAddress(readConfig.getPorta()));
 
         terminarJogo = false;
         inscricaoDeJogadoresTerminou  = false;
@@ -124,11 +125,24 @@ public class Server implements Runnable
                     if(this.GestorGUI.finalizarJogo(finalistas)){
                         this.terminarJogo = true;
                     }else{
-
+    
                         String mensagem = "O(s) jogador(es) ";
-                        for( ServerCommunication jogador : this.jogadoresSocket.values())
+                        
+                        for(int i=0; i < finalistas.size();i++){
+                            ServerCommunication jogador = jogadoresSocket.get(Integer.valueOf(finalistas.get(i)[0]));
                             mensagem+= jogador.getNomeJogador() + ", ";
-                        mensagem+=" tentaram terminar o jogo mas não têm números sorteados suficientes no cartão para o fazer";
+                            mensagem+=" tentou(aram) terminar o jogo mas não têm/tem números sorteados suficientes no cartão para o fazer,"
+                                    + "consequentemente foram expulsos do jogo.";
+                            jogador.enviarMSG("cheated->true");
+                            jogador.setTerminarJogo(true);
+                            jogadoresSocket.remove(Integer.valueOf(finalistas.get(i)[0]));
+                            
+                        }
+                        GestorGUI.clearApostas();
+                        for (int b : jogadoresSocket.keySet()) 
+                            GestorGUI.addApostas(b,jogadoresSocket.get(b).getAposta());
+                        JOptionPane.showMessageDialog(this.GestorGUI, mensagem,
+                                        "Tentativa de Trapaça", JOptionPane.WARNING_MESSAGE);
                         GestorGUI.estado_BotaoSortear(true);
                     }
 

@@ -4,7 +4,9 @@
 
 
 import JogosLotoLivraria.EncriptacaoAES;
+
 import JogosLotoLivraria.modalWait;
+import JogosLotoLivraria.readConfig;
 import java.awt.GridBagConstraints;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,9 +54,10 @@ public final class JogadorGUI extends javax.swing.JFrame{
     
     private ClientCommunication clientCommunication; 
 
-    private final JLabelCartao jLabelBigAtualNumero;
+    public final JLabelCartao jLabelBigAtualNumero;
 
     private JLabelCartao ultimo_NumeroAcertado;
+    private boolean hideBigLabel; 
     
 /**
  * Contrói o JogosDeLoto com interface gráfica com um cartão com 3 linhas, 5 colunas e 5 números em posições aleatórias por linha
@@ -81,7 +84,9 @@ public final class JogadorGUI extends javax.swing.JFrame{
         gridBagConstraints.weighty = 0.1;
         gridBagConstraints.ipadx = 80;
         gridBagConstraints.insets = new java.awt.Insets(1, 0, 0, 1);
-        getContentPane().add(jLabelBigAtualNumero, gridBagConstraints);
+        this.hideBigLabel = readConfig.hideBigLabel();
+        if(!hideBigLabel)
+          getContentPane().add(jLabelBigAtualNumero, gridBagConstraints);
         construirCartao();
     }
     
@@ -90,7 +95,8 @@ public final class JogadorGUI extends javax.swing.JFrame{
  */
     private void construirCartao(){
         jTextAreaLogger.setBackground(tema.PANEL_CONTENT_BACKGROUND);
-        
+        //se cartoes serao manualmente escolhidos pelo jogador ou sera feito automaticamente
+        boolean cartoesClicaveis = readConfig.cardsIteratible();
         Iterator<HashMap<Integer,Slot_Numero >> iteradorArrayList = cartao.getLinhasArrayList().iterator();
         
         while ( iteradorArrayList.hasNext() ){
@@ -102,7 +108,8 @@ public final class JogadorGUI extends javax.swing.JFrame{
             int y =0;
             for (int i : sortedKeys) {
                 
-                JLabelCartao customLabel = new JLabelCartao(coluna.get(i), tema.TEMA , y);
+                JLabelCartao customLabel = new JLabelCartao(coluna.get(i), tema.TEMA , y,this);
+//                customLabel.jogadorGUI = (coluna.get(i) !=null && cartoesClicaveis)? this:null;
                 colunaJLabel.add(customLabel);
                 jPanelCartaoContent.add(customLabel);
                 y++;
@@ -153,6 +160,11 @@ public final class JogadorGUI extends javax.swing.JFrame{
  * 
      * @param numero Número a ser sorteado
  */
+//    public void editBigLabel(boolean found){
+//        
+//        if()
+//        
+//    }
     protected void sortearNumero(int numero){
        if(jogoIniciado){
            //verificar se o numero foi sorteado, marcar o numero no GUI 
@@ -164,7 +176,8 @@ public final class JogadorGUI extends javax.swing.JFrame{
                     if(jlabelcartao.getSlot_numero()!= null)
                         if(jlabelcartao.getSlot_numero()!= null)
                             if(jlabelcartao.getSlot_numero().getNumero() == numero){
-                                jLabelBigAtualNumero.setBackground(this.tema.NUMERO_ACERTADO_BACKGROUND);
+                                if(!this.hideBigLabel)
+                                    jLabelBigAtualNumero.setBackground(this.tema.NUMERO_ACERTADO_BACKGROUND);
                                 if(ultimo_NumeroAcertado != null)
                                     ultimo_NumeroAcertado.marcarJLabel(false);
                                 jlabelcartao.marcarJLabel(true);
@@ -192,12 +205,13 @@ public final class JogadorGUI extends javax.swing.JFrame{
                 } 
             }
             else{
-                jLabelBigAtualNumero.setBackground(this.tema.NUMERO_BACKGROUND);
+                
+                if(!this.hideBigLabel) jLabelBigAtualNumero.setBackground(this.tema.NUMERO_BACKGROUND);
                 if(ultimo_NumeroAcertado != null)
                     ultimo_NumeroAcertado.marcarJLabel(false);
                 jTextAreaLogger.append("< O Número " + numero+ " não existe no seu cartão! >\n");
             }
-        jLabelBigAtualNumero.setText(String.format("%02d", numero));
+        if(!this.hideBigLabel) jLabelBigAtualNumero.setText(String.format("%02d", numero));
         }
     }
 
@@ -344,6 +358,8 @@ public final class JogadorGUI extends javax.swing.JFrame{
             return;
         }
         this.clientCommunication = new ClientCommunication(this);
+        jTextAreaLogger.append("<A tentar conectar-se a IP: " +  readConfig.getEndereco()+ ">\n");
+        jTextAreaLogger.append("<A tentar conectar-se a porta " + readConfig.getPorta() + ">\n");
         if(!this.clientCommunication.conectar()){
             JOptionPane.showMessageDialog(this,"Não foi possivel estabelecer uma conexão com o servidor, por favor tente novamente","Erro ao conectar-se",javax.swing.JOptionPane.WARNING_MESSAGE);
             this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
@@ -352,7 +368,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
             this.clientCommunication = null;
             return;
         }
-        
+        jTextAreaLogger.append("<Conexão Estabelecida>\n");
         iniciarJogo();
         this.jButtonIniciarJogo.setText("Iniciar Novo Jogo");
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR)); 
@@ -530,7 +546,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
             return;
         }
         
-        resetarNumeros();
+        recomecarMesmoNumero();
         
         
     }//GEN-LAST:event_jButtonTerminarJogoActionPerformed
@@ -561,7 +577,7 @@ public final class JogadorGUI extends javax.swing.JFrame{
  * Método que coloca a UI no estado inicial mantendo os números anteriores.
  * 
  */
-     public void resetarNumeros(){
+     public void recomecarMesmoNumero(){
         this.botoesEstadosModelos(0);
         if(this.clientCommunication != null){
             this.clientCommunication.setTerminarJogo(true);
@@ -577,6 +593,18 @@ public final class JogadorGUI extends javax.swing.JFrame{
             for(JLabelCartao jlabelcartao : colunaJLabel)
                 jlabelcartao.resetarJLabel();
         }
+     }
+     public void resetarCartao(){
+        this.jLabelBigAtualNumero.setText("00");
+        Iterator<ArrayList<JLabelCartao >> iteradorArrayListJLabel = LinhasDeLabel.iterator();
+        while ( iteradorArrayListJLabel.hasNext()   ){
+            ArrayList<JLabelCartao> colunaJLabel = iteradorArrayListJLabel.next();
+            for(JLabelCartao jlabelcartao : colunaJLabel){
+                jlabelcartao.resetarJLabel();
+                jlabelcartao.setJogoIniciado(true);
+            }
+        }
+         
      }
     /**
      * @param args the command line arguments

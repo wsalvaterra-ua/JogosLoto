@@ -7,6 +7,7 @@
 
 import JogosLotoLivraria.SocketCommunicationStruct;
 import JogosLotoLivraria.ModalGameScores;
+import JogosLotoLivraria.readConfig;
 
 import java.io.IOException;
 
@@ -24,7 +25,8 @@ import javax.swing.JOptionPane;
  */
 public class ClientCommunication extends SocketCommunicationStruct{
     private boolean temErro;
-
+    public final static boolean cartoesClicaveis = readConfig.cardsIteratible();
+    public final static boolean hideBigLabel = readConfig.hideBigLabel();
    
     private final JogadorGUI GUIJogo;
     /**
@@ -52,10 +54,15 @@ public class ClientCommunication extends SocketCommunicationStruct{
                     break;
                 if(inpt_ != null){
                     HashMap<String,String> dados = ClientCommunication.decodificar(inpt_);
-
+                    
                     if(dados.containsKey("numeroSorteado"))
                         try {
-                            this.GUIJogo.sortearNumero(Integer.parseInt(dados.get("numeroSorteado")));
+                        
+                            if(!ClientCommunication.cartoesClicaveis)
+                                this.GUIJogo.sortearNumero(Integer.parseInt(dados.get("numeroSorteado")));
+                            else
+                                this.GUIJogo.jLabelBigAtualNumero.setText(String.format("%02d",
+                                        Integer.parseInt(dados.get("numeroSorteado"))));
                         } catch (NumberFormatException n) {
                         }
                     if(dados.containsKey("jogoTerminou")){
@@ -96,7 +103,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
                       
                             switch(myDialog.acao){
                                 case 0:
-                                    GUIJogo.resetarNumeros();
+                                    GUIJogo.recomecarMesmoNumero();
                                     break;
                                 case 1:
                                     GUIJogo.botoesEstadosModelos(0);
@@ -116,6 +123,17 @@ public class ClientCommunication extends SocketCommunicationStruct{
                       
                         }
                     } 
+                    
+                    if(dados.containsKey("cheated"))
+                        if(dados.get("cheated").equals("true")){
+                                        JOptionPane.showMessageDialog(GUIJogo, "Só deves marcar números que tenham "
+                                    + "sido sorteados pelo gestor.\n"
+                                    + "Foste consequentemente expulso da sessão, aguarde que o Gestor inicie uma nova sessão",
+                                        "Atenção!", JOptionPane.WARNING_MESSAGE);
+                         
+                            GUIJogo.recomecarMesmoNumero();
+        
+                        }
                 }     
                 Thread.sleep(ClientCommunication.INTERVALO_ATUALIZACAO);
             }
@@ -124,7 +142,7 @@ public class ClientCommunication extends SocketCommunicationStruct{
         } 
         if(temErro){
             JOptionPane.showMessageDialog(GUIJogo,"Houve um erro de conexão! Jogo será recomeçado! Conecte-se novamente ao servidor","Erro de Conexão",javax.swing.JOptionPane.WARNING_MESSAGE);
-            GUIJogo.resetarNumeros();
+            GUIJogo.recomecarMesmoNumero();
         }
         try {
             this.terminarConexao();

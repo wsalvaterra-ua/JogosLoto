@@ -5,6 +5,7 @@
  */
 
 
+import JogosLotoLivraria.readConfig;
 import java.awt.Color;
 import javax.swing.JOptionPane;
 
@@ -26,7 +27,8 @@ public class JLabelCartao extends javax.swing.JLabel{
  */
     private Tema TEMA;
     private  final int localizacaoColuna;
-
+    private JogadorGUI jogadorGUI;
+    public final static boolean cartoesClicaveis = readConfig.cardsIteratible();
     
     
      public JLabelCartao(Temas tema){
@@ -64,7 +66,7 @@ public class JLabelCartao extends javax.swing.JLabel{
      * @param slot_numero objeto Slot_Numero a ser utilizado
      * @param tema Tema a ser utilizado durante o jogo.
  */
-    public JLabelCartao(Slot_Numero slot_numero,Temas tema, int localizacaoColuna){
+    public JLabelCartao(Slot_Numero slot_numero,Temas tema, int localizacaoColuna, JogadorGUI jogadorGUI){
         super();
         this.TEMA = new Tema(tema);
         this.slot_numero = slot_numero;
@@ -103,7 +105,8 @@ public class JLabelCartao extends javax.swing.JLabel{
         }
 
     });
-     
+     this.jogadorGUI = jogadorGUI;
+   
     }
 
     public void setTEMA(Tema TEMA) {
@@ -120,8 +123,13 @@ public class JLabelCartao extends javax.swing.JLabel{
     }
 
     private void mouse_Clicked(){
-        if(this.jogoIniciado)
+        if(this.jogoIniciado){
+            if(JLabelCartao.cartoesClicaveis){
+                jogadorGUI.sortearNumero(this.slot_numero.getNumero() );
+                return;
+            }
             return;
+        }
         
         String resultado = (String)JOptionPane.showInputDialog( "Introduza o novo valor para o cartão! Para eliminar este cartão deixe o campo vazio!");
         if(resultado == null)
@@ -142,14 +150,16 @@ public class JLabelCartao extends javax.swing.JLabel{
                 else 
                     this.slot_numero = new Slot_Numero(Integer.valueOf(resultado));
                 this.setText(resultado);
+                
                 this.setOpaque(true);
+             
                 return;
             } catch (NumberFormatException e) {
 
                 JOptionPane.showMessageDialog(this,"Introduza um número inteiro entre 1 e 90","Verifique os dados",javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
-        
+    
         this.slot_numero = null;
         this.setText(" ");
         this.setOpaque(false);
